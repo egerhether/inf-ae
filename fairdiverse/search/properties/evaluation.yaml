@@ -1,4 +1,0 @@
-{
-   eval_steps: 10,
-   eval_batch_size: 8,
-}

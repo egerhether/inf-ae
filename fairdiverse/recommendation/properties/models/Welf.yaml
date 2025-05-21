@@ -1,6 +1,0 @@
-{
-  alpha1: 0.5,
-  alpha2: 2,
-  lambda: 0.4,
-  iter_num: 30,
-}
