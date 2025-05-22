@@ -42,6 +42,7 @@ def train(hyper_params, data):
 
     # Validate on the validation-set
     for lamda in [ 0.0, 1.0, 5.0, 20.0, 50.0, 100.0 ] if hyper_params['grid_search_lamda'] else [ hyper_params['lamda'] ]:
+        print("Checking lamda:",lamda)
         hyper_params['lamda'] = lamda
         val_metrics = evaluate(hyper_params, kernelized_rr_forward, data, item_propensity, sampled_matrix)
         if (best_metric is None) or (val_metrics[VAL_METRIC] > best_metric): best_metric, best_lamda = val_metrics[VAL_METRIC], lamda
