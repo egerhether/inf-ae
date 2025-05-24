@@ -7,7 +7,9 @@ import pandas as pd
 BASE_PATH = "data/"
 
 
-def prep_recbole(inter_file_path, user_id, item_id, rating_id, item_file_path, item_id_2):
+def prep_recbole(
+    inter_file_path, user_id, item_id, rating_id, item_file_path, item_id_2
+):
     """
     Process ML-1M dataset from RecBole format
     RecBole typically stores data in .inter files or in a processed format
@@ -30,9 +32,13 @@ def prep_recbole(inter_file_path, user_id, item_id, rating_id, item_file_path, i
     # First, check if the item file exists and load it
     if os.path.exists(item_file_path):
         if "original" not in item_file_path:
-            print("provide the original dataset as {dataset_path}_original.item as a new dataset will be created and to not be overwritten!")
-            raise Exception(f"Dataset was not found. I am looking for {dataset_path}_original.item.")
-        
+            print(
+                "provide the original dataset as {dataset_path}_original.item as a new dataset will be created and to not be overwritten!"
+            )
+            raise Exception(
+                f"Dataset was not found. I am looking for {dataset_path}_original.item."
+            )
+
         # RecBole .item files are typically tab-separated with headers
         item_df = pd.read_csv(item_file_path, sep="\t")
     else:
@@ -53,7 +59,7 @@ def prep_recbole(inter_file_path, user_id, item_id, rating_id, item_file_path, i
     # First, get all unique item IDs from both interactions and item file
     all_items = set()
     for item in items:
-        item_val = item.item() if hasattr(item, 'item') else item
+        item_val = item.item() if hasattr(item, "item") else item
         all_items.add(item_val)
 
     # Add items from item file if they're not already in the set
@@ -71,7 +77,9 @@ def prep_recbole(inter_file_path, user_id, item_id, rating_id, item_file_path, i
 
     # Verify the mapping is complete
     if len(map_item) != max_item_id + 1:
-        print(f"Warning: Item mapping has {len(map_item)} items but max ID is {max_item_id}")
+        print(
+            f"Warning: Item mapping has {len(map_item)} items but max ID is {max_item_id}"
+        )
         # Fill in any gaps if needed
         for i in range(max_item_id + 1):
             if i not in map_item.values():
@@ -83,43 +91,47 @@ def prep_recbole(inter_file_path, user_id, item_id, rating_id, item_file_path, i
 
     # Add valid interactions to the data structure
     for i in range(len(users)):
-        user_val = users[i].item() if hasattr(users[i], 'item') else users[i]
-        item_val = items[i].item() if hasattr(items[i], 'item') else items[i]
-        rating_val = ratings[i].item() if hasattr(ratings[i], 'item') else float(ratings[i])
-        
+        user_val = users[i].item() if hasattr(users[i], "item") else users[i]
+        item_val = items[i].item() if hasattr(items[i], "item") else items[i]
+        rating_val = (
+            ratings[i].item() if hasattr(ratings[i], "item") else float(ratings[i])
+        )
+
         # Skip if item is not in our mapping (shouldn't happen with our approach)
         if item_val not in map_item:
             print(f"Warning: Item {item_val} not found in mapping, skipping")
             continue
-            
+
         # Skip if user is not in our mapping (shouldn't happen with our approach)
         if user_val not in map_user:
             print(f"Warning: User {user_val} not found in mapping, skipping")
             continue
-        
+
         data[map_user[user_val]].append([map_item[item_val], rating_val])
 
     # Update the item file with new mappings
     if os.path.exists(item_file_path):
         # Create a new column with the mapped IDs
-        item_df['mapped_id'] = item_df[item_id_2].apply(
-            lambda x: map_item.get(x, float('nan')) if pd.notna(x) else float('nan')
+        item_df["mapped_id"] = item_df[item_id_2].apply(
+            lambda x: map_item.get(x, float("nan")) if pd.notna(x) else float("nan")
         )
-        
+
         # Drop rows where mapping failed
         before_count = len(item_df)
-        item_df = item_df.dropna(subset=['mapped_id'])
+        item_df = item_df.dropna(subset=["mapped_id"])
         after_count = len(item_df)
-        
+
         if before_count != after_count:
             print(f"Dropped {before_count - after_count} items that couldn't be mapped")
-        
+
         # Replace the original ID column with the mapped IDs
-        item_df[item_id_2] = item_df['mapped_id']
-        item_df = item_df.drop(columns=['mapped_id'])
-        
+        item_df[item_id_2] = item_df["mapped_id"]
+        item_df = item_df.drop(columns=["mapped_id"])
+
         # Save the updated item file
-        item_df.to_csv(item_file_path.replace("_original.", ".", 1), sep="\t", index=False)
+        item_df.to_csv(
+            item_file_path.replace("_original.", ".", 1), sep="\t", index=False
+        )
         print(f"Saved updated item file with {len(item_df)} items")
     return rating_data(data)
 

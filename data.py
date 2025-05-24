@@ -151,7 +151,9 @@ def load_raw_dataset(
         for genre in genre_list.strip("[]").split(", ")
     ]
     unique_genres_list = list(set(all_genres))
-    item_map_to_category = dict(zip(item_df[item_id].astype(int) + 1, item_df[category_id]))
+    item_map_to_category = dict(
+        zip(item_df[item_id].astype(int) + 1, item_df[category_id])
+    )
 
     def select(data, index, index_val):
         print(f"Selecting data with index value {index_val}")
