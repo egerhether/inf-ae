@@ -1,5 +1,10 @@
 results/
 
+# dont add RecBole dataset
+*.item
+*.inter
+*.user
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

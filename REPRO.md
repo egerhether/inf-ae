@@ -9,12 +9,14 @@ This document provides the full set of instructions to reproduce our project res
 ```bash
 .
 ├── data/                   # Contains raw and processed datasets
-├── src/                    # All source code (models, training, evaluation)
 ├── requirements.txt        # Python dependencies
 ├── README.md               # README file
 ├── REPRO.md                # This file
-├── XXXXX
-├── XXXXX
+├── data.py
+├── eval.py
+├── model.py
+├── preprocess.py
+├── hyper_params.py         # Modify this file to change the hyperparamets
 ```
 
 ---
@@ -22,14 +24,21 @@ This document provides the full set of instructions to reproduce our project res
 ## ⚙️ Environment Setup
 
 
-Setup project by running the following commands:
-
-
+Setup project by running the following commands or by checking `install_enviroment.job`:
 
 ```bash
 # Example -- overwrite if needed
-conda create -n XXXXX python=XXXX
-conda activate XXXXX
+# Create a clean environment
+conda create -n inf-ae python=3.9
+conda activate inf-ae
+
+# Install JAX with CUDA support from conda-forge
+conda install -c conda-forge "jaxlib=*=*cuda*" jax numpy=1.24 scipy
+
+# Install other basic dependencies
+conda install -c conda-forge matplotlib pandas
+
+# Install project-specific requirements
 pip install -r requirements.txt
 ```
 
@@ -37,16 +46,31 @@ pip install -r requirements.txt
 
 ## 📂 Download & Prepare Datasets
 
-Place your datasets in the `XXXX/` directory.
+## Creating Item Files for Gini Coefficient Analysis
 
-### Example Dataset
-```bash
-mkdir -p data/example_dataset
-cd data/example_dataset
-wget xxxxx
-python -m src.preprocess_example_dataset.py xxxx
-cd ../..
+- Create a tab-separated `.item` file containing at least `item_id` and `category` columns with headers
+- Place datasets in the `data/` directory
+
+## Using RecBole for Datasets
+
+To use RecBole follow their instraction in their [website](https://recbole.io/dataset_list.html). After you downloaded you need to configure the `preprocess.py` and run it by typing 
+
+```python
+python preprocess.py
 ```
+
+after that you need to just configure the `hyper_params` and you can execute the code.
+
+### ML-1M Special Handling
+
+For MovieLens-1M dataset, modify RecBole to handle Latin characters:
+
+```bash
+# In RecDatasets/conversion_tools/src/extended_dataset.py (line 232)
+origin_data = pd.read_csv(self.item_file, delimiter=self.sep, 
+                         header=None, engine='python', encoding='latin-1')
+```
+
 
 ---
 
@@ -57,51 +81,40 @@ Set your parameters in the config file before training. Example:
 
 ---
 
-## 🚀 5. Training
+## 🚀 5. Training - Evaluation
 
 ### Baselines
 
-Run the following command to train the baseline:
+Training and evaluation are performed in a single step, as traditional machine learning training is not required in this approach. To run the baseline, execute the following command:
 
 ```bash
-python XXXX
+CUDA_VISIBLE_DEVICES=0 python main.py
 ```
 
-To perform inference:
+Alternatively, execute the following slurm job:
 
 ```bash
-python XXXX
+sbatch job_scripts/run_experiments.job
 ```
 
-Alternatively, execute the following slurm jobs:
-
-```bash
-sbatch job_scripts/train_xxxxx.job
-sbatch job_scripts/infer_xxxxx.job
-```
-
----
-
-## 📈 Evaluation
-
-After training, evaluate all models with:
-
-```bash
-python XXXX
-```
-
----
-
-
-## 📎 Misc. Notes (optional)
-
----
 
 ## 📦 Dependencies / References
 
 This project repository uses the following frameworks / refers to the following papers:
 
-- XXX
-- XXX
+- [github repository](https://github.com/noveens/infinite_ae_cf)
+- [paper arxiv](https://arxiv.org/abs/2206.02626)
+
+The original authors citation:
+
+```
+@article{inf_ae_distill_cf,
+  title={Infinite Recommendation Networks: A Data-Centric Approach},
+  author={Sachdeva, Noveen and Dhaliwal, Mehak Preet and Wu, Carole-Jean and McAuley, Julian},
+  booktitle={Advances in Neural Information Processing Systems},
+  series={NeurIPS '22},
+  year={2022}
+}
+```
 
 
