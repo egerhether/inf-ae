@@ -250,10 +250,11 @@ def evaluate_batch(
             if USE_GINI:
                 # Update item exposures for this batch at this k
                 for item_idx in indices[b][:k]:
+                    category = data.data["item_map_to_category"].get(item_idx + 1)
                     user_recommendations[k].append(
                         {
                             "id": item_idx + 1,
-                            "category": data.data["item_map_to_category"][item_idx + 1],
+                            "category": category
                         }
                     )
 

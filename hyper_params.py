@@ -14,8 +14,8 @@
 
 hyper_params = {
     "dataset": "steam",
-    "item_id": "id:token",  # configure it based on the .item file
-    "category_id": "publisher:token",  # configure it based on the .item file
+    "item_id": "id",  # configure it based on the .item file
+    "category_id": "publisher",  # configure it based on the .item file
     "use_gini": True,
     "float64": False,
     "depth": 1,

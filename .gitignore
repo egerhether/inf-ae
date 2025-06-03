@@ -1,7 +1,7 @@
 results/
 
 # dont add RecBole dataset
-*.item
+#*.item
 *.inter
 *.user
 

@@ -151,6 +151,7 @@ def load_raw_dataset(
         for genre in genre_list.strip("[]").split(", ")
     ]
     unique_genres_list = list(set(all_genres))
+    #print(item_df[item_df[item_id].isna()])
     item_map_to_category = dict(
         zip(item_df[item_id].astype(int) + 1, item_df[category_id])
     )
