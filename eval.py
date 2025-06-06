@@ -7,8 +7,6 @@ import numpy as np
 
 from hyper_params import hyper_params
 
-USE_GINI = hyper_params["use_gini"]
-
 
 class GiniCoefficient:
     """
@@ -133,10 +131,11 @@ def evaluate(
             topk,
             metrics,
             data,
+            hyper_params
         )
         print(f"[EVALUATE] Batch evaluation complete")
 
-        if USE_GINI:
+        if hyper_params["use_gini"]:
             # Accumulate item exposures for GINI calculation
             for k in topk:
                 if k not in user_recommendations:
@@ -171,7 +170,7 @@ def evaluate(
             )
             print(f"[EVALUATE] {kind}@{k}: {metrics['{}@{}'.format(kind, k)]}")
 
-    if USE_GINI:
+    if hyper_params["use_gini"]:
         print("[EVALUATE] Computing GINI coefficients")
         for k in topk:
             print(
@@ -200,6 +199,7 @@ def evaluate_batch(
     topk,
     metrics,
     data,
+    hyper_params,
     train_metrics=False,
 ):
     print(f"[EVAL_BATCH] Starting batch evaluation with {len(logits)} users")
@@ -247,7 +247,7 @@ def evaluate_batch(
         hr_sum, ndcg_sum, psp_sum = 0, 0, 0
 
         for b in range(len(logits)):
-            if USE_GINI:
+            if hyper_params["use_gini"]:
                 # Update item exposures for this batch at this k
                 for item_idx in indices[b][:k]:
                     category = data.data["item_map_to_category"].get(item_idx + 1)
@@ -297,7 +297,7 @@ def evaluate_batch(
         print(
             f"[EVAL_BATCH] k={k} metrics - Average HR: {hr_sum/len(logits):.4f}, Average NDCG: {ndcg_sum/len(logits):.4f}, Average PSP: {psp_sum/len(logits):.4f}"
         )
-        if USE_GINI:
+        if hyper_params["use_gini"]:
             print(
                 f"[EVAL_BATCH] Collected {len(user_recommendations[k])} recommendations for k={k}"
             )
@@ -305,7 +305,7 @@ def evaluate_batch(
     print(
         f"[EVAL_BATCH] Batch evaluation complete, returning {len(temp_preds)} predictions"
     )
-    return metrics, temp_preds, temp_y, user_recommendations if USE_GINI else {}
+    return metrics, temp_preds, temp_y, user_recommendations if hyper_params["use_gini"] else {}
 
 
 @jit(float64(float64[:], float64[:]))

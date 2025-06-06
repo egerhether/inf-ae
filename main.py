@@ -1,4 +1,5 @@
 import os
+import sys
 
 os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"] = "false"
 os.environ["TF_FORCE_UNIFIED_MEMORY"] = "1"
@@ -106,5 +107,9 @@ def main(hyper_params, gpu_id=None):
 
 if __name__ == "__main__":
     from hyper_params import hyper_params
+    if len(sys.argv) > 1:
+        dataset = sys.argv[1]
+    print(f"Performing analysis for dataset {dataset}")
+    params = hyper_params[dataset]
 
-    main(hyper_params)
+    main(params)
