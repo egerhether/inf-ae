@@ -1,12 +1,8 @@
 import jax
-import numpy as np
 import jax.numpy as jnp
-from numba import jit, float64
-
 import numpy as np
 
 from hyper_params import hyper_params
-
 import eval_metrics
 
 
@@ -156,8 +152,11 @@ def evaluate(
     print(f"[EVALUATE] All batches processed, computing final metrics")
     y_binary, preds = np.array(y_binary), np.array(preds)
     if (True not in np.isnan(y_binary)) and (True not in np.isnan(preds)):
-        metrics["AUC"] = round(fast_auc(y_binary, preds), 4)
-        print(f"[EVALUATE] Computed AUC: {metrics['AUC']}")
+        try:
+            metrics["AUC"] = round(eval_metrics.calculate_auc(y_binary, preds), 4)
+            print(f"[EVALUATE] Computed AUC: {metrics['AUC']}")
+        except ValueError:
+            print(f"[EVALUATE] WARNING: AUC is undefined when y_binary is only 1s or only 0s. Skipping...")
     else:
         print(
             "[EVALUATE] Warning: NaN values detected in y_binary or preds, skipping AUC calculation"
@@ -314,14 +313,3 @@ def evaluate_batch(
         f"[EVAL_BATCH] Batch evaluation complete, returning {len(temp_preds)} predictions"
     )
     return metrics, temp_preds, temp_y, user_recommendations if hyper_params["use_gini"] else {}
-
-
-@jit(float64(float64[:], float64[:]))
-def fast_auc(y_true, y_prob):
-    # Note: Can't add prints here because this function is JIT-compiled
-    y_true = y_true[np.argsort(y_prob)]
-    nfalse, auc = 0, 0
-    for i in range(len(y_true)):
-        nfalse += 1 - y_true[i]
-        auc += y_true[i] * nfalse
-    return auc / (nfalse * (len(y_true) - nfalse))

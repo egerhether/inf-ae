@@ -11,6 +11,7 @@ dependencies:
   - numba
   - pandas
   - tqdm
+  - scikit-learn
   - pip:
       - jax==0.4.23 # higher than this breaks `from jax import random`
       - neural_tangents>=0.5.0

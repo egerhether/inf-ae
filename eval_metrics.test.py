@@ -96,6 +96,54 @@ class Testeval_CalculateNDCG(unittest.TestCase):
         with self.assertRaises(ZeroDivisionError):
              eval_metrics.calculate_ndcg(recommendations, ground_truth, k)
 
+class TestCalculateAUC(unittest.TestCase):
+
+    def test_perfect_ranking_is_one(self):
+        y_true = [0, 0, 1, 1]
+        y_prob = [0.1, 0.2, 0.8, 0.9]
+        self.assertAlmostEqual(eval_metrics.calculate_auc(y_true, y_prob), 1.0)
+
+    def test_worst_ranking_is_zero(self):
+        y_true = [0, 0, 1, 1]
+        y_prob = [0.8, 0.9, 0.1, 0.2]
+        self.assertAlmostEqual(eval_metrics.calculate_auc(y_true, y_prob), 0.0)
+
+    def test_random_ranking_is_half(self):
+        y_true = [0, 1, 0, 1]
+        y_prob = [0.2, 0.3, 0.6, 0.5]
+        self.assertAlmostEqual(eval_metrics.calculate_auc(y_true, y_prob), 0.5)
+
+    def test_nontrivial_ranking(self):
+        y_true = [1, 0, 1, 0]
+        y_prob = [0.9, 0.1, 0.3, 0.5]
+        self.assertAlmostEqual(eval_metrics.calculate_auc(y_true, y_prob), 0.75)
+        
+    def test_ranking_with_tied_probabilities(self):
+        y_true = [0, 1, 0, 1]
+        y_prob = [0.6, 0.8, 0.6, 0.4]
+        self.assertAlmostEqual(eval_metrics.calculate_auc(y_true, y_prob), 0.5)
+
+    def test_tie_between_positive_and_negative(self):
+        # This test breaks the original "fast_auc" implementation
+        # as it does not handle probability ties correctly, it returns 0.75 here
+        # if we were to switch the values at positions 0 and 1 in y_true "fast_auc" returns 1
+        # In reality in cases like this this metric should return (1 + 0.75) / 2
+        y_true = [1, 0, 1, 0]
+        y_prob = [0.7, 0.7, 0.9, 0.2]
+        self.assertAlmostEqual(eval_metrics.calculate_auc(y_true, y_prob), 0.875)
+
+    def test_all_positives_raises_error(self):
+        y_true = [1, 1, 1, 1]
+        y_prob = [0.1, 0.2, 0.3, 0.4]
+        with self.assertRaises(ValueError):
+            eval_metrics.calculate_auc(y_true, y_prob)
+
+    def test_all_negatives_raises_error(self):
+        y_true = [0, 0, 0, 0]
+        y_prob = [0.1, 0.2, 0.3, 0.4]
+        with self.assertRaises(ValueError):
+            eval_metrics.calculate_auc(y_true, y_prob)
+    
 
 if __name__ == '__main__':
-    unittest.main(argv=['first-arg-is-ignored'], exit=False)
+    unittest.main()
