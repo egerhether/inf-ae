@@ -155,7 +155,6 @@ def evaluate(
     y_binary, preds = np.array(y_binary), np.array(preds)
     if (True not in np.isnan(y_binary)) and (True not in np.isnan(preds)):
         try:
-            # TODO: check if the inputs to this are correct
             metrics["AUC"] = round(eval_metrics.auc(y_binary, preds), 4)
             print(f"[EVALUATE] Computed AUC: {metrics['AUC']}")
         except ValueError:
