@@ -238,8 +238,9 @@ if __name__ == "__main__":
         exit(0)
 
     dataset = sys.argv[1]
+    np.random.seed(42)
 
-    print("\n\n!!!!!!!! STARTED PROCESSING {} !!!!!!!!".format(dataset))
+    print(f"\n\n!!!!!!!! STARTED PROCESSING {dataset} with seed {np.random.get_state()[1][0]}!!!!!!!!")
 
     if dataset == "ml-1m":
         total_data = prep_movielens(BASE_PATH + "/ml-1m/ratings.dat")
@@ -251,6 +252,24 @@ if __name__ == "__main__":
             "play_hours:float",
             BASE_PATH + "/steam/steam_original.item",
             "id:token",
+        )
+    elif dataset == "ml-20m":
+        total_data = prep_recbole(
+            BASE_PATH + "/ml-20m/ml-20m.inter",
+            "user_id:token",
+            "item_id:token",
+            "rating:float",
+            BASE_PATH + "/ml-20m/ml-20m_original.item",
+            "item_id:token",
+        )
+    elif dataset == "ml-10m":
+        total_data = prep_recbole(
+            BASE_PATH + "/ml-10m/ml-10m.inter",
+            "user_id:token",
+            "item_id:token",
+            "rating:float",
+            BASE_PATH + "/ml-10m/ml-10m_original.item",
+            "item_id:token",
         )
     else:
         raise Exception("Could not undestand this dataset")
