@@ -7,7 +7,7 @@ import numpy as np
 
 from hyper_params import hyper_params
 
-from metrics import calculate_hit_rate
+import eval_metrics
 
 
 class GiniCoefficient:
@@ -167,7 +167,7 @@ def evaluate(
         for k in topk:
             metrics["{}@{}".format(kind, k)] = round(
                 float(100.0 * metrics["{}@{}".format(kind, k)])
-                / hyper_params["num_users"],
+                / hyper_params["num_users"], # TODO we are skipping users with no gt items in their test sets, fix this
                 4,
             )
             print(f"[EVALUATE] {kind}@{k}: {metrics['{}@{}'.format(kind, k)]}")
@@ -267,13 +267,17 @@ def evaluate_batch(
                     )
 
             try:
-                hr = calculate_hit_rate(recommended_item_indices[user_idx], test_positive_set[user_idx], k)
+                hr = eval_metrics.calculate_hit_rate(recommended_item_indices[user_idx], test_positive_set[user_idx], k)
+                ndcg = eval_metrics.calculate_ndcg(recommended_item_indices[user_idx], test_positive_set[user_idx], k)
             except ZeroDivisionError:
-                print(f"[EVAL_BATCH] WARNING: No ground truth recommendations in test set of user {user_idx}. Skipping...")
+                if k == 0:
+                    print(f"[EVAL_BATCH] WARNING: k = 0. Skipping...")
+                else:
+                    print(f"[EVAL_BATCH] WARNING: No ground truth recommendations in test set of user {user_idx}. Skipping...")
                 continue
 
             if user_idx % 1000 == 0:
-                print(f"[EVAL_BATCH] User {user_idx}, HR@{k} = {hr}")
+                print(f"[EVAL_BATCH] User {user_idx}, HR@{k} = {hr}, NDCG@{k} = {ndcg}")
 
             test_positive_sorted_psp = sorted(
                 [item_propensity[x] for x in test_positive_set[user_idx]]
@@ -281,16 +285,13 @@ def evaluate_batch(
 
             num_pos = len(test_positive_set[user_idx])
 
-            dcg, idcg, psp, max_psp = 0.0, 0.0, 0.0, 0.0
+            psp, max_psp = 0.0, 0.0
             for at, pred in enumerate(recommended_item_indices[user_idx][:k]):
                 if pred in test_positive_set[user_idx]:
-                    dcg += 1.0 / np.log2(at + 2)
                     psp += float(item_propensity[pred]) / float(min(num_pos, k))
                 if at < num_pos:
-                    idcg += 1.0 / np.log2(at + 2)
                     max_psp += test_positive_sorted_psp[at]
 
-            ndcg = dcg / idcg if idcg > 0 else 0
             psp_norm = psp / max_psp if max_psp > 0 else 0
 
             hr_batch_sum += hr
