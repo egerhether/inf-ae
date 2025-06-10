@@ -7,6 +7,8 @@ import numpy as np
 
 from hyper_params import hyper_params
 
+from metrics import calculate_hit_rate
+
 
 class GiniCoefficient:
     """
@@ -202,41 +204,47 @@ def evaluate_batch(
     hyper_params,
     train_metrics=False,
 ):
+    """
+    Args:
+        logits: Matrix of shape BU x UI where
+                BU = #users in eval batch and
+                UI = #unique items
+    """
     print(f"[EVAL_BATCH] Starting batch evaluation with {len(logits)} users")
 
     # AUC Stuff
     temp_preds, temp_y = [], []
-    for b in range(len(logits)):
-        pos_count = len(test_positive_set[b])
-        neg_count = len(auc_negatives[b])
+    for user_idx in range(len(logits)):
+        pos_count = len(test_positive_set[user_idx])
+        neg_count = len(auc_negatives[user_idx])
 
         if pos_count == 0 or neg_count == 0:
             continue
 
-        if b % 1000 == 0:  # Only print every 1000 users to avoid excessive output
+        if user_idx % 1000 == 0:  # Only print every 1000 users to avoid excessive output
             print(
-                f"[EVAL_BATCH] User {b}: processing {pos_count} positive and {neg_count} negative examples"
+                f"[EVAL_BATCH] User {user_idx}: processing {pos_count} positive and {neg_count} negative examples"
             )
 
-        temp_preds += np.take(logits[b], np.array(list(test_positive_set[b]))).tolist()
+        temp_preds += np.take(logits[user_idx], np.array(list(test_positive_set[user_idx]))).tolist()
         temp_y += [1.0 for _ in range(pos_count)]
 
-        temp_preds += np.take(logits[b], auc_negatives[b]).tolist()
+        temp_preds += np.take(logits[user_idx], auc_negatives[user_idx]).tolist()
         temp_y += [0.0 for _ in range(neg_count)]
 
     print(f"[EVAL_BATCH] Collected {len(temp_preds)} predictions for AUC calculation")
 
     # Marking train-set consumed items as negative INF
     print(f"[EVAL_BATCH] Marking train-set consumed items as negative infinity")
-    for b in range(len(logits)):
-        if b % 1000 == 0:  # Only print every 1000 users to avoid excessive output
+    for user_idx in range(len(logits)):
+        if user_idx % 1000 == 0:  # Only print every 1000 users to avoid excessive output
             print(
-                f"[EVAL_BATCH] User {b}: marking {len(train_positive[b])} train positive items as -INF"
+                f"[EVAL_BATCH] User {user_idx}: marking {len(train_positive[user_idx])} train positive items as -INF"
             )
-        logits[b][train_positive[b]] = -INF
+        logits[user_idx][train_positive[user_idx]] = -INF
 
     print(f"[EVAL_BATCH] Sorting indices for top-{max(topk)} recommendations")
-    indices = (-logits).argsort()[:, : max(topk)].tolist()
+    recommended_item_indices = (-logits).argsort()[:, : max(topk)].tolist()
     batch_exposures = {k: np.zeros(logits.shape[1]) for k in topk}
 
     user_recommendations = {}
@@ -246,10 +254,10 @@ def evaluate_batch(
         user_recommendations[k] = []
         hr_sum, ndcg_sum, psp_sum = 0, 0, 0
 
-        for b in range(len(logits)):
+        for user_idx in range(len(logits)):
             if hyper_params["use_gini"]:
                 # Update item exposures for this batch at this k
-                for item_idx in indices[b][:k]:
+                for item_idx in recommended_item_indices[user_idx][:k]:
                     category = data.data["item_map_to_category"].get(item_idx + 1)
                     user_recommendations[k].append(
                         {
@@ -258,27 +266,27 @@ def evaluate_batch(
                         }
                     )
 
-            num_pos = float(len(test_positive_set[b]))
-            if num_pos == 0:
+            try:
+                hr = calculate_hit_rate(recommended_item_indices[user_idx], test_positive_set[user_idx], k)
+            except ZeroDivisionError:
+                print(f"[EVAL_BATCH] WARNING: No ground truth recommendations in test set of user {user_idx}. Skipping...")
                 continue
-            hits = len(set(indices[b][:k]) & test_positive_set[b])
 
-            if b % 1000 == 0:  # Only print every 1000 users to avoid excessive output
-                print(
-                    f"[EVAL_BATCH] User {b}, k={k}: {hits} hits out of {min(num_pos, k)} possible"
-                )
+            if user_idx % 1000 == 0:
+                print(f"[EVAL_BATCH] User {user_idx}, HR@{k} = {hr}")
 
-            hr = float(hits) / float(min(num_pos, k))
             hr_sum += hr
             metrics["HR@{}".format(k)] += hr
 
             test_positive_sorted_psp = sorted(
-                [item_propensity[x] for x in test_positive_set[b]]
+                [item_propensity[x] for x in test_positive_set[user_idx]]
             )[::-1]
 
+            num_pos = len(test_positive_set[user_idx])
+
             dcg, idcg, psp, max_psp = 0.0, 0.0, 0.0, 0.0
-            for at, pred in enumerate(indices[b][:k]):
-                if pred in test_positive_set[b]:
+            for at, pred in enumerate(recommended_item_indices[user_idx][:k]):
+                if pred in test_positive_set[user_idx]:
                     dcg += 1.0 / np.log2(at + 2)
                     psp += float(item_propensity[pred]) / float(min(num_pos, k))
                 if at < num_pos:
