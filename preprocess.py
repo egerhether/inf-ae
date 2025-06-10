@@ -46,10 +46,18 @@ def prep_recbole(
         # If you want to continue without an item file, comment out the next line
         raise Exception(f"Item file not found at {item_file_path}")
 
-    # Convert to zero-based indexing if needed
-    min_user = min(users)
-    if min_user > 0:
-        users = [u - min_user for u in users]
+    # Check if we have string IDs (like Amazon ASINs) or numeric IDs
+    sample_user = users[0] if len(users) > 0 else None
+    has_string_ids = isinstance(sample_user, str) and not sample_user.isdigit()
+    
+    if has_string_ids:
+        print("Detected string IDs - skipping numeric offset logic and creating direct mappings")
+        # For string IDs, we skip the min_user logic and go directly to mapping
+    else:
+        # Convert to zero-based indexing if needed (for numeric IDs)
+        min_user = min(users)
+        if min_user > 0:
+            users = [u - min_user for u in users]
 
     # Create sequential mapping for users
     unique_users = sorted(set(users))
@@ -251,6 +259,15 @@ if __name__ == "__main__":
             "play_hours:float",
             BASE_PATH + "/steam/steam_original.item",
             "id:token",
+        )
+    elif dataset == "amazon_magazine":
+        total_data = prep_recbole(
+            BASE_PATH + "amazon_magazine/amazon_magazine.inter",
+            "user_id:token",
+            "item_id:token",
+            "rating:float",
+            BASE_PATH + "amazon_magazine/amazon_magazine_original.item",
+            "item_id:token",
         )
     else:
         raise Exception("Could not undestand this dataset")
