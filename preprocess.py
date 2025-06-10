@@ -18,7 +18,8 @@ def prep_recbole(
     # If the RecBole .inter file exists, process it
     if os.path.exists(inter_file_path):
         # RecBole .inter files are typically tab-separated with headers
-        df = pd.read_csv(inter_file_path, sep="\t").dropna()
+        df = pd.read_csv(inter_file_path, sep="\t")
+        df.dropna(subset=[user_id, item_id, rating_id], how='any', inplace=True)
 
         # Extract user_id, item_id, and rating columns
         users = df[user_id].values
@@ -183,6 +184,7 @@ class rating_data:
     def train_test_split(self):
         at = 0
 
+        invalid = 0
         for user in range(len(self.data)):
             first_split_point = int(0.8 * len(self.data[user]))
             second_split_point = int(0.9 * len(self.data[user]))
@@ -190,9 +192,11 @@ class rating_data:
             indices = np.arange(len(self.data[user]))
             np.random.shuffle(indices)
 
+            
             for timestep, (item, rating) in enumerate(self.data[user]):
                 if len(self.data[user]) < 3:
                     self.index[at] = -1
+                    invalid += 1
                 else:
                     # Force at least one element in user history to be in test
                     if timestep == indices[0]:
@@ -207,6 +211,7 @@ class rating_data:
                 at += 1
 
         assert at == len(self.index)
+        print(f"Removed {invalid} invalid users. {np.sum(np.array(self.index) >= 0, axis=0)} users left.")
         self.complete_data_stats = None
 
     def save_index(self, path):
