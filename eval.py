@@ -2,8 +2,8 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 
-from hyper_params import hyper_params
 import eval_metrics
+from utils import get_item_propensity
 
 
 class GiniCoefficient:
@@ -56,7 +56,6 @@ def evaluate(
     hyper_params,
     kernelized_rr_forward,
     data,
-    item_propensity,
     train_x,
     topk=[10, 100],
     test_set_eval=False,
@@ -72,6 +71,7 @@ def evaluate(
     for kind in ["HR", "NDCG", "PSP", "GINI"]:
         for k in topk:
             metrics["{}@{}".format(kind, k)] = 0.0
+    metrics["#users_w_gt"] = 0.0
 
     # Train positive set -- these items will be set to -infinity while prediction on the val/test set
     train_positive_list = list(map(list, data.data["train_positive_set"]))
@@ -99,6 +99,8 @@ def evaluate(
 
     # For GINI calculation - track item exposures across all recommendations
     item_exposures = np.zeros(hyper_params["num_items"])
+
+    item_propensity = get_item_propensity(hyper_params, data)
 
     user_recommendations = {}
 
@@ -153,7 +155,8 @@ def evaluate(
     y_binary, preds = np.array(y_binary), np.array(preds)
     if (True not in np.isnan(y_binary)) and (True not in np.isnan(preds)):
         try:
-            metrics["AUC"] = round(eval_metrics.calculate_auc(y_binary, preds), 4)
+            # TODO: check if the inputs to this are correct
+            metrics["AUC"] = round(eval_metrics.auc(y_binary, preds), 4)
             print(f"[EVALUATE] Computed AUC: {metrics['AUC']}")
         except ValueError:
             print(f"[EVALUATE] WARNING: AUC is undefined when y_binary is only 1s or only 0s. Skipping...")
@@ -165,8 +168,8 @@ def evaluate(
     for kind in ["HR", "NDCG", "PSP"]:
         for k in topk:
             metrics["{}@{}".format(kind, k)] = round(
-                float(100.0 * metrics["{}@{}".format(kind, k)])
-                / hyper_params["num_users"], # TODO we are skipping users with no gt items in their test sets, fix this
+                float(metrics["{}@{}".format(kind, k)])
+                / metrics["#users_w_gt"],
                 4,
             )
             print(f"[EVALUATE] {kind}@{k}: {metrics['{}@{}'.format(kind, k)]}")
@@ -187,6 +190,8 @@ def evaluate(
     print(
         f"[EVALUATE] Final metrics: num_users={metrics['num_users']}, num_interactions={metrics['num_interactions']}"
     )
+
+    print(metrics["#users_w_gt"])
 
     return metrics
 
@@ -248,7 +253,10 @@ def evaluate_batch(
 
     user_recommendations = {}
 
-    for k in topk:
+    num_valid_users_in_batch = 0.0
+    assert 0 not in topk, "0 in k values"
+
+    for k_step, k in enumerate(topk):
         print(f"[EVAL_BATCH] Computing metrics for k={k}")
         user_recommendations[k] = []
         hr_batch_sum, ndcg_batch_sum, psp_batch_sum = 0, 0, 0
@@ -266,36 +274,21 @@ def evaluate_batch(
                     )
 
             try:
-                hr = eval_metrics.calculate_hit_rate(recommended_item_indices[user_idx], test_positive_set[user_idx], k)
-                ndcg = eval_metrics.calculate_ndcg(recommended_item_indices[user_idx], test_positive_set[user_idx], k)
+                hr = eval_metrics.hr(recommended_item_indices[user_idx], test_positive_set[user_idx], k)
+                ndcg = eval_metrics.ndcg(recommended_item_indices[user_idx], test_positive_set[user_idx], k)
+                psp = eval_metrics.psp(recommended_item_indices[user_idx], test_positive_set[user_idx], item_propensity, k)
+                if k_step == 0: # only count them for a single k value, valid users are the ones with gt
+                    num_valid_users_in_batch += 1
             except ZeroDivisionError:
-                if k == 0:
-                    print(f"[EVAL_BATCH] WARNING: k = 0. Skipping...")
-                else:
-                    print(f"[EVAL_BATCH] WARNING: No ground truth recommendations in test set of user {user_idx}. Skipping...")
+                print(f"[EVAL_BATCH] WARNING: No ground truth recommendations in test set of user {user_idx}. Skipping...")
                 continue
 
             if user_idx % 1000 == 0:
-                print(f"[EVAL_BATCH] User {user_idx}, HR@{k} = {hr}, NDCG@{k} = {ndcg}")
-
-            test_positive_sorted_psp = sorted(
-                [item_propensity[x] for x in test_positive_set[user_idx]]
-            )[::-1]
-
-            num_pos = len(test_positive_set[user_idx])
-
-            psp, max_psp = 0.0, 0.0
-            for at, pred in enumerate(recommended_item_indices[user_idx][:k]):
-                if pred in test_positive_set[user_idx]:
-                    psp += float(item_propensity[pred]) / float(min(num_pos, k))
-                if at < num_pos:
-                    max_psp += test_positive_sorted_psp[at]
-
-            psp_norm = psp / max_psp if max_psp > 0 else 0
+                print(f"[EVAL_BATCH] User {user_idx}, HR@{k} = {hr}, NDCG@{k} = {ndcg}, PSP@{k} = {psp}")
 
             hr_batch_sum += hr
             ndcg_batch_sum += ndcg
-            psp_batch_sum += psp_norm
+            psp_batch_sum += psp
 
         metrics["HR@{}".format(k)] += hr_batch_sum
         metrics["NDCG@{}".format(k)] += ndcg_batch_sum
@@ -308,6 +301,8 @@ def evaluate_batch(
             print(
                 f"[EVAL_BATCH] Collected {len(user_recommendations[k])} recommendations for k={k}"
             )
+
+    metrics["#users_w_gt"] += num_valid_users_in_batch
 
     print(
         f"[EVAL_BATCH] Batch evaluation complete, returning {len(temp_preds)} predictions"

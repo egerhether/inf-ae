@@ -29,8 +29,9 @@ def get_item_propensity(hyper_params, data, A=0.55, B=1.5):
     num_instances = hyper_params["num_interactions"]
 
     C = (np.log(num_instances) - 1) * np.power(B + 1, A)
-    wts = 1.0 + C * np.power(np.array(item_freq) + B, -A)
-    return np.ravel(wts)
+    denumerator = 1.0 + C * np.power(np.array(item_freq) + B, -A)
+    propensities = 1 / denumerator
+    return propensities
 
 
 def file_write(log_file, s, dont_print=False):
