@@ -252,7 +252,7 @@ def evaluate_batch(
     for k in topk:
         print(f"[EVAL_BATCH] Computing metrics for k={k}")
         user_recommendations[k] = []
-        hr_sum, ndcg_sum, psp_sum = 0, 0, 0
+        hr_batch_sum, ndcg_batch_sum, psp_batch_sum = 0, 0, 0
 
         for user_idx in range(len(logits)):
             if hyper_params["use_gini"]:
@@ -275,9 +275,6 @@ def evaluate_batch(
             if user_idx % 1000 == 0:
                 print(f"[EVAL_BATCH] User {user_idx}, HR@{k} = {hr}")
 
-            hr_sum += hr
-            metrics["HR@{}".format(k)] += hr
-
             test_positive_sorted_psp = sorted(
                 [item_propensity[x] for x in test_positive_set[user_idx]]
             )[::-1]
@@ -296,14 +293,16 @@ def evaluate_batch(
             ndcg = dcg / idcg if idcg > 0 else 0
             psp_norm = psp / max_psp if max_psp > 0 else 0
 
-            ndcg_sum += ndcg
-            psp_sum += psp_norm
+            hr_batch_sum += hr
+            ndcg_batch_sum += ndcg
+            psp_batch_sum += psp_norm
 
-            metrics["NDCG@{}".format(k)] += ndcg
-            metrics["PSP@{}".format(k)] += psp_norm
+        metrics["HR@{}".format(k)] += hr_batch_sum
+        metrics["NDCG@{}".format(k)] += ndcg_batch_sum
+        metrics["PSP@{}".format(k)] += psp_batch_sum
 
         print(
-            f"[EVAL_BATCH] k={k} metrics - Average HR: {hr_sum/len(logits):.4f}, Average NDCG: {ndcg_sum/len(logits):.4f}, Average PSP: {psp_sum/len(logits):.4f}"
+            f"[EVAL_BATCH] k={k} metrics - Average HR: {hr_batch_sum/len(logits):.4f}, Average NDCG: {ndcg_batch_sum/len(logits):.4f}, Average PSP: {psp_batch_sum/len(logits):.4f}"
         )
         if hyper_params["use_gini"]:
             print(
