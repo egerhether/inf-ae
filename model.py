@@ -34,7 +34,7 @@ def make_kernelized_rr_forward(hyper_params):
         depth=hyper_params["depth"], num_classes=hyper_params["num_items"]
     )
     kernel_fn = functools.partial(kernel_fn, get="ntk")
-    if hyper_params["batching"]: 
+    if False: #hyper_params["batching"]: 
         kernel_fn = nt.batch(kernel_fn, batch_size=hyper_params["train_batch_size"])
 
 
@@ -58,7 +58,7 @@ def make_kernelized_rr_forward(hyper_params):
         )
         print("rr rhs")
         # Try using jax.numpy.linalg.solve instead of scipy
-        if hyper_params["batching"]:
+        if False: #hyper_params["batching"]:
             print("hello")
             try:
                 solution = batched_lstsq(K_reg, X_train, batch_size)

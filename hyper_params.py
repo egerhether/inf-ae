@@ -25,8 +25,8 @@ hyper_params = {
         # Number of users to keep (randomly)
         "user_support": -1,  # -1 implies use all users
         "seed": 42,
-        "batching": True,
-        "train_batch_size": 128
+        "batching": False,
+        "train_batch_size": 1024
     },
     "ml-20m": {
         "dataset": "ml-20m",

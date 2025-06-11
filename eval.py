@@ -104,7 +104,7 @@ def evaluate(
 
     user_recommendations = {}
 
-    bsz = 10_000  # These many users
+    bsz = 200_000  # These many users
     print(f"[EVALUATE] Processing users in batches of {bsz}")
 
     for i in range(0, hyper_params["num_users"], bsz):
@@ -115,11 +115,21 @@ def evaluate(
 
         print(f"[EVALUATE] Running forward pass for batch {i} to {batch_end-1}")
         with jax.disable_jit():
-            temp_preds = kernelized_rr_forward(
-                train_x, eval_context[i:batch_end].todense(), reg=hyper_params["lamda"]
-            )
-        print(
-            f"[EVALUATE] Forward pass complete, prediction shape: {np.array(temp_preds).shape}"
+            if hyper_params["batching"]:
+                batch_preds = []
+                print(train_x.shape)
+                for j in range(0, train_x.shape[0], hyper_params["train_batch_size"]):
+                    batch_preds.append(kernelized_rr_forward(
+                        train_x[j:j+hyper_params["train_batch_size"], :], eval_context[i:batch_end].todense(), reg=hyper_params["lamda"]
+                    ))
+                temp_preds = jnp.sum(jnp.asarray(batch_preds), axis = 0) 
+            else:
+                temp_preds = kernelized_rr_forward(
+                        train_x, eval_context[i:batch_end].todense(), reg=hyper_params["lamda"]
+                    )
+
+            print(
+                f"[EVALUATE] Forward pass complete, prediction shape: {np.array(temp_preds).shape}"
         )
 
         print(f"[EVALUATE] Evaluating batch {i} to {batch_end-1}")

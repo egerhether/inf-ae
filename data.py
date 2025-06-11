@@ -19,7 +19,7 @@ class Dataset:
             hyper_params["category_id"],
         )
         self.set_of_active_users = list(set(self.data["train"][:, 0].tolist()))
-        if hyper_params["batching"]:
+        if True: #hyper_params["batching"]:
             self.data = self.subsample_for_batching(hyper_params)
 
         self.hyper_params = self.update_hyper_params(hyper_params)
@@ -28,7 +28,7 @@ class Dataset:
         data_subsample = copy.deepcopy(self.data)
         num_users = len(self.set_of_active_users)
         batch_size = hyper_params["train_batch_size"]
-        max_len = num_users // batch_size * batch_size
+        max_len = 8192 #num_users // batch_size * batch_size
         print(f"Batching will be performed with batch size {batch_size}")
         print(f"Subsampling number of users from {num_users} to {max_len}")
         chosen_indices = np.random.randint(0, num_users, max_len)
