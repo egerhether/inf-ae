@@ -18,7 +18,7 @@ def train(hyper_params, data):
     from eval import evaluate
 
     # This just instantiates the function
-    kernelized_rr_forward, kernel_fn = make_kernelized_rr_forward(hyper_params)
+    kernelized_rr_forward, _ = make_kernelized_rr_forward(hyper_params)
     sampled_matrix = data.sample_users(
         hyper_params["user_support"]
     )  # Random user sample
@@ -107,9 +107,17 @@ def main(hyper_params, gpu_id=None):
 
 if __name__ == "__main__":
     from hyper_params import hyper_params
-    if len(sys.argv) > 1:
+    if len(sys.argv) == 2:
         dataset = sys.argv[1]
-    print(f"Performing analysis for dataset {dataset}")
-    params = hyper_params[dataset]
+        params = hyper_params[dataset]
+    elif len(sys.argv) == 3:
+        dataset = sys.argv[1]
+        params = hyper_params[dataset]
+        support = int(sys.argv[2])
+        params["user_support"] = support
+    else:
+        print("Use at least one command line argument! Usage: python main.py <dataset> <user_support>")
+        
+    print(f"Performing analysis for dataset {dataset} with user support of {params['user_support']}")
 
     main(params)

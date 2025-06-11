@@ -25,6 +25,8 @@ hyper_params = {
         # Number of users to keep (randomly)
         "user_support": -1,  # -1 implies use all users
         "seed": 42,
+        "batching": True,
+        "train_batch_size": 128
     },
     "ml-20m": {
         "dataset": "ml-20m",
@@ -38,6 +40,8 @@ hyper_params = {
         # Number of users to keep (randomly)
         "user_support": -1,  # -1 implies use all users
         "seed": 42,
+        "batching": True,
+        "train_batch_size": 128
     },
     "ml-10m": {
         "dataset": "ml-10m",
@@ -49,9 +53,10 @@ hyper_params = {
         "grid_search_lamda": True,
         "lamda": 1.0,  # Only used if grid_search_lamda == False
         # Number of users to keep (randomly)
-        "user_support": 10000,  # -1 implies use all users
+        "user_support": -1,  # -1 implies use all users
         "seed": 42,
-        "batch_size": 20000
+        "batching": True,
+        "train_batch_size": 2048
     },
     "amazon_magazine": {
         "dataset": "amazon_magazine",

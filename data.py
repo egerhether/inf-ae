@@ -19,7 +19,25 @@ class Dataset:
             hyper_params["category_id"],
         )
         self.set_of_active_users = list(set(self.data["train"][:, 0].tolist()))
+        if hyper_params["batching"]:
+            self.data = self.subsample_for_batching(hyper_params)
+
         self.hyper_params = self.update_hyper_params(hyper_params)
+
+    def subsample_for_batching(self, hyper_params):
+        data_subsample = copy.deepcopy(self.data)
+        num_users = len(self.set_of_active_users)
+        batch_size = hyper_params["train_batch_size"]
+        max_len = num_users // batch_size * batch_size
+        print(f"Batching will be performed with batch size {batch_size}")
+        print(f"Subsampling number of users from {num_users} to {max_len}")
+        chosen_indices = np.random.randint(0, num_users, max_len)
+        data_subsample["train_positive_set"] = np.array(data_subsample["train_positive_set"])[chosen_indices].tolist()
+        data_subsample["val_positive_set"] = np.array(data_subsample["val_positive_set"])[chosen_indices].tolist()
+        data_subsample["test_positive_set"] = np.array(data_subsample["test_positive_set"])[chosen_indices].tolist()
+        data_subsample["train_matrix"] = data_subsample["train_matrix"][chosen_indices, :]
+        data_subsample["val_matrix"] = data_subsample["val_matrix"][chosen_indices, :]
+        return data_subsample
 
     def update_hyper_params(self, hyper_params):
         updated_params = copy.deepcopy(hyper_params)
