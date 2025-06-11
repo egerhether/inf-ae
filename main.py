@@ -36,10 +36,6 @@ def train(hyper_params, data):
     alpha = precompute_alpha(sampled_matrix, lamda=0.1) # Change for the desired value of lamda
     """
 
-    # Used for computing the PSP-metric
-    print("Get item propensity!")
-    item_propensity = get_item_propensity(hyper_params, data)
-
     # Evaluation
     start_time = time.time()
 
@@ -55,7 +51,7 @@ def train(hyper_params, data):
         print("Checking lamda:", lamda)
         hyper_params["lamda"] = lamda
         val_metrics = evaluate(
-            hyper_params, kernelized_rr_forward, data, item_propensity, sampled_matrix
+            hyper_params, kernelized_rr_forward, data, sampled_matrix
         )
         print("val_metrics:", val_metrics)
         if (best_metric is None) or (val_metrics[VAL_METRIC] > best_metric):
@@ -67,7 +63,6 @@ def train(hyper_params, data):
         hyper_params,
         kernelized_rr_forward,
         data,
-        item_propensity,
         sampled_matrix,
         test_set_eval=True,
     )
