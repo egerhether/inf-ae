@@ -31,11 +31,11 @@ def psp(
     k: int
 ) -> float:
     upsp, mpsp = 0.0, 0.0
+    denum = float(min(k, len(recommended_ranked_list)))
 
     for item_idx in recommended_ranked_list[:k]:
         if item_idx in ground_truth_items:
-            upsp += 1.0 / item_propensities[item_idx]
-    upsp /= k
+            upsp += (1.0 / item_propensities[item_idx]) / denum
 
     for item_id in ground_truth_items:
         mpsp += 1.0 / item_propensities[item_id]
