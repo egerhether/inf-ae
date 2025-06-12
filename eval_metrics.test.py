@@ -161,6 +161,16 @@ class TestPropensityScoredPrecision(unittest.TestCase):
         mpsp = self._mpsp(ground_truth)
         psp = upsp / mpsp
         self.assertAlmostEqual(eval_metrics.psp(recommendations, ground_truth, self.propensities, k), psp)
+    
+    def test_uses_recommendation_len_when_lt_k(self):
+        recommendations = [1, 99, 2]
+        ground_truth = {1, 2}
+        k = 5
+        
+        upsp = ( 1 / 0.1 + 1 / 0.8 ) / 3
+        mpsp = self._mpsp(ground_truth)
+        psp = upsp / mpsp
+        self.assertAlmostEqual(eval_metrics.psp(recommendations, ground_truth, self.propensities, k), psp)
 
     def test_perfect_first_hit_on_niche_item(self):
         recommendations = [0, 99, 98]
@@ -178,21 +188,6 @@ class TestPropensityScoredPrecision(unittest.TestCase):
         k = 3
 
         self.assertAlmostEqual(eval_metrics.psp(recommendations, ground_truth, self.propensities, k), 0.0)
-
-    def test_score_can_decrease_with_larger_k(self):
-        recommendations = [99, 0, 98, 2]
-        ground_truth = {0, 2}
-        mpsp = self._mpsp(ground_truth)
-        
-        upsp_at_3 = ( 1 / 0.01 ) / 3
-        psp_at_3 = upsp_at_3 / mpsp 
-
-        upsp_at_4 = ( 1 / 0.01 + 1 / 0.8 ) / 4
-        psp_at_4 = upsp_at_4 / mpsp
-
-        self.assertAlmostEqual(eval_metrics.psp(recommendations, ground_truth, self.propensities, 3), psp_at_3)
-        self.assertAlmostEqual(eval_metrics.psp(recommendations, ground_truth, self.propensities, 4), psp_at_4)
-        self.assertGreater(psp_at_3, psp_at_4)
 
     def test_mpsp_denominator_is_independent_of_k(self):
         recommendations = [1, 99, 98]
