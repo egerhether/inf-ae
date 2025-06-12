@@ -245,6 +245,8 @@ def load_raw_dataset(
             rand_item = np.random.randint(0, num_items)
             if rand_item in ret["train_positive_set"][u]:
                 continue
+            if rand_item in ret["test_positive_set"][u]:
+                continue
             ret["negatives"][u].add(rand_item)
         ret["negatives"][u] = list(ret["negatives"][u])
 
