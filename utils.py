@@ -55,3 +55,22 @@ def log_end_epoch(
     ss = "| end of step {:4d} | time = {:5.2f}".format(step, time_elpased)
     ss += string2
     file_write(hyper_params["log_file"], ss, dont_print=dont_print)
+
+
+def filter_out_users_with_no_gt(num_users: int, ground_truth: list[list]) -> list[int]:
+    """
+    Filter out any users with no ground truth items.
+    NOTE: This function is called in `evaluate_batch` in eval.py where user_idx is 
+          not the same as user_idx in the main evaluation funciton.
+          This is because of batching, but as long as corresponding ranges of 
+          negatives, test and train positives are passed this is not a problem.
+    """
+    valid_user_indices = []
+    for user_idx in range(num_users):
+        if len(ground_truth[user_idx]) > 0:
+            valid_user_indices.append(user_idx)
+        else:
+            # Note: Tempararily we don't throw an error here until preprocess.py is fixed
+            print(f"[EVALUATION WARNING] Removing user {user_idx} as nothing in test_positive set. This should never happen.")
+            # raise ValueError("There exists a user with no ground truth items in the validation or test set")
+    return valid_user_indices
