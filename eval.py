@@ -25,8 +25,10 @@ def evaluate(
         for k in k_values:
             metrics[f"{kind}@{k}"] = 0.0
 
-    # Users with ground truth; others are skipped in metric computation. Required for correct averaging.
-    metrics["valid_user_count"] = 0.0
+    metrics["mean_AUC"] = 0.0
+
+    # users with ground truth; others are skipped in metric computation; required for correct averaging
+    metrics["valid_user_count"] = 0.0 # needed until preprocess.py is fixed
 
     # Items from the train set to mask (set to -INF) in train/val predictions.
     train_positive_list = list(map(list, data.data["train_positive_set"]))
@@ -110,11 +112,8 @@ def evaluate(
     print(f"[EVALUATE] All batches processed, computing final metrics")
     y_binary, preds = np.array(y_binary), np.array(preds)
     if (True not in np.isnan(y_binary)) and (True not in np.isnan(preds)):
-        try:
-            metrics["AUC"] = round(eval_metrics.auc(y_binary, preds), 4)
-            print(f"[EVALUATE] Computed AUC: {metrics['AUC']}")
-        except ValueError:
-            print(f"[EVALUATE] WARNING: AUC is undefined when y_binary is only 1s or only 0s. Skipping...")
+        metrics["global_AUC"] = round(eval_metrics.auc(y_binary, preds), 4)
+        print(f"[EVALUATE] Computed StackedAUC: {metrics['global_AUC']}")
     else:
         print("[EVALUATE] Warning: NaN values detected in y_binary or preds, skipping AUC calculation")
 
@@ -126,6 +125,8 @@ def evaluate(
                 4,
             )
             print(f"[EVALUATE] {kind}@{k}: {metrics['{}@{}'.format(kind, k)]}")
+
+    metrics["mean_AUC"] = round(metrics["mean_AUC"] / metrics["valid_user_count"], 4)
 
     if hyper_params["use_gini"]:
         print("[EVALUATE] Computing GINI coefficients")
@@ -174,27 +175,34 @@ def evaluate_batch(
     valid_user_indices = filter_out_users_with_no_gt(len(logits), test_positive_set)
     metrics["valid_user_count"] += len(valid_user_indices)
 
-    # AUC Stuff
+    # Collect all binary labels and score predictions for calculating global_AUC
     temp_preds, temp_y = [], []
     for user_idx in valid_user_indices:
-        pos_count = len(test_positive_set[user_idx])
-        neg_count = len(auc_negatives[user_idx])
+        positive_item_indices = np.array(list(test_positive_set[user_idx]))
+        negative_item_indices = auc_negatives[user_idx]
 
-        if pos_count == 0 or neg_count == 0:
-            continue
+        positive_scores = np.take(logits[user_idx], positive_item_indices)
+        negative_scores = np.take(logits[user_idx], negative_item_indices)
+
+        item_scores = np.concatenate([positive_scores, negative_scores])
+        true_labels = np.concatenate([np.ones_like(positive_scores), np.zeros_like(negative_scores)])
+
+        temp_preds.extend(item_scores.tolist())
+        temp_y.extend(true_labels.tolist())
+
+        # Accumulate per-user AUC for the calculation of meanAUC done in `evaluate(...)`
+        user_auc = eval_metrics.auc(true_labels, item_scores)
+        metrics["mean_AUC"] += user_auc
 
         if user_idx % 1000 == 0:  # Only print every 1000 users to avoid excessive output
             print(
-                f"[EVAL_BATCH] User {user_idx}: processing {pos_count} positive and {neg_count} negative examples"
+                f"[EVAL_BATCH] User {user_idx}: processed "
+                f"{len(positive_item_indices)} positive and "
+                f"{len(negative_item_indices)} negative "
+                f"examples into AUC-friendly format"
             )
 
-        temp_preds += np.take(logits[user_idx], np.array(list(test_positive_set[user_idx]))).tolist()
-        temp_y += [1.0 for _ in range(pos_count)]
-
-        temp_preds += np.take(logits[user_idx], auc_negatives[user_idx]).tolist()
-        temp_y += [0.0 for _ in range(neg_count)]
-
-    print(f"[EVAL_BATCH] Collected {len(temp_preds)} predictions for AUC calculation")
+    print(f"[EVAL_BATCH] Collected {len(temp_preds)} predictions for global_AUC calculation")
 
     # Marking train-set consumed items as negative INF
     print(f"[EVAL_BATCH] Marking train-set consumed items as negative infinity")
@@ -229,13 +237,9 @@ def evaluate_batch(
                         }
                     )
 
-            try:
-                hr = eval_metrics.hr(recommended_item_indices[user_idx], test_positive_set[user_idx], k)
-                ndcg = eval_metrics.ndcg(recommended_item_indices[user_idx], test_positive_set[user_idx], k)
-                psp = eval_metrics.psp(recommended_item_indices[user_idx], test_positive_set[user_idx], item_propensity, k)
-            except ZeroDivisionError:
-                print(f"{k} {user_idx} {user_idx in valid_user_indices} [EVAL_BATCH] WARNING: No ground truth recommendations in test set of user {user_idx}. Skipping...")
-                continue
+            hr = eval_metrics.hr(recommended_item_indices[user_idx], test_positive_set[user_idx], k)
+            ndcg = eval_metrics.ndcg(recommended_item_indices[user_idx], test_positive_set[user_idx], k)
+            psp = eval_metrics.psp(recommended_item_indices[user_idx], test_positive_set[user_idx], item_propensity, k)
 
             if user_idx % 1000 == 0:
                 print(f"[EVAL_BATCH] User {user_idx}, HR@{k} = {hr}, NDCG@{k} = {ndcg}, PSP@{k} = {psp}")
