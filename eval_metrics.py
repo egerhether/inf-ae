@@ -1,7 +1,7 @@
 import numpy as np
 from sklearn.metrics import roc_auc_score
 
-def hr(recommended_ranked_list: list[int], ground_truth_items: set[int], k: int) -> float:
+def recall(recommended_ranked_list: list[int], ground_truth_items: set[int], k: int) -> float:
     top_k_items = set(recommended_ranked_list[:k])
     hits_at_k = len(top_k_items & ground_truth_items)
     

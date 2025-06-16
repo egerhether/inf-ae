@@ -21,7 +21,7 @@ def evaluate(
     print(f"[EVALUATE] Hyperparams: #users={hyper_params['num_users']}, #items={hyper_params['num_items']}, lambda={hyper_params['lamda']}")
 
     preds, y_binary, metrics = [], [], {}
-    for kind in ["HR", "NDCG", "PSP", "GINI"]:
+    for kind in ["RECALL", "NDCG", "PSP", "GINI"]:
         for k in k_values:
             metrics[f"{kind}@{k}"] = 0.0
 
@@ -117,7 +117,7 @@ def evaluate(
     else:
         print("[EVALUATE] Warning: NaN values detected in y_binary or preds, skipping AUC calculation")
 
-    for kind in ["HR", "NDCG", "PSP"]:
+    for kind in ["RECALL", "NDCG", "PSP"]:
         for k in k_values:
             metrics["{}@{}".format(kind, k)] = round(
                 float(metrics["{}@{}".format(kind, k)])
@@ -223,7 +223,7 @@ def evaluate_batch(
     for k_step, k in enumerate(topk):
         print(f"[EVAL_BATCH] Computing metrics for k={k}")
         user_recommendations[k] = []
-        hr_batch_sum, ndcg_batch_sum, psp_batch_sum = 0, 0, 0
+        recall_batch_sum, ndcg_batch_sum, psp_batch_sum = 0, 0, 0
 
         for user_idx in valid_user_indices:
             if hyper_params["use_gini"]:
@@ -237,22 +237,22 @@ def evaluate_batch(
                         }
                     )
 
-            hr = eval_metrics.hr(recommended_item_indices[user_idx], test_positive_set[user_idx], k)
+            recall = eval_metrics.recall(recommended_item_indices[user_idx], test_positive_set[user_idx], k)
             ndcg = eval_metrics.ndcg(recommended_item_indices[user_idx], test_positive_set[user_idx], k)
             psp = eval_metrics.psp(recommended_item_indices[user_idx], test_positive_set[user_idx], item_propensity, k)
 
             if user_idx % 1000 == 0:
-                print(f"[EVAL_BATCH] User {user_idx}, HR@{k} = {hr}, NDCG@{k} = {ndcg}, PSP@{k} = {psp}")
+                print(f"[EVAL_BATCH] User {user_idx}, RECALL@{k} = {recall}, NDCG@{k} = {ndcg}, PSP@{k} = {psp}")
 
-            hr_batch_sum += hr
+            recall_batch_sum += recall
             ndcg_batch_sum += ndcg
             psp_batch_sum += psp
 
-        metrics["HR@{}".format(k)] += hr_batch_sum
+        metrics["RECALL@{}".format(k)] += recall_batch_sum
         metrics["NDCG@{}".format(k)] += ndcg_batch_sum
         metrics["PSP@{}".format(k)] += psp_batch_sum
 
-        print(f"[EVAL_BATCH] k={k} metrics - Average HR: {hr_batch_sum/len(valid_user_indices):.4f}, Average NDCG: {ndcg_batch_sum/len(valid_user_indices):.4f}, Average PSP: {psp_batch_sum/len(valid_user_indices):.4f}")
+        print(f"[EVAL_BATCH] k={k} metrics - Average Recall: {recall_batch_sum/len(valid_user_indices):.4f}, Average NDCG: {ndcg_batch_sum/len(valid_user_indices):.4f}, Average PSP: {psp_batch_sum/len(valid_user_indices):.4f}")
         if hyper_params["use_gini"]: print(f"[EVAL_BATCH] Collected {len(user_recommendations[k])} recommendations for k={k}" )
 
     print(f"[EVAL_BATCH] Batch evaluation complete, returning {len(temp_preds)} predictions")

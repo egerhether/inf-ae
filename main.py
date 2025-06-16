@@ -39,7 +39,7 @@ def train(hyper_params, data):
     # Evaluation
     start_time = time.time()
 
-    VAL_METRIC = "HR@100"
+    VAL_METRIC = "RECALL@100"
     best_metric, best_lamda = None, None
 
     # Validate on the validation-set
