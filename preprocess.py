@@ -198,8 +198,12 @@ class rating_data:
                     self.index[at] = -1
                     invalid += 1
                 else:
-                    # Force at least one element in user history to be in test
+                    # Force at least one element in user history to be in test and one in val
                     if timestep == indices[0]:
+                        self.index[at] = 0 
+                    elif timestep == indices[1]:
+                        self.index[at] = 1
+                    elif timestep == indices[2]:
                         self.index[at] = 2
                     else:
                         if timestep in indices[:first_split_point]:
@@ -256,7 +260,14 @@ if __name__ == "__main__":
     print(f"\n\n!!!!!!!! STARTED PROCESSING {dataset} with seed {np.random.get_state()[1][0]}!!!!!!!!")
 
     if dataset == "ml-1m":
-        total_data = prep_movielens(BASE_PATH + "/ml-1m/ratings.dat")
+        total_data = prep_recbole(
+            BASE_PATH + "/ml-1m/ml-1m.inter",
+            "user_id:token",
+            "item_id:token",
+            "rating:float",
+            BASE_PATH + "/ml-1m/ml-1m_original.item",
+            "item_id:token",
+        )
     elif dataset == "steam":
         total_data = prep_recbole(
             BASE_PATH + "/steam/steam.inter",
