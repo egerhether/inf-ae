@@ -3,56 +3,66 @@ import numpy as np
 
 import eval_metrics
 
-class TestCalculateHitRate(unittest.TestCase):
+class TestCalculateRecallAndTruncatedVersion(unittest.TestCase):
 
     def test_no_hits(self):
         recommendations = [101, 102, 103]
         ground_truth = {1, 2, 3}
         k = 3
-        self.assertAlmostEqual(eval_metrics.hr(recommendations, ground_truth, k), 0.0)
+        self.assertAlmostEqual(eval_metrics.recall(recommendations, ground_truth, k), 0.0)
+        self.assertAlmostEqual(eval_metrics.truncated_recall(recommendations, ground_truth, k), 0.0)
 
-    def test_2_hits_but_1_in_k(self):
+    def truncate_denum(self):
         recommendations = [1, 2, 3, 4, 5]
-        ground_truth = {3, 5, 10}
+        ground_truth = {3, 5, 10, 100, 500}
         k = 4
-        self.assertAlmostEqual(eval_metrics.hr(recommendations, ground_truth, k), 1/3)
+        self.assertAlmostEqual(eval_metrics.recall(recommendations, ground_truth, k), 1/5)
+        self.assertAlmostEqual(eval_metrics.truncated_recall(recommendations, ground_truth, k), 1/4)
 
     def test_all_gt_in_k(self):
         recommendations = [10, 20, 30, 40, 50]
         ground_truth = {20, 40}
         k = 5
-        self.assertAlmostEqual(eval_metrics.hr(recommendations, ground_truth, k), 1.0)
+        self.assertAlmostEqual(eval_metrics.recall(recommendations, ground_truth, k), 1.0)
+        self.assertAlmostEqual(eval_metrics.truncated_recall(recommendations, ground_truth, k), 1.0)
 
     def test_no_hits_in_k(self):
         recommendations = [1, 2, 3, 4, 5]
         ground_truth = {4, 5, 6}
         k = 2
-        self.assertAlmostEqual(eval_metrics.hr(recommendations, ground_truth, k), 0.0)
+        self.assertAlmostEqual(eval_metrics.recall(recommendations, ground_truth, k), 0.0)
+        self.assertAlmostEqual(eval_metrics.truncated_recall(recommendations, ground_truth, k), 0.0)
 
     def test_k_is_zero(self):
         recommendations = [1, 2, 3]
         ground_truth = {1, 2}
         k = 0
-        self.assertAlmostEqual(eval_metrics.hr(recommendations, ground_truth, k), 0.0)
+        self.assertAlmostEqual(eval_metrics.recall(recommendations, ground_truth, k), 0.0)
+        with self.assertRaises(ZeroDivisionError):
+            eval_metrics.truncated_recall(recommendations, ground_truth, k)
 
     def test_k_is_larger_than_recommendation_list(self):
         recommendations = [1, 2]
         ground_truth = {1, 3}
         k = 10
-        self.assertAlmostEqual(eval_metrics.hr(recommendations, ground_truth, k), 0.5)
+        self.assertAlmostEqual(eval_metrics.recall(recommendations, ground_truth, k), 0.5)
+        self.assertAlmostEqual(eval_metrics.truncated_recall(recommendations, ground_truth, k), 0.5)
 
     def test_empty_recommendation_list(self):
         recommendations = []
         ground_truth = {1, 2, 3}
         k = 5
-        self.assertAlmostEqual(eval_metrics.hr(recommendations, ground_truth, k), 0.0)
+        self.assertAlmostEqual(eval_metrics.recall(recommendations, ground_truth, k), 0.0)
+        self.assertAlmostEqual(eval_metrics.truncated_recall(recommendations, ground_truth, k), 0.0)
 
     def test_empty_ground_truth_raises_error(self):
         recommendations = [1, 2, 3]
         ground_truth = set()
         k = 3
         with self.assertRaises(ZeroDivisionError):
-             eval_metrics.hr(recommendations, ground_truth, k)
+            eval_metrics.recall(recommendations, ground_truth, k)
+        with self.assertRaises(ZeroDivisionError):
+            eval_metrics.truncated_recall(recommendations, ground_truth, k)
 
 class Testeval_CalculateNDCG(unittest.TestCase):
 

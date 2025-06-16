@@ -51,7 +51,11 @@ def train(hyper_params, data):
         print("Checking lamda:", lamda)
         hyper_params["lamda"] = lamda
         val_metrics = evaluate(
-            hyper_params, kernelized_rr_forward, data, sampled_matrix
+            hyper_params,
+            kernelized_rr_forward,
+            data,
+            sampled_matrix,
+            test_set_eval=False
         )
         print("val_metrics:", val_metrics)
         if (best_metric is None) or (val_metrics[VAL_METRIC] > best_metric):

@@ -5,9 +5,19 @@ import numpy as np
 import eval_metrics
 from eval_metrics import GiniCoefficient
 from utils import get_item_propensity
-from utils import filter_out_users_with_no_gt
+from utils import validate_users_ground_truth
 
 INF = float(1e6)
+
+METRIC_NAMES = [
+    "RECALL",
+    "TRUNCATED_RECALL",
+    "NDCG",
+    "PSP",
+    "GINI",
+    "MEAN_AUC",
+    "GLOBAL_AUC",
+]
 
 def evaluate(
     hyper_params,
@@ -19,45 +29,35 @@ def evaluate(
 ):
     print(f"\n[EVALUATE] Starting evaluation with k_values={k_values}, test_set_eval={test_set_eval}")
     print(f"[EVALUATE] Hyperparams: #users={hyper_params['num_users']}, #items={hyper_params['num_items']}, lambda={hyper_params['lamda']}")
+    assert 0 not in k_values, "0 in k values"
 
     preds, y_binary, metrics = [], [], {}
-    for kind in ["RECALL", "NDCG", "PSP", "GINI"]:
+    for kind in METRIC_NAMES:
+        if ("AUC" in kind):
+            metrics[kind] = 0.0
+            continue
         for k in k_values:
             metrics[f"{kind}@{k}"] = 0.0
 
-    metrics["mean_AUC"] = 0.0
-
-    # users with ground truth; others are skipped in metric computation; required for correct averaging
-    metrics["valid_user_count"] = 0.0 # needed until preprocess.py is fixed
-
     # Items from the train set to mask (set to -INF) in train/val predictions.
     train_positive_list = list(map(list, data.data["train_positive_set"]))
-    assert len(train_positive_list) == hyper_params['num_users'], (
-        f"[EVALUATION ERROR] Expected train_positive_list to have {hyper_params['num_users']} users, "
-        f"but got {len(train_positive_list)}."
-    )
 
     # Train positive interactions (in matrix form) as context for prediction on val/test set
     eval_context = data.data["train_matrix"]
 
     if test_set_eval:
-        print("[EVALUATE] Adding validation positive set to train positive set for test evaluation")
+        # Add validation positive set to train positive set for test evaluation
         for u in range(len(train_positive_list)):
             train_positive_list[u] += list(data.data["val_positive_set"][u])
 
-        print("[EVALUATE] Adding validation matrix to evaluation context")
+        # Add validation matrix to evaluation context
         eval_context += data.data["val_matrix"]
         
-        print("[EVALUATE] using TEST positive set for prediction")
+        # Use TEST positive set for prediction
         to_predict = data.data["test_positive_set"]
     else:
-        print("[EVALUATE] using VAL positive set for prediction")
+        # Use VAL positive set for prediction
         to_predict = data.data["val_positive_set"]
-
-    assert len(to_predict) == hyper_params['num_users'], (
-        f"[EVALUATION ERROR] Expected to_predict list to have {hyper_params['num_users']} users, "
-        f"but got {len(to_predict)}."
-    )
     
     # For GINI calculation - track item exposures across all recommendations
     item_exposures = np.zeros(hyper_params["num_items"])
@@ -71,19 +71,18 @@ def evaluate(
 
     for i in range(0, hyper_params["num_users"], bsz):
         batch_end = min(i + bsz, hyper_params["num_users"])
-        print(
-            f"[EVALUATE] Processing batch of users {i} to {batch_end-1} (total: {batch_end-i})"
-        )
+        print(f"[EVALUATE] Processing batch of users {i} to {batch_end-1} (total: {batch_end-i})")
 
-        print(f"[EVALUATE] Running forward pass for batch {i} to {batch_end-1}")
+        # Sanity check for users with no items
+        user_ids = range(i, batch_end)
+        validate_users_ground_truth(user_ids, to_predict[i:batch_end])
+
+        # Forward pass
         temp_preds = kernelized_rr_forward(
             train_x, eval_context[i:batch_end].todense(), reg=hyper_params["lamda"]
         )
-        print(
-            f"[EVALUATE] Forward pass complete, prediction shape: {np.array(temp_preds).shape}"
-        )
+        print(f"[EVALUATE] Forward pass complete, prediction shape: {np.array(temp_preds).shape}")
 
-        print(f"[EVALUATE] Evaluating batch {i} to {batch_end-1}")
         metrics, temp_preds, temp_y, user_recommendations_batch = evaluate_batch(
             data.data["negatives"][i:batch_end],
             np.array(temp_preds),
@@ -93,7 +92,7 @@ def evaluate(
             k_values,
             metrics,
             data,
-            hyper_params
+            hyper_params["use_gini"]
         )
         print(f"[EVALUATE] Batch evaluation complete")
 
@@ -103,49 +102,36 @@ def evaluate(
                 if k not in user_recommendations:
                     user_recommendations[k] = []
                 user_recommendations[k] += user_recommendations_batch[k]
-                print(f"[EVALUATE] Accumulated {len(user_recommendations_batch[k])} recommendations for k={k}")
 
         preds += temp_preds
         y_binary += temp_y
-        print(f"[EVALUATE] Accumulated {len(temp_preds)} predictions and {len(temp_y)} labels")
 
     print(f"[EVALUATE] All batches processed, computing final metrics")
     y_binary, preds = np.array(y_binary), np.array(preds)
     if (True not in np.isnan(y_binary)) and (True not in np.isnan(preds)):
-        metrics["global_AUC"] = round(eval_metrics.auc(y_binary, preds), 4)
-        print(f"[EVALUATE] Computed StackedAUC: {metrics['global_AUC']}")
+        metrics["GLOBAL_AUC"] = round(eval_metrics.auc(y_binary, preds), 4)
     else:
-        print("[EVALUATE] Warning: NaN values detected in y_binary or preds, skipping AUC calculation")
+        print("[EVALUATE] Warning: NaN values detected in y_binary or preds, skipping GLOBAL_AUC calculation")
 
-    for kind in ["RECALL", "NDCG", "PSP"]:
+    # Averaging
+    for kind in METRIC_NAMES:
+        if ("AUC" in kind): 
+            continue
         for k in k_values:
             metrics["{}@{}".format(kind, k)] = round(
                 float(metrics["{}@{}".format(kind, k)])
-                / metrics["valid_user_count"],
+                / hyper_params["num_users"],
                 4,
             )
-            print(f"[EVALUATE] {kind}@{k}: {metrics['{}@{}'.format(kind, k)]}")
-
-    metrics["mean_AUC"] = round(metrics["mean_AUC"] / metrics["valid_user_count"], 4)
+    metrics["MEAN_AUC"] = round(metrics["MEAN_AUC"] / hyper_params["num_users"], 4)
 
     if hyper_params["use_gini"]:
-        print("[EVALUATE] Computing GINI coefficients")
         for k in k_values:
-            print(
-                f"[EVALUATE] Computing GINI@{k} with {len(user_recommendations[k])} recommendations"
-            )
-            metrics["GINI@{}".format(k)] = GiniCoefficient().calculate_list_gini(
-                user_recommendations[k], key="category"
-            )
-            print(f"[EVALUATE] GINI@{k}: {metrics['GINI@{}'.format(k)]}")
+            metrics["GINI@{}".format(k)] = GiniCoefficient().calculate_list_gini(user_recommendations[k], key="category")
 
-    metrics["num_users"] = int(train_x.shape[0])
-    metrics["num_interactions"] = int(jnp.count_nonzero(train_x.astype(np.int8)))
-    print(
-        f"[EVALUATE] Final metrics: num_users={metrics['num_users']}, num_interactions={metrics['num_interactions']}"
-    )
-
-    print(f"[EVALUATION] Averaged metrics over {metrics['valid_user_count']} users; {hyper_params['num_users'] - metrics['valid_user_count']} had no ground truth.")
+    metrics["train_users"] = int(train_x.shape[0])
+    metrics["train_interactions"] = int(jnp.count_nonzero(train_x.astype(np.int8)))
+    print(f"[EVALUATE] Train set statistics: num_users={metrics['train_users']}, num_interactions={metrics['train_interactions']}")
 
     return metrics
 
@@ -156,28 +142,41 @@ def evaluate_batch(
     train_positive,
     test_positive_set,
     item_propensity,
-    topk,
+    k_values,
     metrics,
     data,
-    hyper_params,
-    train_metrics=False,
+    compute_gini,
 ):
     """
     Args:
-        logits: Matrix of shape BU x UI where
-                BU = #users in eval batch and
-                UI = #unique items
+        auc_negatives: A pre-sampled subset of negative items used to speed up
+            the AUC calculation, since using all negatives is too slow.
+
+        logits: The raw prediction scores from the model. Shape: (batch_users x num_items).
+
+        train_positive: A list of item IDs that users interacted with in the training
+            set. Used to mask out items so we don't recommen things the user has already seen.
+
+        test_positive_set: The ground truth. Actual items we hope the
+            model recommends for each user in the test set.
+
+        item_propensity: Needed to calculate the PSP metric.
+
+        k_values: A list of numbers to use for 'top-K' metrics.
+
+        metrics: A dictionary that accumulates the metric scores. Result from this batch
+            are added to it, so they can be averaged later in evaluate().
+
+        data: The main dataset object, passed in here so we can look up item
+            category information for calculating the Gini coefficient.
+
+        compute_gini: A flag to tell the function whether update exposures for gini.
     """
-    print(f"[EVAL_BATCH] Starting batch evaluation with {len(logits)} users")
-    
-    # The below 2 lines are needed until preprocess.py is fixed  for correct metric computation.
-    # filter_our_users_with_no_gt should become a sanity check/assert once we trust preprocess.py  
-    valid_user_indices = filter_out_users_with_no_gt(len(logits), test_positive_set)
-    metrics["valid_user_count"] += len(valid_user_indices)
+    print(f"[EVAL_BATCH] Starting batch evaluation with {len(logits)} users") 
 
     # Collect all binary labels and score predictions for calculating global_AUC
     temp_preds, temp_y = [], []
-    for user_idx in valid_user_indices:
+    for user_idx in range(len(logits)):
         positive_item_indices = np.array(list(test_positive_set[user_idx]))
         negative_item_indices = auc_negatives[user_idx]
 
@@ -192,41 +191,23 @@ def evaluate_batch(
 
         # Accumulate per-user AUC for the calculation of meanAUC done in `evaluate(...)`
         user_auc = eval_metrics.auc(true_labels, item_scores)
-        metrics["mean_AUC"] += user_auc
-
-        if user_idx % 1000 == 0:  # Only print every 1000 users to avoid excessive output
-            print(
-                f"[EVAL_BATCH] User {user_idx}: processed "
-                f"{len(positive_item_indices)} positive and "
-                f"{len(negative_item_indices)} negative "
-                f"examples into AUC-friendly format"
-            )
-
-    print(f"[EVAL_BATCH] Collected {len(temp_preds)} predictions for global_AUC calculation")
+        metrics["MEAN_AUC"] += user_auc
 
     # Marking train-set consumed items as negative INF
-    print(f"[EVAL_BATCH] Marking train-set consumed items as negative infinity")
-    for user_idx in valid_user_indices:
-        if user_idx % 1000 == 0:  # Only print every 1000 users to avoid excessive output
-            print(f"[EVAL_BATCH] User {user_idx}: marking {len(train_positive[user_idx])} train positive items as -INF")
+    for user_idx in range(len(logits)):
         logits[user_idx][train_positive[user_idx]] = -INF
 
-    print(f"[EVAL_BATCH] Sorting indices for top-{max(topk)} recommendations")
-    recommended_item_indices = (-logits).argsort()[:, : max(topk)].tolist()
-    batch_exposures = {k: np.zeros(logits.shape[1]) for k in topk}
+    # Sort indices for top-{max(topk)} recommendations
+    recommended_item_indices = (-logits).argsort()[:, : max(k_values)].tolist()
+    batch_exposures = {k: np.zeros(logits.shape[1]) for k in k_values}
 
     user_recommendations = {}
-
-    num_valid_users_in_batch = 0.0
-    assert 0 not in topk, "0 in k values"
-
-    for k_step, k in enumerate(topk):
+    for k in k_values:
         print(f"[EVAL_BATCH] Computing metrics for k={k}")
         user_recommendations[k] = []
-        recall_batch_sum, ndcg_batch_sum, psp_batch_sum = 0, 0, 0
 
-        for user_idx in valid_user_indices:
-            if hyper_params["use_gini"]:
+        for user_idx in range(len(logits)):
+            if compute_gini:
                 # Update item exposures for this batch at this k
                 for item_idx in recommended_item_indices[user_idx][:k]:
                     category = data.data["item_map_to_category"].get(item_idx + 1)
@@ -238,23 +219,13 @@ def evaluate_batch(
                     )
 
             recall = eval_metrics.recall(recommended_item_indices[user_idx], test_positive_set[user_idx], k)
+            truncated_recall = eval_metrics.truncated_recall(recommended_item_indices[user_idx], test_positive_set[user_idx], k)
             ndcg = eval_metrics.ndcg(recommended_item_indices[user_idx], test_positive_set[user_idx], k)
             psp = eval_metrics.psp(recommended_item_indices[user_idx], test_positive_set[user_idx], item_propensity, k)
 
-            if user_idx % 1000 == 0:
-                print(f"[EVAL_BATCH] User {user_idx}, RECALL@{k} = {recall}, NDCG@{k} = {ndcg}, PSP@{k} = {psp}")
+            metrics["RECALL@{}".format(k)] += recall
+            metrics["TRUNCATED_RECALL@{}".format(k)] += truncated_recall
+            metrics["NDCG@{}".format(k)] += ndcg
+            metrics["PSP@{}".format(k)] += psp
 
-            recall_batch_sum += recall
-            ndcg_batch_sum += ndcg
-            psp_batch_sum += psp
-
-        metrics["RECALL@{}".format(k)] += recall_batch_sum
-        metrics["NDCG@{}".format(k)] += ndcg_batch_sum
-        metrics["PSP@{}".format(k)] += psp_batch_sum
-
-        print(f"[EVAL_BATCH] k={k} metrics - Average Recall: {recall_batch_sum/len(valid_user_indices):.4f}, Average NDCG: {ndcg_batch_sum/len(valid_user_indices):.4f}, Average PSP: {psp_batch_sum/len(valid_user_indices):.4f}")
-        if hyper_params["use_gini"]: print(f"[EVAL_BATCH] Collected {len(user_recommendations[k])} recommendations for k={k}" )
-
-    print(f"[EVAL_BATCH] Batch evaluation complete, returning {len(temp_preds)} predictions")
-
-    return metrics, temp_preds, temp_y, user_recommendations if hyper_params["use_gini"] else {}
+    return metrics, temp_preds, temp_y, user_recommendations if compute_gini else {}
