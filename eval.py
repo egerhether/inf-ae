@@ -1,12 +1,11 @@
 import jax
 import jax.numpy as jnp
-from matplotlib import use
 import numpy as np
 
 import eval_metrics
 from eval_metrics import GiniCoefficient
 from utils import get_item_propensity
-from utils import validate_users_ground_truth
+from utils import filter_out_users_with_no_gt
 
 INF = float(1e6)
 
@@ -41,6 +40,8 @@ def evaluate(
             continue
         for k in k_values:
             metrics[f"{kind}@{k}"] = 0.0
+    
+    metrics["valid_user_count"] = 0.0
 
     # Items from the train set to mask (set to -INF) in train/val predictions.
     train_positive_list = list(map(list, data.data["train_positive_set"]))
@@ -59,34 +60,40 @@ def evaluate(
         # Use TEST positive set for prediction
         to_predict = data.data["test_positive_set"]
         if hyper_params["gen"] == "strong":
-            num_items = data.data["test_matrix"].shape[1]
-            num_sampled_items = int(0.2 * num_items)
-            sampled_items = np.random.choice(np.arange(num_items), size = num_sampled_items)
-            print(f"[EVALUATE] Masking {len(sampled_items)} items from test set and adding rest to eval context")
+            total_sampled_items = 0
             added_context = data.data["test_matrix"]
-            added_context[:, sampled_items] = 0
-            eval_context += added_context
             to_predict = []
-            sampled_set = set(sampled_items)
-            for u in data.data["test_positive_set"]:
-                u = u.intersection(sampled_set)
-                to_predict.append(u)
+            for u_idx, u in enumerate(data.data["test_positive_set"]):
+                num_user_items = len(u)
+                if num_user_items == 0:
+                    to_predict.append(set())
+                    continue
+                num_sampled_items = int(0.2 * num_user_items)
+                sampled_items = np.random.choice(list(u), size = num_sampled_items)
+                total_sampled_items += len(sampled_items)
+                added_context[u_idx, sampled_items] = 0 
+                to_predict.append(set(sampled_items))
+            eval_context += added_context
+            print(f"[EVALUATE] Masking {total_sampled_items} items from test set and adding rest to eval context")
     else:
         # Use VAL positive set for prediction
         to_predict = data.data["val_positive_set"]
         if hyper_params["gen"] == "strong":
-            num_items = data.data["val_matrix"].shape[1]
-            num_sampled_items = int(0.2 * num_items)
-            sampled_items = np.random.choice(np.arange(num_items), size = num_sampled_items)
-            print(f"[EVALUATE] Masking {len(sampled_items)} items from val set and adding rest to eval context")
+            total_sampled_items = 0
             added_context = data.data["val_matrix"]
-            added_context[:, sampled_items] = 0
-            eval_context += added_context
             to_predict = []
-            sampled_set = set(sampled_items)
-            for u in data.data["val_positive_set"]:
-                u = u.intersection(sampled_set)
-                to_predict.append(u)
+            for u_idx, u in enumerate(data.data["val_positive_set"]):
+                num_user_items = len(u)
+                if num_user_items == 0:
+                    to_predict.append(set())
+                    continue
+                num_sampled_items = int(0.2 * num_user_items)
+                sampled_items = np.random.choice(list(u), size = num_sampled_items)
+                total_sampled_items += len(sampled_items)
+                added_context[u_idx, sampled_items] = 0 
+                to_predict.append(set(sampled_items))
+            eval_context += added_context
+            print(f"[EVALUATE] Masking {total_sampled_items} items from val set and adding rest to eval context")
 
     assert len(to_predict) == hyper_params['num_users'], (
         f"[EVALUATION ERROR] Expected to_predict list to have {hyper_params['num_users']} users, "
@@ -108,8 +115,6 @@ def evaluate(
         print(f"[EVALUATE] Processing batch of users {i} to {batch_end-1} (total: {batch_end-i})")
 
         # Sanity check for users with no items
-        user_ids = range(i, batch_end)
-        validate_users_ground_truth(user_ids, to_predict[i:batch_end])
 
         # Forward pass
         temp_preds = kernelized_rr_forward(
@@ -217,7 +222,7 @@ def evaluate_batch(
 
     # Collect all binary labels and score predictions for calculating global_AUC
     temp_preds, temp_y = [], []
-    for user_idx in range(len(logits)):
+    for user_idx in valid_user_indices:
         positive_item_indices = np.array(list(test_positive_set[user_idx]))
         negative_item_indices = auc_negatives[user_idx]
 
@@ -247,7 +252,7 @@ def evaluate_batch(
         print(f"[EVAL_BATCH] Computing metrics for k={k}")
         user_recommendations[k] = []
 
-        for user_idx in range(len(logits)):
+        for user_idx in valid_user_indices:
             if compute_gini:
                 # Update item exposures for this batch at this k
                 for item_idx in recommended_item_indices[user_idx][:k]:
@@ -271,5 +276,4 @@ def evaluate_batch(
             metrics["PSP@{}".format(k)] += psp
             metrics["CAPPED_PSP@{}".format(k)] += capped_psp
 
-    return metrics, temp_preds, temp_y, user_recommendations if 
-  else {}
+    return metrics, temp_preds, temp_y, user_recommendations if compute_gini else {}

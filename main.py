@@ -34,7 +34,7 @@ def train(hyper_params, data):
     def precompute_alpha(X, lamda=0.1):
         K = kernel_fn(X, X)
         K_diag_avg = jnp.trace(K) / K.shape[0]
-        K_reg = K + jnp.abs(lamba) * K_diag_avg * jnp.eye(K.shape[0]) 
+        K_reg = K + jnp.abs(lamda) * K_diag_avg * jnp.eye(K.shape[0]) 
         return jnp.linalg.lstsq(K_reg, X)[0]
 
     # Evaluation
