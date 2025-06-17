@@ -30,6 +30,7 @@ def get_item_propensity(hyper_params, data, A=0.55, B=1.5):
 
     C = (np.log(num_instances) - 1) * np.power(B + 1, A)
     denumerator = 1.0 + C * np.power(np.array(item_freq) + B, -A)
+    # Originally the code was returning inverse propensities instead (utils.py line 27)
     propensities = 1 / denumerator
     return propensities
 
@@ -57,13 +58,9 @@ def log_end_epoch(
     file_write(hyper_params["log_file"], ss, dont_print=dont_print)
 
 
-def filter_out_users_with_no_gt(num_users: int, ground_truth: list[list]) -> list[int]:
+def validate_users_ground_truth(user_ids: range, ground_truth: list[list]) -> None:
     """
-    Filter out any users with no ground truth items.
-    NOTE: This function is called in `evaluate_batch` in eval.py where user_idx is 
-          not the same as user_idx in the main evaluation funciton.
-          This is because of batching, but as long as corresponding ranges of 
-          negatives, test and train positives are passed this is not a problem.
+    Check for users with no ground truth items.
     """
     valid_user_indices = []
     invalid = []

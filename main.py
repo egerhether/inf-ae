@@ -33,13 +33,14 @@ def train(hyper_params, data):
     @jax.jit
     def precompute_alpha(X, lamda=0.1):
         K = kernel_fn(X, X)
-        K_reg = (K + jnp.abs(lamda) * jnp.trace(K) * jnp.eye(K.shape[0]) / K.shape[0])
+        K_diag_avg = jnp.trace(K) / K.shape[0]
+        K_reg = K + jnp.abs(lamba) * K_diag_avg * jnp.eye(K.shape[0]) 
         return jnp.linalg.lstsq(K_reg, X)[0]
 
     # Evaluation
     start_time = time.time()
 
-    VAL_METRIC = "HR@100"
+    VAL_METRIC = "RECALL@100"
     best_metric, best_lamda = None, None
 
     # Validate on the validation-set
@@ -59,6 +60,7 @@ def train(hyper_params, data):
             val_metrics = evaluate(
                 hyper_params, kernelized_rr_forward, data, sampled_matrix
             )
+
         print("val_metrics:", val_metrics)
         if (best_metric is None) or (val_metrics[VAL_METRIC] > best_metric):
             best_metric, best_lamda = val_metrics[VAL_METRIC], lamda
