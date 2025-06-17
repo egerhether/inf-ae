@@ -14,6 +14,7 @@ METRIC_NAMES = [
     "TRUNCATED_RECALL",
     "NDCG",
     "PSP",
+    "CAPPED_PSP",
     "GINI",
     "MEAN_AUC",
     "GLOBAL_AUC",
@@ -222,10 +223,12 @@ def evaluate_batch(
             truncated_recall = eval_metrics.truncated_recall(recommended_item_indices[user_idx], test_positive_set[user_idx], k)
             ndcg = eval_metrics.ndcg(recommended_item_indices[user_idx], test_positive_set[user_idx], k)
             psp = eval_metrics.psp(recommended_item_indices[user_idx], test_positive_set[user_idx], item_propensity, k)
+            capped_psp = eval_metrics.capped_psp(recommended_item_indices[user_idx], test_positive_set[user_idx], item_propensity, k)
 
             metrics["RECALL@{}".format(k)] += recall
             metrics["TRUNCATED_RECALL@{}".format(k)] += truncated_recall
             metrics["NDCG@{}".format(k)] += ndcg
             metrics["PSP@{}".format(k)] += psp
+            metrics["CAPPED_PSP@{}".format(k)] += capped_psp
 
     return metrics, temp_preds, temp_y, user_recommendations if compute_gini else {}

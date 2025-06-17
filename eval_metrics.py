@@ -47,6 +47,9 @@ def psp(
     item_propensities: list[float],
     k: int
 ) -> float:
+    """
+    What is defined in the paper. (Appendix B.5: "Propensity-scored Precision")
+    """
     upsp, mpsp = 0.0, 0.0
     denum = float(min(k, len(recommended_ranked_list)))
 
@@ -58,6 +61,28 @@ def psp(
         mpsp += 1.0 / item_propensities[item_id]
 
     return upsp / mpsp
+
+def capped_psp(
+    recommended_ranked_list: list[int],
+    ground_truth_items: set[int],
+    item_propensities: list[float],
+    k: int
+) -> float:
+    """
+    What actually computed. (eval.py lines 76- 88)
+    """
+    upsp, max_psp = 0.0, 0.0
+    denum = float(min(k, len(ground_truth_items))) # difference 1: normalization of upsp
+
+    ground_truth_inv_propensity_sorted = sorted([ 1.0 / item_propensities[x] for x in ground_truth_items ])[::-1]
+
+    for at, item_idx in enumerate(recommended_ranked_list[:k]):
+        if item_idx in ground_truth_items: 
+            upsp += (1.0 / item_propensities[item_idx]) / denum
+        if at < len(ground_truth_items):
+            max_psp += ground_truth_inv_propensity_sorted[at] # difference 2: upsp normalized by 
+
+    return upsp / max_psp
 
 class GiniCoefficient:
     """

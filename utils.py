@@ -30,6 +30,7 @@ def get_item_propensity(hyper_params, data, A=0.55, B=1.5):
 
     C = (np.log(num_instances) - 1) * np.power(B + 1, A)
     denumerator = 1.0 + C * np.power(np.array(item_freq) + B, -A)
+    # Originally the code was returning inverse propensities instead (utils.py line 27)
     propensities = 1 / denumerator
     return propensities
 
