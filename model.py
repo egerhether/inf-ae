@@ -14,25 +14,29 @@ def make_kernelized_rr_forward(hyper_params):
     kernel_fn = functools.partial(kernel_fn, get="ntk")
 
     @jax.jit
-    def kernelized_rr_forward(X_train, X_predict, reg=0.1):
-        K_train = kernel_fn(X_train, X_train)
-        K_predict = kernel_fn(X_predict, X_train)
-        K_reg = (
-            K_train
-            + jnp.abs(reg)
-            * jnp.trace(K_train)
-            * jnp.eye(K_train.shape[0])
-            / K_train.shape[0]
-        )
-        # Try using jax.numpy.linalg.solve instead of scipy
-        try:
-            solution = jnp.linalg.solve(K_reg, X_train, assume_a="pos")
-        except:
-            # Fallback to a more stable but slower method
-            solution = jnp.linalg.lstsq(K_reg, X_train)[0]
-        # return jnp.dot(K_predict, sp.linalg.solve(K_reg, X_train, sym_pos=True))
-        return jnp.dot(K_predict, solution)
-        # return jnp.dot(K_predict, sp.linalg.solve(K_reg, X_train, assume_a='pos'))
+    def kernelized_rr_forward(X_train, X_predict, reg=0.1, alpha=None):
+        if alpha is None:
+            K_train = kernel_fn(X_train, X_train)
+            K_predict = kernel_fn(X_predict, X_train)
+            K_reg = (
+                K_train
+                + jnp.abs(reg)
+                * jnp.trace(K_train)
+                * jnp.eye(K_train.shape[0])
+                / K_train.shape[0]
+            )
+            # Try using jax.numpy.linalg.solve instead of scipy
+            try:
+                solution = jnp.linalg.solve(K_reg, X_train, assume_a="pos")
+            except:
+                # Fallback to a more stable but slower method
+                solution = jnp.linalg.lstsq(K_reg, X_train)[0]
+            # return jnp.dot(K_predict, sp.linalg.solve(K_reg, X_train, sym_pos=True))
+            return jnp.dot(K_predict, solution)
+            # return jnp.dot(K_predict, sp.linalg.solve(K_reg, X_train, assume_a='pos'))
+        else:
+            K_predict = kernel_fn(X_predict, X_train)
+            return jnp.dot(K_predict, alpha)
 
     return kernelized_rr_forward, kernel_fn
 

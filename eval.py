@@ -1,5 +1,6 @@
 import jax
 import jax.numpy as jnp
+from matplotlib import use
 import numpy as np
 
 import eval_metrics
@@ -16,6 +17,7 @@ def evaluate(
     train_x,
     k_values=[10, 100],
     test_set_eval=False,
+    alpha = None
 ):
     print(f"\n[EVALUATE] Starting evaluation with k_values={k_values}, test_set_eval={test_set_eval}")
     print(f"[EVALUATE] Hyperparams: #users={hyper_params['num_users']}, #items={hyper_params['num_items']}, lambda={hyper_params['lamda']}")
@@ -50,9 +52,35 @@ def evaluate(
         
         print("[EVALUATE] using TEST positive set for prediction")
         to_predict = data.data["test_positive_set"]
+        if hyper_params["gen"] == "strong":
+            num_items = data.data["test_matrix"].shape[1]
+            num_sampled_items = int(0.2 * num_items)
+            sampled_items = np.random.choice(np.arange(num_items), size = num_sampled_items)
+            print(f"[EVALUATE] Masking {len(sampled_items)} items from test set and adding rest to eval context")
+            added_context = data.data["test_matrix"]
+            added_context[:, sampled_items] = 0
+            eval_context += added_context
+            to_predict = []
+            sampled_set = set(sampled_items)
+            for u in data.data["test_positive_set"]:
+                u = u.intersection(sampled_set)
+                to_predict.append(u)
     else:
         print("[EVALUATE] using VAL positive set for prediction")
         to_predict = data.data["val_positive_set"]
+        if hyper_params["gen"] == "strong":
+            num_items = data.data["val_matrix"].shape[1]
+            num_sampled_items = int(0.2 * num_items)
+            sampled_items = np.random.choice(np.arange(num_items), size = num_sampled_items)
+            print(f"[EVALUATE] Masking {len(sampled_items)} items from val set and adding rest to eval context")
+            added_context = data.data["val_matrix"]
+            added_context[:, sampled_items] = 0
+            eval_context += added_context
+            to_predict = []
+            sampled_set = set(sampled_items)
+            for u in data.data["val_positive_set"]:
+                u = u.intersection(sampled_set)
+                to_predict.append(u)
 
     assert len(to_predict) == hyper_params['num_users'], (
         f"[EVALUATION ERROR] Expected to_predict list to have {hyper_params['num_users']} users, "
@@ -77,7 +105,7 @@ def evaluate(
 
         print(f"[EVALUATE] Running forward pass for batch {i} to {batch_end-1}")
         temp_preds = kernelized_rr_forward(
-            train_x, eval_context[i:batch_end].todense(), reg=hyper_params["lamda"]
+            train_x, eval_context[i:batch_end].todense(), reg=hyper_params["lamda"], alpha=alpha
         )
         print(
             f"[EVALUATE] Forward pass complete, prediction shape: {np.array(temp_preds).shape}"
@@ -172,6 +200,8 @@ def evaluate_batch(
     
     # The below 2 lines are needed until preprocess.py is fixed  for correct metric computation.
     # filter_our_users_with_no_gt should become a sanity check/assert once we trust preprocess.py  
+    # NOTE: with strong generalization this filters out users in splits not currently evaluated instead
+    # which is a desired behaviour
     valid_user_indices = filter_out_users_with_no_gt(len(logits), test_positive_set)
     metrics["valid_user_count"] += len(valid_user_indices)
 

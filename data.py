@@ -228,6 +228,17 @@ def load_raw_dataset(
         f"Created val matrix with shape {ret['val_matrix'].shape} and {ret['val_matrix'].nnz} non-zeros"
     )
 
+    ret["test_matrix"] = csr_matrix(
+        (
+            np.ones(ret["test"].shape[0]),
+            (ret["test"][:, 0].astype(np.int32), ret["test"][:, 1].astype(np.int32)),
+        ),
+        shape=(num_users, num_items),
+    )
+    print(
+        f"Created test matrix with shape {ret['test_matrix'].shape} and {ret['test_matrix'].nnz} non-zeros"
+    )
+
     # Negatives will be used for AUC computation
     print("Generating negative samples for evaluation")
     ret["negatives"] = [set() for _ in range(num_users)]

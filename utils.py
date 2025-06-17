@@ -66,11 +66,14 @@ def filter_out_users_with_no_gt(num_users: int, ground_truth: list[list]) -> lis
           negatives, test and train positives are passed this is not a problem.
     """
     valid_user_indices = []
+    invalid = []
     for user_idx in range(num_users):
         if len(ground_truth[user_idx]) > 0:
             valid_user_indices.append(user_idx)
         else:
+            invalid.append(user_idx)
             # Note: Tempararily we don't throw an error here until preprocess.py is fixed
-            print(f"[EVALUATION WARNING] Removing user {user_idx} as nothing in test_positive set. This should never happen.")
             # raise ValueError("There exists a user with no ground truth items in the validation or test set")
+
+    print(f"[EVALUATION WARNING] Removed {len(invalid)} users as nothing in test_positive set. This should never happen in weak generalization.")
     return valid_user_indices
