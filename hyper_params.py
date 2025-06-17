@@ -23,8 +23,9 @@ hyper_params = {
         "grid_search_lamda": True,
         "lamda": 1.0,  # Only used if grid_search_lamda == False
         # Number of users to keep (randomly)
-        "user_support": 1000,  # -1 implies use all users
+        "user_support": 10000,  # -1 implies use all users
         "seed": 42,
+        "gen": "strong"
     },
     "ml-20m": {
         "dataset": "ml-20m",

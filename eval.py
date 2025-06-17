@@ -63,11 +63,13 @@ def evaluate(
             total_sampled_items = 0
             added_context = data.data["test_matrix"]
             to_predict = []
+            num_eval_users = 0
             for u_idx, u in enumerate(data.data["test_positive_set"]):
                 num_user_items = len(u)
                 if num_user_items == 0:
                     to_predict.append(set())
                     continue
+                num_eval_users += 1
                 num_sampled_items = int(0.2 * num_user_items)
                 sampled_items = np.random.choice(list(u), size = num_sampled_items)
                 total_sampled_items += len(sampled_items)
@@ -82,11 +84,13 @@ def evaluate(
             total_sampled_items = 0
             added_context = data.data["val_matrix"]
             to_predict = []
+            num_eval_users = 0
             for u_idx, u in enumerate(data.data["val_positive_set"]):
                 num_user_items = len(u)
                 if num_user_items == 0:
                     to_predict.append(set())
                     continue
+                num_eval_users += 1
                 num_sampled_items = int(0.2 * num_user_items)
                 sampled_items = np.random.choice(list(u), size = num_sampled_items)
                 total_sampled_items += len(sampled_items)
@@ -152,6 +156,12 @@ def evaluate(
     else:
         print("[EVALUATE] Warning: NaN values detected in y_binary or preds, skipping GLOBAL_AUC calculation")
 
+    # correct mean for strong generalization
+    if hyper_params["gen"]:
+        num_users = num_eval_users
+    else:
+        num_users = hyper_params["num_users"]
+
     # Averaging
     for kind in METRIC_NAMES:
         if ("AUC" in kind): 
@@ -159,10 +169,10 @@ def evaluate(
         for k in k_values:
             metrics["{}@{}".format(kind, k)] = round(
                 float(metrics["{}@{}".format(kind, k)])
-                / hyper_params["num_users"],
+                / num_users,
                 4,
             )
-    metrics["MEAN_AUC"] = round(metrics["MEAN_AUC"] / hyper_params["num_users"], 4)
+    metrics["MEAN_AUC"] = round(metrics["MEAN_AUC"] / num_users, 4)
 
     if hyper_params["use_gini"]:
         for k in k_values:

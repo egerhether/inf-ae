@@ -237,8 +237,6 @@ class rating_data:
                 split = 2
             for _ in self.data[user]:
                 self.index[at] = split 
-                #if split in [1, 2] and at < int(len(self.data[user])):
-                    #self.index[at] = -1
                 at += 1
         assert at == len(self.index)
         print(np.sum(self.index == -1))
