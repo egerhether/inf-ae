@@ -39,7 +39,7 @@ def train(hyper_params, data):
     # Evaluation
     start_time = time.time()
 
-    VAL_METRIC = "HR@100"
+    VAL_METRIC = "RECALL@100"
     best_metric, best_lamda = None, None
 
     # Validate on the validation-set
@@ -51,7 +51,11 @@ def train(hyper_params, data):
         print("Checking lamda:", lamda)
         hyper_params["lamda"] = lamda
         val_metrics = evaluate(
-            hyper_params, kernelized_rr_forward, data, sampled_matrix
+            hyper_params,
+            kernelized_rr_forward,
+            data,
+            sampled_matrix,
+            test_set_eval=False
         )
         print("val_metrics:", val_metrics)
         if (best_metric is None) or (val_metrics[VAL_METRIC] > best_metric):
