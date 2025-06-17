@@ -27,14 +27,15 @@ def train(hyper_params, data):
     NOTE: No training required! We will compute dual-variables \alpha on the fly in `kernelized_rr_forward`
           However, if we needed to perform evaluation multiple times, we could pre-compute \alpha like so:
     
+    """
+
     import jax, jax.numpy as jnp, jax.scipy as sp
     @jax.jit
     def precompute_alpha(X, lamda=0.1):
         K = kernel_fn(X, X)
-        K_reg = (K + jnp.abs(lamda) * jnp.trace(K) * jnp.eye(K.shape[0]) / K.shape[0])
-        return sp.linalg.solve(K_reg, X, sym_pos=True)
-    alpha = precompute_alpha(sampled_matrix, lamda=0.1) # Change for the desired value of lamda
-    """
+        K_diag_avg = jnp.trace(K) / K.shape[0]
+        K_reg = K + jnp.abs(lamba) * K_diag_avg * jnp.eye(K.shape[0]) 
+        return jnp.linalg.lstsq(K_reg, X)[0]
 
     # Evaluation
     start_time = time.time()
@@ -50,13 +51,16 @@ def train(hyper_params, data):
     ):
         print("Checking lamda:", lamda)
         hyper_params["lamda"] = lamda
-        val_metrics = evaluate(
-            hyper_params,
-            kernelized_rr_forward,
-            data,
-            sampled_matrix,
-            test_set_eval=False
-        )
+        if hyper_params["gen"] == "strong":
+            alpha = precompute_alpha(sampled_matrix, lamda=lamda) # Change for the desired value of lamda
+            val_metrics = evaluate(
+                hyper_params, kernelized_rr_forward, data, sampled_matrix, alpha = alpha
+            )
+        else:
+            val_metrics = evaluate(
+                hyper_params, kernelized_rr_forward, data, sampled_matrix
+            )
+
         print("val_metrics:", val_metrics)
         if (best_metric is None) or (val_metrics[VAL_METRIC] > best_metric):
             best_metric, best_lamda = val_metrics[VAL_METRIC], lamda
