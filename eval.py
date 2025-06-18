@@ -10,6 +10,7 @@ from utils import validate_users_ground_truth
 INF = float(1e6)
 
 METRIC_NAMES = [
+    "PRECISION",
     "RECALL",
     "TRUNCATED_RECALL",
     "NDCG",
@@ -218,13 +219,14 @@ def evaluate_batch(
                             "category": category
                         }
                     )
-
+            precision = eval_metrics.precision(recommended_item_indices[user_idx], test_positive_set[user_idx], k)
             recall = eval_metrics.recall(recommended_item_indices[user_idx], test_positive_set[user_idx], k)
             truncated_recall = eval_metrics.truncated_recall(recommended_item_indices[user_idx], test_positive_set[user_idx], k)
             ndcg = eval_metrics.ndcg(recommended_item_indices[user_idx], test_positive_set[user_idx], k)
             psp = eval_metrics.psp(recommended_item_indices[user_idx], test_positive_set[user_idx], item_propensity, k)
             capped_psp = eval_metrics.capped_psp(recommended_item_indices[user_idx], test_positive_set[user_idx], item_propensity, k)
 
+            metrics["PRECISION@{}".format(k)] += precision
             metrics["RECALL@{}".format(k)] += recall
             metrics["TRUNCATED_RECALL@{}".format(k)] += truncated_recall
             metrics["NDCG@{}".format(k)] += ndcg
