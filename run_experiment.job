@@ -2,9 +2,10 @@
 
 #SBATCH --partition=gpu_a100
 #SBATCH --gpus=1
-#SBATCH --job-name=run_experiment
+#SBATCH --job-name=run_douban
 #SBATCH --time=0:59:00
-#SBATCH --output=./slurm_out/run_experiment_%j.out
+#SBATCH --mem=80G
+#SBATCH --output=./slurm_out/run_douban_%j.out
 
 #exit if an error occurs
 set -e
@@ -16,4 +17,4 @@ module load CUDA/12.6.0
 
 source activate inf-ae
 
-CUDA_VISIBLE_DEVICES=0 python main.py
+CUDA_VISIBLE_DEVICES=0 python main.py douban_fixed

@@ -145,16 +145,28 @@ def load_raw_dataset(
         )
     print(f"Loaded item data with shape: {item_df.shape}")
 
-    all_genres = [
-        genre
-        for genre_list in item_df[category_id].fillna("[Nan]")
-        for genre in genre_list.strip("[]").split(", ")
-    ]
-    unique_genres_list = list(set(all_genres))
-    #print(item_df[item_df[item_id].isna()])
-    item_map_to_category = dict(
-        zip(item_df[item_id].astype(int) + 1, item_df[category_id])
-    )
+    # This section needs refactoring
+    if dataset == "douban":
+        print("Processing Douban dataset")
+        item_map_to_category = dict(
+            zip(item_df[item_id].astype(int) + 1, item_df[category_id])
+        )
+
+    elif dataset == "ml-1m":
+        print("Processing MovieLens 1M dataset")
+        item_map_to_category = dict(
+            zip(item_df[item_id].astype(int) + 1, item_df[category_id.split(" ")[0]]) # using the first genre here
+        )
+    else:
+        print("Processing other dataset")
+        all_genres = [
+            genre
+            for genre_list in item_df[category_id].fillna("Nan")
+            for genre in genre_list.strip("[]").split(", ") 
+        ]    
+        item_map_to_category = dict(
+            zip(item_df[item_id].astype(int) + 1, item_df[category_id.split(", ")[0]])
+        )
 
     def select(data, index, index_val):
         print(f"Selecting data with index value {index_val}")
@@ -268,7 +280,6 @@ def load_raw_dataset(
     print("# users:", num_users)
     print("# items:", num_items)
     print("# interactions:", len(ret["train"]))
-    print("# unique genres:", len(unique_genres_list))
 
     return ret
 

@@ -53,10 +53,10 @@ hyper_params = {
         "seed": 42,
         "batch_size": 20000
     },
-    "amazon_magazine": {
-        "dataset": "amazon_magazine",
+    "ml-1m": {
+        "dataset": "ml-1m",
         "item_id": "item_id:token",  # configure it based on the .item file
-        "category_id": "brand:token",  # using brand as categories since categories:token_seq is empty
+        "category_id": "genre:token_seq",  # configure it based on the .item file
         "use_gini": True,
         "float64": False,
         "depth": 1,
@@ -65,6 +65,32 @@ hyper_params = {
         # Number of users to keep (randomly)
         "user_support": -1,  # -1 implies use all users
         "seed": 42,
-    }
+    },
+    "amazon_magazine": {
+        "dataset": "amazon_magazine",
+        "item_id": "item_id:token",  # configure it based on the .item file
+        "category_id": "brand:token",  
+        "use_gini": True,
+        "float64": False,
+        "depth": 1,
+        "grid_search_lamda": True,
+        "lamda": 1.0,  # Only used if grid_search_lamda == False
+        # Number of users to keep (randomly)
+        "user_support": -1,  # -1 implies use all users
+        "seed": 42,
+    },
+    "douban": {
+        "dataset": "douban",
+        "item_id": "movie_id:token",  # configure it based on the .item file
+        "category_id": "categoryID:token",  # configure it based on the .item file
+        "use_gini": True,
+        "float64": False,
+        "depth": 1,
+        "grid_search_lamda": True,
+        "lamda": 1.0,  # Only used if grid_search_lamda == False
+        # Number of users to keep (randomly)
+        "user_support": -1,  # -1 implies use all users
+        "seed": 42,
+    },
 }
 
