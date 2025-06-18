@@ -59,45 +59,61 @@ def evaluate(
         
         # Use TEST positive set for prediction
         to_predict = data.data["test_positive_set"]
+
+        # in case of strongly-generalized data, different preprocessing needed
+        # tldr: for each test user mask 20% of their interaction, add the rest 
+        # to the eval_context
         if hyper_params["gen"] == "strong":
             total_sampled_items = 0
             added_context = data.data["test_matrix"]
-            to_predict = []
-            num_eval_users = 0
+            to_predict = [] # we predict 20% of val interactions, not entire set like before
+            num_eval_users = 0 # needed for correct metric aggegation
             for u_idx, u in enumerate(data.data["test_positive_set"]):
                 num_user_items = len(u)
                 # if user not in test positive set
                 if num_user_items == 0:
                     to_predict.append(set())
                     continue
-                num_eval_users += 1
+                num_eval_users += 1 # only count test users
+
+                # Sampling
                 num_sampled_items = int(0.2 * num_user_items)
                 sampled_items = np.random.choice(list(u), size = num_sampled_items)
                 total_sampled_items += len(sampled_items)
-                added_context[u_idx, sampled_items] = 0 
-                to_predict.append(set(sampled_items))
+                added_context[u_idx, sampled_items] = 0 # mask out 20%
+
+                to_predict.append(set(sampled_items)) 
+
             eval_context += added_context
             print(f"[EVALUATE] Masking {total_sampled_items} items from test set and adding rest to eval context")
     else:
         # Use VAL positive set for prediction
         to_predict = data.data["val_positive_set"]
+
+        # in case of strongly-generalized data, different preprocessing needed
+        # tldr: for each val user mask 20% of their interaction, add the rest 
+        # to the eval_context
         if hyper_params["gen"] == "strong":
             total_sampled_items = 0
             added_context = data.data["val_matrix"]
-            to_predict = []
-            num_eval_users = 0
+            to_predict = [] # we predict 20% of val interactions, not entire set like before
+            num_eval_users = 0 # needed for correct metric aggegation
             for u_idx, u in enumerate(data.data["val_positive_set"]):
                 num_user_items = len(u)
                 # if user not in val positive set
                 if num_user_items == 0:
                     to_predict.append(set())
                     continue
-                num_eval_users += 1
+                num_eval_users += 1 # only count val users
+
+                # Sampling 
                 num_sampled_items = int(0.2 * num_user_items)
                 sampled_items = np.random.choice(list(u), size = num_sampled_items)
                 total_sampled_items += len(sampled_items)
-                added_context[u_idx, sampled_items] = 0 
+                added_context[u_idx, sampled_items] = 0 # mask out 20%
+
                 to_predict.append(set(sampled_items))
+
             eval_context += added_context
             print(f"[EVALUATE] Masking {total_sampled_items} items from val set and adding rest to eval context")
 
