@@ -214,7 +214,11 @@ class rating_data:
                 at += 1
 
         assert at == len(self.index)
+<<<<<<< strong-generalization
         print(np.sum(self.index == -1))
+=======
+        print(f"Removed {invalid} invalid users. {np.sum(np.array(self.index) >= 0, axis=0)} interactions left.")
+>>>>>>> main
         self.complete_data_stats = None
 
 
@@ -331,6 +335,15 @@ if __name__ == "__main__":
             "rating:float",
             BASE_PATH + "/ml-10m/ml-10m_original.item",
             "item_id:token",
+        )
+    elif dataset == "douban":
+        total_data = prep_recbole(
+            BASE_PATH + "/douban/douban.inter",
+            "user_id:token",
+            "item_id:token",
+            "rating:float",
+            BASE_PATH + "/douban/douban_original.item",
+            "movie_id:token",
         )
     else:
         raise Exception("Could not undestand this dataset")

@@ -3,6 +3,45 @@ import numpy as np
 
 import eval_metrics
 
+class TestCalculatePrecision(unittest.TestCase):
+    def test_no_hits(self):
+        recommendations = [101, 102, 103]
+        ground_truth = {1, 2, 3}
+        k = 3
+        self.assertAlmostEqual(eval_metrics.precision(recommendations, ground_truth, k), 0.0)
+
+    def test_all_hits(self):
+        recommendations = [1, 2, 3]
+        ground_truth = {1, 2, 3}
+        k = 3
+        self.assertAlmostEqual(eval_metrics.precision(recommendations, ground_truth, k), 1.0)
+
+    def test_partial_hits(self):
+        recommendations = [1, 2, 4]
+        ground_truth = {1, 2, 3}
+        k = 3
+        self.assertAlmostEqual(eval_metrics.precision(recommendations, ground_truth, k), 2/3)
+
+    def test_k_is_zero(self):
+        recommendations = [1, 2, 3]
+        ground_truth = {1, 2}
+        k = 0
+        with self.assertRaises(ZeroDivisionError):
+            eval_metrics.precision(recommendations, ground_truth, k)
+
+    def test_k_is_larger_than_recommendation_list(self):
+        recommendations = [1, 2]
+        ground_truth = {1, 3}
+        k = 10
+        self.assertAlmostEqual(eval_metrics.precision(recommendations, ground_truth, k), 0.5)
+
+    def test_empty_recommendation_list(self):
+        recommendations = []
+        ground_truth = {1, 2}
+        k = 5
+        self.assertAlmostEqual(eval_metrics.precision(recommendations, ground_truth, k), 0.0)
+    
+
 class TestCalculateRecallAndTruncatedVersion(unittest.TestCase):
 
     def test_no_hits(self):

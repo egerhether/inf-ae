@@ -6,6 +6,15 @@ Original Paper Title: "Infinite Recommendation Networks: A Data-Centric Approach
 Main Text and Appendix: https://proceedings.neurips.cc/paper_files/paper/2022/hash/cac9e747a1d480c78312226959566cef-Abstract-Conference.html 
 """
 
+def precision(recommended_ranked_list: list[int], ground_truth_items: set[int], k: int) -> float:
+    top_k_items = set(recommended_ranked_list[:k])
+    hits_at_k = len(top_k_items & ground_truth_items)
+    
+    if len(recommended_ranked_list) < k and len(recommended_ranked_list) != 0:
+        k = len(recommended_ranked_list)
+    
+    return float(hits_at_k) / k
+
 def recall(recommended_ranked_list: list[int], ground_truth_items: set[int], k: int) -> float:
     """
     What is defined in the paper. (Appendix B.5: "HitRate")
