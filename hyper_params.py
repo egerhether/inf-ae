@@ -23,8 +23,9 @@ hyper_params = {
         "grid_search_lamda": True,
         "lamda": 1.0,  # Only used if grid_search_lamda == False
         # Number of users to keep (randomly)
-        "user_support": -1,  # -1 implies use all users
+        "user_support": 20000,  # -1 implies use all users
         "seed": 42,
+        "gen": "strong"
     },
     "ml-20m": {
         "dataset": "ml-20m",
@@ -51,7 +52,21 @@ hyper_params = {
         # Number of users to keep (randomly)
         "user_support": 10000,  # -1 implies use all users
         "seed": 42,
-        "batch_size": 20000
+        "batch_size": 20000,
+    },
+    "ml-1m": {
+        "dataset": "ml-1m",
+        "item_id": "item_id:token",  # configure it based on the .item file
+        "category_id": "genre:token_seq",  # configure it based on the .item file
+        "use_gini": True,
+        "float64": False,
+        "depth": 1,
+        "grid_search_lamda": True,
+        "lamda": 1.0,  # Only used if grid_search_lamda == False
+        # Number of users to keep (randomly)
+        "user_support": -1,  # -1 implies use all users
+        "seed": 42,
+        "gen": "strong"
     },
     "ml-1m": {
         "dataset": "ml-1m",

@@ -5,7 +5,7 @@ import numpy as np
 import eval_metrics
 from eval_metrics import GiniCoefficient
 from utils import get_item_propensity
-from utils import validate_users_ground_truth
+from utils import filter_out_users_with_no_gt
 
 INF = float(1e6)
 
@@ -28,6 +28,7 @@ def evaluate(
     train_x,
     k_values=[10, 100],
     test_set_eval=False,
+    alpha = None
 ):
     print(f"\n[EVALUATE] Starting evaluation with k_values={k_values}, test_set_eval={test_set_eval}")
     print(f"[EVALUATE] Hyperparams: #users={hyper_params['num_users']}, #items={hyper_params['num_items']}, lambda={hyper_params['lamda']}")
@@ -40,6 +41,8 @@ def evaluate(
             continue
         for k in k_values:
             metrics[f"{kind}@{k}"] = 0.0
+    
+    metrics["valid_user_count"] = 0.0
 
     # Items from the train set to mask (set to -INF) in train/val predictions.
     train_positive_list = list(map(list, data.data["train_positive_set"]))
@@ -57,9 +60,68 @@ def evaluate(
         
         # Use TEST positive set for prediction
         to_predict = data.data["test_positive_set"]
+
+        # in case of strongly-generalized data, different preprocessing needed
+        # tldr: for each test user mask 20% of their interaction, add the rest 
+        # to the eval_context
+        if hyper_params["gen"] == "strong":
+            total_sampled_items = 0
+            added_context = data.data["test_matrix"]
+            to_predict = [] # we predict 20% of val interactions, not entire set like before
+            num_eval_users = 0 # needed for correct metric aggegation
+            for u_idx, u in enumerate(data.data["test_positive_set"]):
+                num_user_items = len(u)
+                # if user not in test positive set
+                if num_user_items == 0:
+                    to_predict.append(set())
+                    continue
+                num_eval_users += 1 # only count test users
+
+                # Sampling
+                num_sampled_items = int(0.2 * num_user_items)
+                sampled_items = np.random.choice(list(u), size = num_sampled_items)
+                total_sampled_items += len(sampled_items)
+                added_context[u_idx, sampled_items] = 0 # mask out 20%
+
+                to_predict.append(set(sampled_items)) 
+
+            eval_context += added_context
+            print(f"[EVALUATE] Masking {total_sampled_items} items from test set and adding rest to eval context")
     else:
         # Use VAL positive set for prediction
         to_predict = data.data["val_positive_set"]
+
+        # in case of strongly-generalized data, different preprocessing needed
+        # tldr: for each val user mask 20% of their interaction, add the rest 
+        # to the eval_context
+        if hyper_params["gen"] == "strong":
+            total_sampled_items = 0
+            added_context = data.data["val_matrix"]
+            to_predict = [] # we predict 20% of val interactions, not entire set like before
+            num_eval_users = 0 # needed for correct metric aggegation
+            for u_idx, u in enumerate(data.data["val_positive_set"]):
+                num_user_items = len(u)
+                # if user not in val positive set
+                if num_user_items == 0:
+                    to_predict.append(set())
+                    continue
+                num_eval_users += 1 # only count val users
+
+                # Sampling 
+                num_sampled_items = int(0.2 * num_user_items)
+                sampled_items = np.random.choice(list(u), size = num_sampled_items)
+                total_sampled_items += len(sampled_items)
+                added_context[u_idx, sampled_items] = 0 # mask out 20%
+
+                to_predict.append(set(sampled_items))
+
+            eval_context += added_context
+            print(f"[EVALUATE] Masking {total_sampled_items} items from val set and adding rest to eval context")
+
+    assert len(to_predict) == hyper_params['num_users'], (
+        f"[EVALUATION ERROR] Expected to_predict list to have {hyper_params['num_users']} users, "
+        f"but got {len(to_predict)}."
+    )
     
     # For GINI calculation - track item exposures across all recommendations
     item_exposures = np.zeros(hyper_params["num_items"])
@@ -76,12 +138,10 @@ def evaluate(
         print(f"[EVALUATE] Processing batch of users {i} to {batch_end-1} (total: {batch_end-i})")
 
         # Sanity check for users with no items
-        user_ids = range(i, batch_end)
-        validate_users_ground_truth(user_ids, to_predict[i:batch_end])
 
         # Forward pass
         temp_preds = kernelized_rr_forward(
-            train_x, eval_context[i:batch_end].todense(), reg=hyper_params["lamda"]
+            train_x, eval_context[i:batch_end].todense(), reg=hyper_params["lamda"], alpha=alpha
         )
         print(f"[EVALUATE] Forward pass complete, prediction shape: {np.array(temp_preds).shape}")
 
@@ -115,6 +175,12 @@ def evaluate(
     else:
         print("[EVALUATE] Warning: NaN values detected in y_binary or preds, skipping GLOBAL_AUC calculation")
 
+    # correct mean for strong generalization
+    if hyper_params["gen"] == "strong":
+        num_users = num_eval_users
+    else:
+        num_users = hyper_params["num_users"]
+
     # Averaging
     for kind in METRIC_NAMES:
         if ("AUC" in kind): 
@@ -122,10 +188,10 @@ def evaluate(
         for k in k_values:
             metrics["{}@{}".format(kind, k)] = round(
                 float(metrics["{}@{}".format(kind, k)])
-                / hyper_params["num_users"],
+                / num_users,
                 4,
             )
-    metrics["MEAN_AUC"] = round(metrics["MEAN_AUC"] / hyper_params["num_users"], 4)
+    metrics["MEAN_AUC"] = round(metrics["MEAN_AUC"] / num_users, 4)
 
     if hyper_params["use_gini"]:
         for k in k_values:
@@ -174,11 +240,18 @@ def evaluate_batch(
 
         compute_gini: A flag to tell the function whether update exposures for gini.
     """
-    print(f"[EVAL_BATCH] Starting batch evaluation with {len(logits)} users") 
+    print(f"[EVAL_BATCH] Starting batch evaluation with {len(logits)} users")
+    
+    # The below 2 lines are needed until preprocess.py is fixed  for correct metric computation.
+    # filter_our_users_with_no_gt should become a sanity check/assert once we trust preprocess.py  
+    # NOTE: with strong generalization this filters out users in splits not currently evaluated instead
+    # which is a desired behaviour
+    valid_user_indices = filter_out_users_with_no_gt(len(logits), test_positive_set)
+    metrics["valid_user_count"] += len(valid_user_indices)
 
     # Collect all binary labels and score predictions for calculating global_AUC
     temp_preds, temp_y = [], []
-    for user_idx in range(len(logits)):
+    for user_idx in valid_user_indices:
         positive_item_indices = np.array(list(test_positive_set[user_idx]))
         negative_item_indices = auc_negatives[user_idx]
 
@@ -208,7 +281,7 @@ def evaluate_batch(
         print(f"[EVAL_BATCH] Computing metrics for k={k}")
         user_recommendations[k] = []
 
-        for user_idx in range(len(logits)):
+        for user_idx in valid_user_indices:
             if compute_gini:
                 # Update item exposures for this batch at this k
                 for item_idx in recommended_item_indices[user_idx][:k]:

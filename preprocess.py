@@ -196,7 +196,6 @@ class rating_data:
             for timestep, (item, rating) in enumerate(self.data[user]):
                 if len(self.data[user]) < 3:
                     self.index[at] = -1
-                    invalid += 1
                 else:
                     # Force at least one element in user history to be in test and one in val
                     if timestep == indices[0]:
@@ -215,8 +214,34 @@ class rating_data:
                 at += 1
 
         assert at == len(self.index)
+        print(np.sum(self.index == -1))
         print(f"Removed {invalid} invalid users. {np.sum(np.array(self.index) >= 0, axis=0)} interactions left.")
         self.complete_data_stats = None
+
+
+    def train_test_split_strong(self):
+        at = 0
+        num_users = len(self.data)
+        first_split_point = int(0.8 * num_users)
+        second_split_point = int(0.9 * num_users)
+        random_order_users = np.arange(num_users)
+        np.random.shuffle(random_order_users)
+        for user in range(num_users):
+            if len(self.data[user]) < 3:
+                split = -1
+            elif user in random_order_users[:first_split_point]:
+                split = 0
+            elif user in random_order_users[first_split_point:second_split_point]:
+                split = 1
+            else:
+                split = 2
+            for _ in self.data[user]:
+                self.index[at] = split 
+                at += 1
+        assert at == len(self.index)
+        print(np.sum(self.index == -1))
+        self.complete_data_stats = None
+
 
     def save_index(self, path):
         os.makedirs(path, exist_ok=True)
@@ -253,11 +278,15 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("This file needs the dataset name as the first argument...")
         exit(0)
+    elif len(sys.argv) < 3:
+        generalization = "weak"
+    elif len(sys.argv) == 3:
+        generalization = sys.argv[2]
 
     dataset = sys.argv[1]
     np.random.seed(42)
 
-    print(f"\n\n!!!!!!!! STARTED PROCESSING {dataset} with seed {np.random.get_state()[1][0]}!!!!!!!!")
+    print(f"\n\n!!!!!!!! STARTED PROCESSING {dataset} with seed {np.random.get_state()[1][0]} and {generalization} generalization !!!!!!!!")
 
     if dataset == "ml-1m":
         total_data = prep_recbole(
@@ -317,5 +346,8 @@ if __name__ == "__main__":
         raise Exception("Could not undestand this dataset")
 
     total_data.save_data(BASE_PATH + "{}/".format(dataset))
-    total_data.train_test_split()
+    if generalization == "strong":
+        total_data.train_test_split_strong()
+    else: 
+        total_data.train_test_split()
     total_data.save_index(BASE_PATH + "{}/".format(dataset))

@@ -14,26 +14,29 @@ def make_kernelized_rr_forward(hyper_params):
     kernel_fn = functools.partial(kernel_fn, get="ntk")
 
     @jax.jit
-    def kernelized_rr_forward(X_train, X_predict, reg=0.1):
-        # Compute NTK matrix of the training data. Shape: (U, U)
-        K_train = kernel_fn(X_train, X_train)
+    def kernelized_rr_forward(X_train, X_predict, reg=0.1, alpha=None):
+        if alpha is None:
+            # Compute NTK matrix of the training data. Shape: (U, U)
+            K_train = kernel_fn(X_train, X_train)
 
-        # Compute NTK matrix describing the similarity between new users and train users. Shape: (Z, U)
-        K_predict = kernel_fn(X_predict, X_train)
+            # Compute NTK matrix describing the similarity between new users and train users. Shape: (Z, U)
+            K_predict = kernel_fn(X_predict, X_train)
 
-        # Instead of regularizing by `reg * I`, regularize by `reg * avg(diag(K)) * I`
-        K_diag_avg = jnp.trace(K_train) / K_train.shape[0]
-        K_reg = K_train + jnp.abs(reg) * K_diag_avg * jnp.eye(K_train.shape[0]) 
-        
-        # Compute dual variables alpha. Shape: (U, I)
-        try:
-            alpha = jnp.linalg.solve(K_reg, X_train, assume_a="pos")
-        except:
-            # Fallback to a more stable but slower method
-            alpha = jnp.linalg.lstsq(K_reg, X_train)[0]
+            # Instead of regularizing by `reg * I`, regularize by `reg * avg(diag(K)) * I`
+            K_diag_avg = jnp.trace(K_train) / K_train.shape[0]
+            K_reg = K_train + jnp.abs(reg) * K_diag_avg * jnp.eye(K_train.shape[0]) 
 
-        # Compute weighted sum of new users similarity to train users. Shape: (Z, I)
-        return jnp.dot(K_predict, alpha)
+            # Compute dual variables alpha. Shape: (U, I)
+            try:
+                solution = jnp.linalg.solve(K_reg, X_train, assume_a="pos")
+            except:
+                # Fallback to a more stable but slower method
+                solution = jnp.linalg.lstsq(K_reg, X_train)[0]
+            # Compute weighted sum of new users similarity to train users. Shape: (Z, I)
+            return jnp.dot(K_predict, solution)
+        else:
+            K_predict = kernel_fn(X_predict, X_train)
+            return jnp.dot(K_predict, alpha)
 
     return kernelized_rr_forward, kernel_fn
 
