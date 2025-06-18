@@ -145,13 +145,15 @@ def load_raw_dataset(
         )
     print(f"Loaded item data with shape: {item_df.shape}")
 
-    all_genres = [
-        genre
-        for genre_list in item_df[category_id].fillna("[Nan]")
-        for genre in genre_list.strip("[]").split(", ")
-    ]
-    unique_genres_list = list(set(all_genres))
-    #print(item_df[item_df[item_id].isna()])
+    if dataset == "douban_fixed":
+        print("Processing Douban dataset")
+    else:
+        print("Processing other dataset")
+        all_genres = [
+            genre
+            for genre_list in item_df[category_id].fillna("[Nan]")
+            for genre in genre_list.strip("[]").split(", ") # this needs to be changed
+        ]
     item_map_to_category = dict(
         zip(item_df[item_id].astype(int) + 1, item_df[category_id])
     )
@@ -268,7 +270,6 @@ def load_raw_dataset(
     print("# users:", num_users)
     print("# items:", num_items)
     print("# interactions:", len(ret["train"]))
-    print("# unique genres:", len(unique_genres_list))
 
     return ret
 

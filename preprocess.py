@@ -304,6 +304,15 @@ if __name__ == "__main__":
             BASE_PATH + "/ml-10m/ml-10m_original.item",
             "item_id:token",
         )
+    elif dataset == "douban_fixed":
+        total_data = prep_recbole(
+            BASE_PATH + "/douban_fixed/movies.inter",
+            "user_id:token",
+            "item_id:token",
+            "rating:float",
+            BASE_PATH + "/douban_fixed/movies_original.item",
+            "movie_id:token",
+        )
     else:
         raise Exception("Could not undestand this dataset")
 
