@@ -214,11 +214,8 @@ class rating_data:
                 at += 1
 
         assert at == len(self.index)
-<<<<<<< strong-generalization
         print(np.sum(self.index == -1))
-=======
         print(f"Removed {invalid} invalid users. {np.sum(np.array(self.index) >= 0, axis=0)} interactions left.")
->>>>>>> main
         self.complete_data_stats = None
 
 
