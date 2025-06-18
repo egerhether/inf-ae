@@ -51,14 +51,10 @@ def train(hyper_params, data):
     ):
         print("Checking lamda:", lamda)
         hyper_params["lamda"] = lamda
-        if hyper_params["gen"] == "strong":
-            alpha = precompute_alpha(sampled_matrix, lamda=lamda) # Change for the desired value of lamda
-            val_metrics = evaluate(
-                hyper_params, kernelized_rr_forward, data, sampled_matrix, alpha = alpha
-            )
-        else:
-            val_metrics = evaluate(
-                hyper_params, kernelized_rr_forward, data, sampled_matrix
+        # Precompute for speedup
+        alpha = precompute_alpha(sampled_matrix, lamda=lamda) 
+        val_metrics = evaluate(
+            hyper_params, kernelized_rr_forward, data, sampled_matrix, alpha = alpha
             )
 
         print("val_metrics:", val_metrics)
@@ -67,12 +63,15 @@ def train(hyper_params, data):
 
     # Return metrics with the best lamda on the test-set
     hyper_params["lamda"] = best_lamda
+    # Precompute for speedup
+    alpha = precompute_alpha(sampled_matrix, lamda=best_lamda) 
     test_metrics = evaluate(
         hyper_params,
         kernelized_rr_forward,
         data,
         sampled_matrix,
         test_set_eval=True,
+        alpha = alpha
     )
 
     log_end_epoch(hyper_params, test_metrics, 0, time.time() - start_time)

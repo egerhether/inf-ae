@@ -66,6 +66,7 @@ def evaluate(
             num_eval_users = 0
             for u_idx, u in enumerate(data.data["test_positive_set"]):
                 num_user_items = len(u)
+                # if user not in test positive set
                 if num_user_items == 0:
                     to_predict.append(set())
                     continue
@@ -87,6 +88,7 @@ def evaluate(
             num_eval_users = 0
             for u_idx, u in enumerate(data.data["val_positive_set"]):
                 num_user_items = len(u)
+                # if user not in val positive set
                 if num_user_items == 0:
                     to_predict.append(set())
                     continue
@@ -157,7 +159,7 @@ def evaluate(
         print("[EVALUATE] Warning: NaN values detected in y_binary or preds, skipping GLOBAL_AUC calculation")
 
     # correct mean for strong generalization
-    if hyper_params["gen"]:
+    if hyper_params["gen"] == "strong":
         num_users = num_eval_users
     else:
         num_users = hyper_params["num_users"]
