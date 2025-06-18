@@ -215,7 +215,7 @@ class rating_data:
                 at += 1
 
         assert at == len(self.index)
-        print(f"Removed {invalid} invalid users. {np.sum(np.array(self.index) >= 0, axis=0)} users left.")
+        print(f"Removed {invalid} invalid users. {np.sum(np.array(self.index) >= 0, axis=0)} interactions left.")
         self.complete_data_stats = None
 
     def save_index(self, path):
@@ -304,13 +304,13 @@ if __name__ == "__main__":
             BASE_PATH + "/ml-10m/ml-10m_original.item",
             "item_id:token",
         )
-    elif dataset == "douban_fixed":
+    elif dataset == "douban":
         total_data = prep_recbole(
-            BASE_PATH + "/douban_fixed/movies.inter",
+            BASE_PATH + "/douban/douban.inter",
             "user_id:token",
             "item_id:token",
             "rating:float",
-            BASE_PATH + "/douban_fixed/movies_original.item",
+            BASE_PATH + "/douban/douban_original.item",
             "movie_id:token",
         )
     else:

@@ -145,7 +145,7 @@ def load_raw_dataset(
         )
     print(f"Loaded item data with shape: {item_df.shape}")
 
-    if dataset == "douban_fixed":
+    if dataset == "douban":
         print("Processing Douban dataset")
     else:
         print("Processing other dataset")

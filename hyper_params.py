@@ -66,8 +66,8 @@ hyper_params = {
         "user_support": -1,  # -1 implies use all users
         "seed": 42,
     },
-    "douban_fixed": {
-        "dataset": "douban_fixed",
+    "douban": {
+        "dataset": "douban",
         "item_id": "movie_id:token",  # configure it based on the .item file
         "category_id": "categoryID:token",  # configure it based on the .item file
         "use_gini": True,
