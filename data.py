@@ -8,6 +8,8 @@ import pandas as pd
 import os
 from tqdm import tqdm
 
+from utils import parse_neg_sampling_param
+
 tqdm.pandas()
 
 
@@ -17,6 +19,7 @@ class Dataset:
             hyper_params["dataset"],
             hyper_params["item_id"],
             hyper_params["category_id"],
+            parse_neg_sampling_param(hyper_params["neg_sampling_strategy"]),
         )
         self.set_of_active_users = list(set(self.data["train"][:, 0].tolist()))
         self.hyper_params = self.update_hyper_params(hyper_params)
@@ -64,6 +67,7 @@ def load_raw_dataset(
     dataset,
     item_id,
     category_id,
+    neg_sampling_strategy,
     data_path=None,
     index_path=None,
     item_path=None,
@@ -257,12 +261,19 @@ def load_raw_dataset(
 
     for u in tqdm(range(num_users), desc="Generating negatives"):
         attempts = 0
-        while len(ret["negatives"][u]) < 50:
+
+        if neg_sampling_strategy[0] == "total":
+            loop_upper_bound = neg_sampling_strategy[1]
+        elif neg_sampling_strategy[0] == "positive":
+            num_pos = len(ret["test_positive_set"][u])
+            loop_upper_bound = neg_sampling_strategy[1] * num_pos
+
+        # print(f"Debug: {neg_sampling_strategy} -> num_pos = {len(ret['test_positive_set'][u])}; loop_upper_bound {loop_upper_bound}")
+        max_attempts = 10 * len(ret["test_positive_set"][u])
+        while len(ret["negatives"][u]) < loop_upper_bound:
             attempts += 1
-            if attempts > 1000:  # Safety check to avoid infinite loops
-                logger.warning(
-                    f"User {u} could not get 50 negatives after 1000 attempts"
-                )
+            if attempts > max_attempts:  # Safety check to avoid infinite loops
+                print(f"User {u} could not get {loop_upper_bound} negatives after {max_attempts} attempts")
                 break
 
             rand_item = np.random.randint(0, num_items)
@@ -274,9 +285,6 @@ def load_raw_dataset(
                 continue
             ret["negatives"][u].add(rand_item)
         ret["negatives"][u] = list(ret["negatives"][u])
-
-    ret["negatives"] = np.array(ret["negatives"], dtype=np.int32)
-    print(f"Generated negative samples with shape {ret['negatives'].shape}")
 
     ret.update(
         {
