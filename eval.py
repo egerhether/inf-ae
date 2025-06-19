@@ -83,6 +83,9 @@ def evaluate(
                 total_sampled_items += len(sampled_items)
                 added_context[u_idx, sampled_items] = 0 # mask out 20%
 
+                # add input 80% to train_positives to be masked out
+                train_positive_list[u_idx] += list(u - set(sampled_items))
+
                 to_predict.append(set(sampled_items)) 
 
             eval_context += added_context
@@ -112,6 +115,9 @@ def evaluate(
                 sampled_items = np.random.choice(list(u), size = num_sampled_items)
                 total_sampled_items += len(sampled_items)
                 added_context[u_idx, sampled_items] = 0 # mask out 20%
+
+                # add input 80% to train_positives to be masked out
+                train_positive_list[u_idx] += list(u - set(sampled_items))
 
                 to_predict.append(set(sampled_items))
 
