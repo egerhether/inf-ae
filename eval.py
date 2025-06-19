@@ -78,10 +78,13 @@ def evaluate(
                 num_eval_users += 1 # only count test users
 
                 # Sampling
-                num_sampled_items = int(0.2 * num_user_items)
+                num_sampled_items = int(np.ceil(0.2 * num_user_items))
                 sampled_items = np.random.choice(list(u), size = num_sampled_items)
                 total_sampled_items += len(sampled_items)
                 added_context[u_idx, sampled_items] = 0 # mask out 20%
+
+                # add input 80% to train_positives to be masked out
+                train_positive_list[u_idx] += list(u - set(sampled_items))
 
                 to_predict.append(set(sampled_items)) 
 
@@ -108,10 +111,13 @@ def evaluate(
                 num_eval_users += 1 # only count val users
 
                 # Sampling 
-                num_sampled_items = int(0.2 * num_user_items)
+                num_sampled_items = int(np.ceil(0.2 * num_user_items))
                 sampled_items = np.random.choice(list(u), size = num_sampled_items)
                 total_sampled_items += len(sampled_items)
                 added_context[u_idx, sampled_items] = 0 # mask out 20%
+
+                # add input 80% to train_positives to be masked out
+                train_positive_list[u_idx] += list(u - set(sampled_items))
 
                 to_predict.append(set(sampled_items))
 
