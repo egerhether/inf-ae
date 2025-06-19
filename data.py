@@ -105,6 +105,81 @@ def load_raw_dataset(
         print("User and item mapping created")
 
         return user_map, item_map
+    
+    def select(data, index, index_val):
+        print(f"Selecting data with index value {index_val}")
+        selected_indices = np.where(index == index_val)[0]
+        print(f"Found {len(selected_indices)} entries with index value {index_val}")
+        final = data[selected_indices]
+        final[:, 2] = 1.0
+        return final.astype(np.int32)
+
+    def parse_tags(category_string):
+        """Parse category/tag string into a list of tags."""
+        if pd.isna(category_string) or str(category_string).strip() == "":
+            return []
+        
+        text = str(category_string).strip()
+        
+        # Remove brackets
+        if text.startswith('[') and text.endswith(']'):
+            text = text[1:-1]
+        
+        # Split by common separators
+        for sep in [',', '|', ';']:
+            if sep in text:
+                tags = text.split(sep)
+                break
+        else:
+            # Split by space if no other separator found
+            tags = text.split()
+        
+        # Clean tags
+        cleaned_tags = []
+        for tag in tags:
+            tag = tag.strip(' "\'')
+            if tag and tag.lower() not in ['nan', 'null', 'none', 'n/a']:
+                cleaned_tags.append(tag)
+        
+        return cleaned_tags
+
+    def create_item_mappings(item_df, item_id_col, category_id_col, item_map):
+        """
+        Create item category and tag mappings.
+        
+        Returns:
+            tuple: (item_map_to_category, item_tag_mapping)
+            - item_map_to_category: maps item_id -> first category/tag
+            - item_tag_mapping: maps item_id -> set of all tags
+        """
+        print(f"Creating item mappings from columns: '{item_id_col}', '{category_id_col}'")
+        
+        item_map_to_category = {}
+        item_tag_mapping = {}
+        
+        for _, row in item_df.iterrows():
+            original_item_id = int(row[item_id_col])
+            
+            # Skip items not in final dataset
+            if original_item_id not in item_map:
+                continue
+                
+            remapped_item_id = item_map[original_item_id]
+            category_data = row.get(category_id_col, "")
+            
+            # Parse tags from category data
+            tags = parse_tags(category_data)
+            
+            # Map to first category (for backward compatibility)
+            first_category = tags[0] if tags else ""
+            item_map_to_category[remapped_item_id] = first_category
+            
+            # Map to all tags (for inter-list distance)
+            item_tag_mapping[remapped_item_id] = set(tags)
+        
+        print(f"Created mappings for {len(item_map_to_category)} items")
+        return item_map_to_category, item_tag_mapping
+
 
     user_map, item_map = remap(data, index)
 
@@ -145,41 +220,14 @@ def load_raw_dataset(
         )
     print(f"Loaded item data with shape: {item_df.shape}")
 
-    # This section needs refactoring
-    if dataset == "douban":
-        print("Processing Douban dataset")
-        item_map_to_category = dict(
-            zip(item_df[item_id].astype(int) + 1, item_df[category_id])
-        )
+    # Create both mappings in a unified way
+    item_map_to_category, item_tag_mapping = create_item_mappings(
+        item_df, item_id, category_id, item_map
+    )
 
-    elif dataset == "ml-1m":
-        print("Processing MovieLens 1M dataset")
-        item_map_to_category = dict(
-            zip(item_df[item_id].astype(int) + 1, item_df[category_id.split(" ")[0]]) # using the first genre here
-        )
-    else:
-        print("Processing other dataset")
-        # all_genres = [
-        #     genre
-        #     for genre_list in item_df[category_id].fillna("Nan")
-        #     for genre in genre_list.strip("[]").split(", ") 
-        # ]    
-        item_map_to_category = dict(
-            zip(item_df[item_id].astype(int) + 1, item_df[category_id])
-        )
-
-    def select(data, index, index_val):
-        print(f"Selecting data with index value {index_val}")
-        selected_indices = np.where(index == index_val)[0]
-        print(f"Found {len(selected_indices)} entries with index value {index_val}")
-        final = data[selected_indices]
-        final[:, 2] = 1.0
-        return final.astype(np.int32)
 
     print("Creating train/val/test splits")
 
-    item_tag_mapping = {}
-    
     ret = {
         "item_map": item_map,
         "train": select(data, index, 0),
@@ -295,55 +343,6 @@ def load_raw_dataset(
     print("# users:", num_users)
     print("# items:", num_items)
     print("# interactions:", len(ret["train"]))
-
-    def parse_categories_to_set(category_string):
-        """
-        Parse category/tag string into a set of normalized categories.
-        Handles various formats: comma-separated, pipe-separated, etc.
-        """
-        if pd.isna(category_string) or category_string == "":
-            return set()
-        
-        # Handle different separators and formats
-        category_string = str(category_string).strip()
-        
-        # Remove brackets if present
-        if category_string.startswith('[') and category_string.endswith(']'):
-            category_string = category_string[1:-1]
-        
-        # Split by common separators
-        if ',' in category_string:
-            categories = category_string.split(',')
-        elif '|' in category_string:
-            categories = category_string.split('|')
-        elif ';' in category_string:
-            categories = category_string.split(';')
-        else:
-            # Single category or space-separated
-            categories = [category_string]
-        
-        # Clean and normalize categories
-        parsed_categories = set()
-        for cat in categories:
-            cat = cat.strip()
-            if cat and cat.lower() not in ['', 'nan', 'null', 'none', 'n/a']:
-                parsed_categories.add(cat)
-        
-        return parsed_categories
-
-    # Create item tag mapping for inter-list distance calculation
-    item_tag_mapping = {}
-    print("Creating item tag mapping for inter-list distance calculation")
-    
-    for idx, row in item_df.iterrows():
-        item_id_val = int(row[item_id]) + 1  # +1 for mapping consistency with item_map
-        if item_id_val in item_map.values() or item_id_val - 1 in user_map:  # Check if item is in final dataset
-            category_string = row[category_id] if category_id in item_df.columns else ""
-            tag_set = parse_categories_to_set(category_string)
-            item_tag_mapping[item_id_val] = tag_set
-    
-    print(f"Created tag mapping for {len(item_tag_mapping)} items")
-
     return ret
 
 
