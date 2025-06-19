@@ -159,13 +159,13 @@ def load_raw_dataset(
         )
     else:
         print("Processing other dataset")
-        all_genres = [
-            genre
-            for genre_list in item_df[category_id].fillna("Nan")
-            for genre in genre_list.strip("[]").split(", ") 
-        ]    
+        # all_genres = [
+        #     genre
+        #     for genre_list in item_df[category_id].fillna("Nan")
+        #     for genre in genre_list.strip("[]").split(", ") 
+        # ]    
         item_map_to_category = dict(
-            zip(item_df[item_id].astype(int) + 1, item_df[category_id.split(", ")[0]])
+            zip(item_df[item_id].astype(int) + 1, item_df[category_id])
         )
 
     def select(data, index, index_val):
@@ -177,12 +177,16 @@ def load_raw_dataset(
         return final.astype(np.int32)
 
     print("Creating train/val/test splits")
+
+    item_tag_mapping = {}
+    
     ret = {
         "item_map": item_map,
         "train": select(data, index, 0),
         "val": select(data, index, 1),
         "test": select(data, index, 2),
         "item_map_to_category": item_map_to_category,
+        "item_tag_mapping": item_tag_mapping,
     }
     print(
         f"Split sizes - Train: {len(ret['train'])}, Val: {len(ret['val'])}, Test: {len(ret['test'])}"
@@ -260,8 +264,8 @@ def load_raw_dataset(
         while len(ret["negatives"][u]) < 50:
             attempts += 1
             if attempts > 1000:  # Safety check to avoid infinite loops
-                logger.warning(
-                    f"User {u} could not get 50 negatives after 1000 attempts"
+                print(
+                    f"Warning: User {u} could not get 50 negatives after 1000 attempts"
                 )
                 break
 
@@ -291,6 +295,54 @@ def load_raw_dataset(
     print("# users:", num_users)
     print("# items:", num_items)
     print("# interactions:", len(ret["train"]))
+
+    def parse_categories_to_set(category_string):
+        """
+        Parse category/tag string into a set of normalized categories.
+        Handles various formats: comma-separated, pipe-separated, etc.
+        """
+        if pd.isna(category_string) or category_string == "":
+            return set()
+        
+        # Handle different separators and formats
+        category_string = str(category_string).strip()
+        
+        # Remove brackets if present
+        if category_string.startswith('[') and category_string.endswith(']'):
+            category_string = category_string[1:-1]
+        
+        # Split by common separators
+        if ',' in category_string:
+            categories = category_string.split(',')
+        elif '|' in category_string:
+            categories = category_string.split('|')
+        elif ';' in category_string:
+            categories = category_string.split(';')
+        else:
+            # Single category or space-separated
+            categories = [category_string]
+        
+        # Clean and normalize categories
+        parsed_categories = set()
+        for cat in categories:
+            cat = cat.strip()
+            if cat and cat.lower() not in ['', 'nan', 'null', 'none', 'n/a']:
+                parsed_categories.add(cat)
+        
+        return parsed_categories
+
+    # Create item tag mapping for inter-list distance calculation
+    item_tag_mapping = {}
+    print("Creating item tag mapping for inter-list distance calculation")
+    
+    for idx, row in item_df.iterrows():
+        item_id_val = int(row[item_id]) + 1  # +1 for mapping consistency with item_map
+        if item_id_val in item_map.values() or item_id_val - 1 in user_map:  # Check if item is in final dataset
+            category_string = row[category_id] if category_id in item_df.columns else ""
+            tag_set = parse_categories_to_set(category_string)
+            item_tag_mapping[item_id_val] = tag_set
+    
+    print(f"Created tag mapping for {len(item_tag_mapping)} items")
 
     return ret
 

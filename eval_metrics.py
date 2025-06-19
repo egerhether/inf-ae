@@ -1,4 +1,5 @@
 import numpy as np
+import warnings
 from sklearn.metrics import roc_auc_score
 
 """
@@ -134,3 +135,56 @@ class GiniCoefficient:
             freqs[val] = freqs.get(val, 0) + 1
         # print(f"[GINI] Found {len(freqs)} unique {key} values")
         return self.gini_coefficient(list(freqs.values()))
+
+def inter_list_jaccard_distance(
+    recommended_ranked_list: list[int], 
+    item_tag_mapping: dict, 
+    k: int
+) -> float:
+    """
+    Calculate Inter-list distance using Jaccard distance based on item tags.
+    
+    Args:
+        recommended_ranked_list: List of recommended item IDs ranked by score
+        item_tag_mapping: Dictionary mapping item_id -> set of tags (any hashable type)
+        k: Number of top recommendations to consider
+        
+    Returns:
+        Average Jaccard distance between all pairs of items in top-k recommendations
+    """
+
+    if k == 0:
+        result = 0.0
+    elif len(recommended_ranked_list) == 0:
+        warnings.warn("Empty recommendation list provided", UserWarning)
+        result = 0.0
+    else:
+        top_k_items = recommended_ranked_list[:k]
+        
+        if len(top_k_items) < 2:
+            result = 0.0  # Cannot compute distance with fewer than 2 items
+        else:
+            distances = []
+            for i in range(len(top_k_items)):
+                for j in range(i + 1, len(top_k_items)):
+                    item_i, item_j = top_k_items[i], top_k_items[j]
+                    
+                    # Get tags, defaulting to empty set if item not in mapping
+                    tags_i = set(item_tag_mapping.get(item_i, set()))
+                    tags_j = set(item_tag_mapping.get(item_j, set()))
+                    
+                    # Jaccard distance = 1 - Jaccard similarity
+                    intersection = len(tags_i & tags_j)
+                    union = len(tags_i | tags_j)
+                    
+                    if union == 0:  # Both items have no tags
+                        jaccard_distance = 0.0
+                    else:
+                        jaccard_similarity = intersection / union
+                        jaccard_distance = 1.0 - jaccard_similarity
+                    
+                    distances.append(jaccard_distance)
+            
+            result = sum(distances) / len(distances) if distances else 0.0
+    
+    return result

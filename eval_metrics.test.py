@@ -1,5 +1,6 @@
 import unittest
 import numpy as np
+import warnings
 
 import eval_metrics
 
@@ -262,6 +263,137 @@ class TestPropensityScoredPrecision(unittest.TestCase):
         
         self.assertAlmostEqual(eval_metrics.psp(recommendations, ground_truth, self.propensities, k), 0.0)
     
+
+class TestInterListJaccardDistance(unittest.TestCase):
+    """Test cases for Inter-list Jaccard distance metric based on item tags."""
+    
+    def setUp(self):
+        """Set up test data with various tag configurations."""
+        # Sample item-to-tag mapping representing Steam-like game tags
+        self.item_tag_mapping = {
+            1: {"Action", "Shooter", "FPS"},
+            2: {"Action", "Adventure", "RPG"},
+            3: {"Strategy", "RTS", "Military"},
+            4: {"Puzzle", "Casual", "Indie"},
+            5: {"Action", "Shooter", "Multiplayer"},
+            6: {"Racing", "Sports", "Simulation"},
+            7: {"Horror", "Survival", "Action"},
+            8: set(),  # Item with no tags
+            9: {"Action"},  # Item with single tag
+            10: {"Action", "Adventure", "RPG", "Strategy", "Shooter"}  # Item with many tags
+        }
+    
+    def test_identical_items_zero_distance(self):
+        """Items with identical tags should have zero Jaccard distance"""
+        recommendations = [1, 1]  # Same item, identical tags
+        k = 2
+        result = eval_metrics.inter_list_jaccard_distance(recommendations, self.item_tag_mapping, k)
+        self.assertAlmostEqual(result, 0.0)
+    
+    def test_completely_different_items_max_distance(self):
+        """Items with no tag overlap should have distance 1.0"""
+        recommendations = [3, 4]
+        k = 2
+        result = eval_metrics.inter_list_jaccard_distance(recommendations, self.item_tag_mapping, k)
+        self.assertAlmostEqual(result, 1.0)
+    
+    def test_partial_overlap_items(self):
+        """Items with partial tag overlap should have intermediate distance"""
+        recommendations = [1, 2]
+        k = 2
+        # Intersection: {"Action"} = 1, Union: {"Action", "Shooter", "FPS", "Adventure", "RPG"} = 5
+        # Jaccard similarity = 1/5 = 0.2, Jaccard distance = 1 - 0.2 = 0.8
+        result = eval_metrics.inter_list_jaccard_distance(recommendations, self.item_tag_mapping, k)
+        self.assertAlmostEqual(result, 0.8)
+
+    def test_subset_relationship(self):
+        """Items where one tag set is subset of another"""
+        recommendations = [2, 10] 
+        k = 2
+        result = eval_metrics.inter_list_jaccard_distance(recommendations, self.item_tag_mapping, k)
+        self.assertAlmostEqual(result, 2.0/5.0, places=5)
+
+    def test_multiple_items_average_distance(self):
+        """Test with more than 2 items - should return average of all pairwise distances"""
+        recommendations = [1, 3, 4]  # Three completely different items
+        k = 3
+        # Pairwise distances: (1,3)=1.0, (1,4)=1.0, (3,4)=1.0
+        # Average = 1.0
+        result = eval_metrics.inter_list_jaccard_distance(recommendations, self.item_tag_mapping, k)
+        self.assertAlmostEqual(result, 1.0)
+
+    def test_items_with_no_tags(self):
+        """Items with no tags should have distance 0.0"""
+        recommendations = [8, 8]  # Both have empty tag sets
+        k = 2
+        result = eval_metrics.inter_list_jaccard_distance(recommendations, self.item_tag_mapping, k)
+        self.assertAlmostEqual(result, 0.0)
+
+    def test_one_item_no_tags_other_has_tags(self):
+        """One item with no tags, other with tags"""
+        recommendations = [1, 8]  # {"Action", "Shooter", "FPS"} vs {}
+        k = 2
+        # Intersection: {} = 0, Union: {"Action", "Shooter", "FPS"} = 3
+        # Jaccard similarity = 0/3 = 0, Jaccard distance = 1.0
+        result = eval_metrics.inter_list_jaccard_distance(recommendations, self.item_tag_mapping, k)
+        self.assertAlmostEqual(result, 1.0)
+
+    def test_single_item_returns_zero(self):
+        """Single item cannot have inter-list distance"""
+        recommendations = [1]
+        k = 1
+        result = eval_metrics.inter_list_jaccard_distance(recommendations, self.item_tag_mapping, k)
+        self.assertAlmostEqual(result, 0.0)
+
+    def test_empty_recommendations_returns_zero(self):
+        """Empty recommendation list should return Warning and 0.0"""
+        recommendations = []
+        k = 5
+        with self.assertWarns(UserWarning):
+            result = eval_metrics.inter_list_jaccard_distance(recommendations, self.item_tag_mapping, k)
+        self.assertAlmostEqual(result, 0.0)
+
+    def test_k_larger_than_recommendations(self):
+        """k larger than recommendation list should use all recommendations"""
+        recommendations = [1, 5]
+        k = 10
+        result = eval_metrics.inter_list_jaccard_distance(recommendations, self.item_tag_mapping, k)
+        self.assertAlmostEqual(result, 0.5)  # Complete different items
+
+    def test_k_zero_returns_zero(self):
+        """k=0 should return 0.0"""
+        recommendations = [1, 2, 3]
+        k = 0
+        result = eval_metrics.inter_list_jaccard_distance(recommendations, self.item_tag_mapping, k)
+        self.assertAlmostEqual(result, 0.0)
+
+    def test_mixed_scenario_realistic(self):
+        """More realistic scenario with mixed tag overlaps"""
+        recommendations = [1, 2, 5, 9]  # Mix of overlapping and different items
+        k = 4
+        # Item tags:
+        # 1: {"Action", "Shooter", "FPS"}
+        # 2: {"Action", "Adventure", "RPG"}  
+        # 5: {"Action", "Shooter", "Multiplayer"}
+        # 9: {"Action"}
+        # Pairwise distances:
+        # (1,2): intersection={"Action"}=1, union=5, distance=1-1/5=0.8
+        # (1,5): intersection={"Action","Shooter"}=2, union=4, distance=1-2/4=0.5
+        # (1,9): intersection={"Action"}=1, union=3, distance=1-1/3=2/3
+        # (2,5): intersection={"Action"}=1, union=5, distance=1-1/5=0.8
+        # (2,9): intersection={"Action"}=1, union=3, distance=1-1/3=2/3
+        # (5,9): intersection={"Action"}=1, union=3, distance=1-1/3=2/3
+        # Average = (0.8 + 0.5 + 2/3 + 0.8 + 2/3 + 2/3) / 6
+        expected = (0.8 + 0.5 + 2.0/3.0 + 0.8 + 2.0/3.0 + 2.0/3.0) / 6
+        result = eval_metrics.inter_list_jaccard_distance(recommendations, self.item_tag_mapping, k)
+        self.assertAlmostEqual(result, expected, places=5)
+
+    def test_single_tag_items(self):
+        """Items with single tags"""
+        recommendations = [9, 9]  # Both have single tag {"Action"}
+        k = 2
+        result = eval_metrics.inter_list_jaccard_distance(recommendations, self.item_tag_mapping, k)
+        self.assertAlmostEqual(result, 0.0)
 
 if __name__ == '__main__':
     unittest.main()

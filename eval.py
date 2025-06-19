@@ -17,6 +17,7 @@ METRIC_NAMES = [
     "PSP",
     "CAPPED_PSP",
     "GINI",
+    "INTER_LIST_DISTANCE",
     "MEAN_AUC",
     "GLOBAL_AUC",
 ]
@@ -292,6 +293,14 @@ def evaluate_batch(
                             "category": category
                         }
                     )
+            inter_list_distance = 0.0
+            if "item_tag_mapping" in data.data and len(data.data["item_tag_mapping"]) > 0:
+                inter_list_distance = eval_metrics.inter_list_jaccard_distance(
+                    recommended_item_indices[user_idx], 
+                    data.data["item_tag_mapping"], 
+                    k
+                )
+
             precision = eval_metrics.precision(recommended_item_indices[user_idx], test_positive_set[user_idx], k)
             recall = eval_metrics.recall(recommended_item_indices[user_idx], test_positive_set[user_idx], k)
             truncated_recall = eval_metrics.truncated_recall(recommended_item_indices[user_idx], test_positive_set[user_idx], k)
@@ -305,5 +314,6 @@ def evaluate_batch(
             metrics["NDCG@{}".format(k)] += ndcg
             metrics["PSP@{}".format(k)] += psp
             metrics["CAPPED_PSP@{}".format(k)] += capped_psp
+            metrics["INTER_LIST_DISTANCE@{}".format(k)] += inter_list_distance
 
     return metrics, temp_preds, temp_y, user_recommendations if compute_gini else {}

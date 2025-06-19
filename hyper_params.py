@@ -15,9 +15,10 @@
 hyper_params = {
     "steam": {
         "dataset": "steam",
-        "item_id": "id:token",  # configure it based on the .item file
-        "category_id": "tags:token_seq",  # configure it based on the .item file
+        "item_id": "id",  # configure it based on the .item file
+        "category_id": "tags",  # configure it based on the .item file
         "use_gini": True,
+        "compute_inter_list_distance": True,  # Enable inter-list distance for Steam
         "float64": False,
         "depth": 1,
         "grid_search_lamda": True,
@@ -25,7 +26,7 @@ hyper_params = {
         # Number of users to keep (randomly)
         "user_support": 20000,  # -1 implies use all users
         "seed": 42,
-        "gen": "strong"
+        "gen": "weak"
     },
     "ml-20m": {
         "dataset": "ml-20m",
@@ -62,24 +63,12 @@ hyper_params = {
         "float64": False,
         "depth": 1,
         "grid_search_lamda": True,
+        "compute_inter_list_distance": True,
         "lamda": 1.0,  # Only used if grid_search_lamda == False
         # Number of users to keep (randomly)
         "user_support": -1,  # -1 implies use all users
         "seed": 42,
-        "gen": "strong"
-    },
-    "ml-1m": {
-        "dataset": "ml-1m",
-        "item_id": "item_id:token",  # configure it based on the .item file
-        "category_id": "genre:token_seq",  # configure it based on the .item file
-        "use_gini": True,
-        "float64": False,
-        "depth": 1,
-        "grid_search_lamda": True,
-        "lamda": 1.0,  # Only used if grid_search_lamda == False
-        # Number of users to keep (randomly)
-        "user_support": -1,  # -1 implies use all users
-        "seed": 42,
+        "gen": "weak"
     },
     "amazon_magazine": {
         "dataset": "amazon_magazine",
