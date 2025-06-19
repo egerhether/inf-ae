@@ -76,5 +76,16 @@ def filter_out_users_with_no_gt(num_users: int, ground_truth: list[list]) -> lis
             # Note: Tempararily we don't throw an error here until preprocess.py is fixed
             # raise ValueError("There exists a user with no ground truth items in the validation or test set")
 
-    print(f"[EVALUATION WARNING] Removed {len(invalid)} users as nothing in test_positive set. This should never happen in weak generalization.")
+    print(f"[EVALUATION WARNING] Removed {len(invalid)} users as nothing in test_positive set. More than 0 should never happen in weak generalization.")
     return valid_user_indices
+
+def parse_neg_sampling_param(raw_text):
+    """
+    Used in data.py to parse the `neg_samping_strategy` param.
+    """
+    if raw_text.startswith("total"):
+        return "total", int(raw_text[len("total"):])
+    elif raw_text.startswith("positive"):
+        return "positive", int(raw_text[len("positive"):])
+    else:
+        raise ValueError(f"Invalid `neg_sampling_strategy`: {raw_text}")
