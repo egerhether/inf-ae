@@ -267,9 +267,11 @@ def load_raw_dataset(
         elif neg_sampling_strategy[0] == "positive":
             num_pos = len(ret["test_positive_set"][u])
             loop_upper_bound = neg_sampling_strategy[1] * num_pos
+        # print(f"[data.py DEBUG]: {neg_sampling_strategy} -> num_pos = {len(ret['test_positive_set'][u])}; loop_upper_bound {loop_upper_bound}")
 
-        # print(f"Debug: {neg_sampling_strategy} -> num_pos = {len(ret['test_positive_set'][u])}; loop_upper_bound {loop_upper_bound}")
-        max_attempts = 10 * len(ret["test_positive_set"][u])
+        max_attempts = 20 * len(ret["test_positive_set"][u])
+        
+        # ret["negatives"][u] is initialized as a set => no duplicates in final negatives 
         while len(ret["negatives"][u]) < loop_upper_bound:
             attempts += 1
             if attempts > max_attempts:  # Safety check to avoid infinite loops
