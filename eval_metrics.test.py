@@ -506,5 +506,136 @@ class TestEntropy(unittest.TestCase):
         self.assertLess(less_skewed_entropy, uniform_entropy)
 
 
+class TestGini(unittest.TestCase):
+    
+    def test_gini_perfect_equality(self):
+        """Test Gini coefficient with perfect equality across categories."""
+        # Equal distribution should give minimum Gini (perfect equality)
+        category_counts = [25, 25, 25, 25]  # Perfect equality
+        expected_gini = 0.0
+        result = eval_metrics.gini(category_counts)
+        self.assertAlmostEqual(result, expected_gini, places=5)
+    
+    def test_gini_two_categories_equal(self):
+        """Test Gini coefficient with equal distribution across two categories."""
+        category_counts = [50, 50]
+        expected_gini = 0.0  # Perfect equality for two categories
+        result = eval_metrics.gini(category_counts)
+        self.assertAlmostEqual(result, expected_gini, places=5)
+    
+    def test_gini_two_categories_unequal(self):
+        """Test Gini coefficient with unequal distribution across two categories."""
+        category_counts = [80, 20]
+        # Manual calculation: Gini = |80-20|/(2*n*mean) where n=2, mean=50
+        # Gini = 60/(2*2*50) = 60/200 = 0.3
+        expected_gini = 0.3
+        result = eval_metrics.gini(category_counts)
+        self.assertAlmostEqual(result, expected_gini, places=5)
+    
+    def test_gini_moderate_inequality(self):
+        """Test Gini coefficient with moderate inequality."""
+        category_counts = [60, 30, 10]  # Moderate inequality
+        result = eval_metrics.gini(category_counts)
+        # Should be between 0 and 1, closer to inequality
+        self.assertGreater(result, 0.0)
+        self.assertLess(result, 1.0)
+        self.assertGreater(result, 0.1)  # Should show some inequality
+    
+    def test_gini_with_zeros(self):
+        """Test Gini coefficient when some categories have zero recommendations."""
+        category_counts = [60, 40, 0, 0]
+        result = eval_metrics.gini(category_counts)
+        # Should handle zeros properly and be between 0 and 1
+        self.assertGreaterEqual(result, 0.0)
+        self.assertLessEqual(result, 1.0)
+    
+    def test_gini_single_category(self):
+        """Test Gini coefficient with only one category."""
+        category_counts = [100]
+        expected_gini = 0.0  # No inequality when there's only one category
+        result = eval_metrics.gini(category_counts)
+        self.assertEqual(result, expected_gini)
+    
+    def test_gini_empty_input(self):
+        """Test Gini coefficient with empty category counts."""
+        category_counts = []
+        with self.assertRaises((ValueError, ZeroDivisionError, IndexError)):
+            eval_metrics.gini(category_counts)
+    
+    def test_gini_float_counts(self):
+        """Test Gini coefficient with float counts (should work)."""
+        category_counts = [10.5, 20.3, 15.2]
+        result = eval_metrics.gini(category_counts)
+        # Should work with floats and return valid Gini
+        self.assertGreaterEqual(result, 0.0)
+        self.assertLessEqual(result, 1.0)
+    
+    def test_gini_monotonicity(self):
+        """Test that Gini increases as distribution becomes more unequal."""
+        # More equal distribution
+        equal_counts = [25, 25, 25, 25]
+        # Moderately unequal distribution
+        moderate_counts = [40, 30, 20, 10]
+        # Very unequal distribution
+        unequal_counts = [70, 20, 5, 5]
+        
+        equal_gini = eval_metrics.gini(equal_counts)
+        moderate_gini = eval_metrics.gini(moderate_counts)
+        unequal_gini = eval_metrics.gini(unequal_counts)
+        
+        # More unequal distributions should have higher Gini
+        self.assertLess(equal_gini, moderate_gini)
+        self.assertLess(moderate_gini, unequal_gini)
+    
+    def test_gini_bounds(self):
+        """Test that Gini coefficient is always between 0 and 1."""
+        test_cases = [
+            [50, 50],  # Equal
+            [90, 10],  # Unequal
+            [25, 25, 25, 25],  # Four equal
+            [70, 20, 5, 5],  # Four unequal
+            [1, 2, 3, 4, 5],  # Increasing
+            [100, 0, 0],  # With zeros
+        ]
+        
+        for counts in test_cases:
+            result = eval_metrics.gini(counts)
+            self.assertGreaterEqual(result, 0.0, f"Gini should be >= 0 for {counts}")
+            self.assertLessEqual(result, 1.0, f"Gini should be <= 1 for {counts}")
+    
+    def test_gini_input_types(self):
+        """Test Gini coefficient with different input types."""
+        # Test with list
+        list_counts = [20, 30, 50]
+        # Test with numpy array
+        array_counts = np.array([20, 30, 50])
+        # Test with tuple
+        tuple_counts = (20, 30, 50)
+        
+        list_result = eval_metrics.gini(list_counts)
+        array_result = eval_metrics.gini(array_counts)
+        tuple_result = eval_metrics.gini(tuple_counts)
+        
+        # All should give the same result
+        self.assertAlmostEqual(list_result, array_result, places=5)
+        self.assertAlmostEqual(array_result, tuple_result, places=5)
+    
+    def test_gini_inverse_relationship_with_entropy(self):
+        """Test that Gini and entropy have an inverse relationship."""
+        # Perfect equality: low Gini, high entropy
+        equal_counts = [25, 25, 25, 25]
+        # High inequality: high Gini, low entropy
+        unequal_counts = [90, 5, 3, 2]
+        
+        equal_gini = eval_metrics.gini(equal_counts)
+        equal_entropy = eval_metrics.entropy(equal_counts)
+        unequal_gini = eval_metrics.gini(unequal_counts)
+        unequal_entropy = eval_metrics.entropy(unequal_counts)
+        
+        # More equal distribution should have lower Gini and higher entropy
+        self.assertLess(equal_gini, unequal_gini)
+        self.assertGreater(equal_entropy, unequal_entropy)
+    
+
 if __name__ == '__main__':
     unittest.main()
