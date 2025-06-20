@@ -89,3 +89,12 @@ def parse_neg_sampling_param(raw_text):
         return "positive", int(raw_text[len("positive"):])
     else:
         raise ValueError(f"Invalid `neg_sampling_strategy`: {raw_text}")
+
+def get_cores(train_sets, val_sets, test_sets):
+    train_lengths = [len(s) for s in train_sets if len(s) > 2]
+    val_lengths = [len(s) for s in val_sets if len(s) > 2]
+    test_lengths = [len(s) for s in test_sets if len(s) > 2]
+    min_train = min(train_lengths)
+    min_val = min(val_lengths)
+    min_test = min(test_lengths)
+    return min(min_train, min_val, min_test)
