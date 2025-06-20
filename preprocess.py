@@ -8,7 +8,7 @@ BASE_PATH = "data/"
 
 
 def prep_recbole(
-    inter_file_path, user_id, item_id, rating_id, item_file_path, item_id_2
+    inter_file_path, user_id, item_id, rating_id, item_file_path=None, item_id_2=None
 ):
     """
     Process ML-1M dataset from RecBole format
@@ -30,22 +30,26 @@ def prep_recbole(
         # Exit early if no interaction file
         raise Exception(f"Interaction file not found at {inter_file_path}")
 
-    # First, check if the item file exists and load it
-    if os.path.exists(item_file_path):
+    # First, check if the item file exists and load it (skip for datasets without item files like Netflix)
+    item_df = None
+    if item_file_path is not None and os.path.exists(item_file_path):
         if "original" not in item_file_path:
             print(
-                "provide the original dataset as {dataset_path}_original.item as a new dataset will be created and to not be overwritten!"
+                "provide the original dataset as {dataset_name}_original.item as a new dataset will be created and to not be overwritten!"
             )
             raise Exception(
-                f"Dataset was not found. I am looking for {dataset_path}_original.item."
+                f"Dataset was not found. I am looking for {item_file_path.replace('.item', '_original.item')}."
             )
 
         # RecBole .item files are typically tab-separated with headers
         item_df = pd.read_csv(item_file_path, sep="\t")
-    else:
+    elif item_file_path is not None:
         print("The .item file was not found under the path:" + item_file_path)
         # If you want to continue without an item file, comment out the next line
         raise Exception(f"Item file not found at {item_file_path}")
+    else:
+        print("No item file specified - continuing without item file")
+        item_df = None
 
     # Check if we have string IDs (like Amazon ASINs) or numeric IDs
     sample_user = users[0] if len(users) > 0 else None
@@ -65,16 +69,17 @@ def prep_recbole(
     map_user = {user: idx for idx, user in enumerate(unique_users)}
 
     # Create sequential mapping for items - ensuring sequential IDs from 0 to max_item
-    # First, get all unique item IDs from both interactions and item file
+    # First, get all unique item IDs from interactions
     all_items = set()
     for item in items:
         item_val = item.item() if hasattr(item, "item") else item
         all_items.add(item_val)
 
-    # Add items from item file if they're not already in the set
-    for item in item_df[item_id_2].values:
-        if pd.notna(item):  # Skip NaN values
-            all_items.add(item)
+    # Add items from item file if they're not already in the set (only if item file exists)
+    if item_df is not None and item_id_2 is not None:
+        for item in item_df[item_id_2].values:
+            if pd.notna(item):  # Skip NaN values
+                all_items.add(item)
 
     # Create sequential mapping for all items
     sorted_items = sorted(all_items)
@@ -118,8 +123,8 @@ def prep_recbole(
 
         data[map_user[user_val]].append([map_item[item_val], rating_val])
 
-    # Update the item file with new mappings
-    if os.path.exists(item_file_path):
+    # Update the item file with new mappings (only if item file exists)
+    if item_df is not None and item_file_path is not None:
         # Create a new column with the mapped IDs
         item_df["mapped_id"] = item_df[item_id_2].apply(
             lambda x: map_item.get(x, float("nan")) if pd.notna(x) else float("nan")
@@ -142,31 +147,8 @@ def prep_recbole(
             item_file_path.replace("_original.", ".", 1), sep="\t", index=False
         )
         print(f"Saved updated item file with {len(item_df)} items")
-    return rating_data(data)
-
-
-def prep_movielens(ratings_file_path):
-    """Original function to process MovieLens 1M dataset"""
-    f = open(ratings_file_path, "r")
-    users, items, ratings = [], [], []
-
-    line = f.readline()
-    while line:
-        u, i, r, _ = line.strip().split("::")
-        users.append(int(u))
-        items.append(int(i))
-        ratings.append(float(r))
-        line = f.readline()
-
-    f.close()
-
-    min_user = min(users)
-    num_users = len(set(users))
-
-    data = [[] for _ in range(num_users)]
-    for i in range(len(users)):
-        data[users[i] - min_user].append([items[i], ratings[i]])
-
+    else:
+        print("No item file to update - proceeding with interaction data only")
     return rating_data(data)
 
 
@@ -341,6 +323,13 @@ if __name__ == "__main__":
             "rating:float",
             BASE_PATH + "/douban/douban_original.item",
             "movie_id:token",
+        )
+    elif dataset == "netflix":
+        total_data = prep_recbole(
+            BASE_PATH + "/netflix/netflix.inter",
+            "user_id:token",
+            "item_id:token",
+            "rating:float"
         )
     else:
         raise Exception("Could not undestand this dataset")

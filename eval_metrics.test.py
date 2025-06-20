@@ -395,5 +395,112 @@ class TestInterListJaccardDistance(unittest.TestCase):
         result = eval_metrics.inter_list_jaccard_distance(recommendations, self.item_tag_mapping, k)
         self.assertAlmostEqual(result, 0.0)
 
+class TestEntropy(unittest.TestCase):
+    
+    def test_entropy_perfect_uniform_distribution(self):
+        """Test entropy with perfectly uniform distribution across categories."""
+        # Equal distribution across 4 categories should give maximum entropy
+        category_counts = [25, 25, 25, 25]  # 100 recommendations evenly distributed
+        expected_entropy = np.log2(4)  # Maximum entropy for 4 categories
+        result = eval_metrics.entropy(category_counts)
+        self.assertAlmostEqual(result, expected_entropy, places=5)
+    
+    def test_entropy_single_category_dominance(self):
+        """Test entropy when all recommendations are from one category."""
+        # All recommendations from one category should give zero entropy
+        category_counts = [100, 0, 0, 0]
+        expected_entropy = 0.0
+        result = eval_metrics.entropy(category_counts)
+        self.assertEqual(result, expected_entropy)
+    
+    def test_entropy_two_categories_equal(self):
+        """Test entropy with equal distribution across two categories."""
+        category_counts = [50, 50, 0, 0]
+        expected_entropy = np.log2(2)  # log2(2) = 1.0
+        result = eval_metrics.entropy(category_counts)
+        self.assertAlmostEqual(result, expected_entropy, places=5)
+    
+    def test_entropy_skewed_distribution(self):
+        """Test entropy with skewed distribution favoring one category."""
+        category_counts = [80, 10, 5, 5]  # Heavily skewed toward first category
+        # Calculate expected entropy manually
+        total = sum(category_counts)
+        probs = [count/total for count in category_counts if count > 0]
+        expected_entropy = -sum(p * np.log2(p) for p in probs)
+        
+        result = eval_metrics.entropy(category_counts)
+        self.assertAlmostEqual(result, expected_entropy, places=5)
+    
+    def test_entropy_with_zeros(self):
+        """Test entropy calculation when some categories have zero recommendations."""
+        category_counts = [60, 0, 40, 0, 0]
+        # Only two categories have recommendations
+        total = 100
+        p1, p2 = 60/total, 40/total
+        expected_entropy = -(p1 * np.log2(p1) + p2 * np.log2(p2))
+        
+        result = eval_metrics.entropy(category_counts)
+        self.assertAlmostEqual(result, expected_entropy, places=5)
+    
+    def test_entropy_single_recommendation(self):
+        """Test entropy when there's only one recommendation."""
+        category_counts = [1, 0, 0]
+        expected_entropy = 0.0  # No diversity with single item
+        result = eval_metrics.entropy(category_counts)
+        self.assertEqual(result, expected_entropy)
+    
+    def test_entropy_empty_input(self):
+        """Test entropy with empty category counts."""
+        category_counts = []
+        with self.assertRaises((ValueError, ZeroDivisionError)):
+            eval_metrics.entropy(category_counts)
+    
+    def test_entropy_all_zeros(self):
+        """Test entropy when all category counts are zero."""
+        category_counts = [0, 0, 0, 0]
+        with self.assertRaises((ValueError, ZeroDivisionError)):
+            eval_metrics.entropy(category_counts)
+    
+    def test_entropy_negative_counts(self):
+        """Test entropy with negative counts (should raise error)."""
+        category_counts = [10, -5, 20]
+        with self.assertRaises(ValueError):
+            eval_metrics.entropy(category_counts)
+    
+    def test_entropy_float_counts(self):
+        """Test entropy with float counts (should work)."""
+        category_counts = [10.5, 20.3, 15.2]
+        total = sum(category_counts)
+        probs = [count/total for count in category_counts]
+        expected_entropy = -sum(p * np.log2(p) for p in probs)
+        
+        result = eval_metrics.entropy(category_counts)
+        self.assertAlmostEqual(result, expected_entropy, places=5)
+    
+    def test_entropy_large_number_of_categories(self):
+        """Test entropy with many categories."""
+        # 10 categories with equal distribution
+        category_counts = [10] * 10
+        expected_entropy = np.log2(10)
+        result = eval_metrics.entropy(category_counts)
+        self.assertAlmostEqual(result, expected_entropy, places=5)
+    
+    def test_entropy_monotonicity(self):
+        """Test that entropy increases as distribution becomes more uniform."""
+        # More skewed distribution
+        skewed_counts = [90, 5, 3, 2]
+        # Less skewed distribution  
+        less_skewed_counts = [60, 20, 15, 5]
+        # Even more uniform
+        uniform_counts = [30, 25, 25, 20]
+        
+        skewed_entropy = eval_metrics.entropy(skewed_counts)
+        less_skewed_entropy = eval_metrics.entropy(less_skewed_counts)
+        uniform_entropy = eval_metrics.entropy(uniform_counts)
+        
+        # More uniform distributions should have higher entropy
+        self.assertLess(skewed_entropy, less_skewed_entropy)
+        self.assertLess(less_skewed_entropy, uniform_entropy)
+
 if __name__ == '__main__':
     unittest.main()

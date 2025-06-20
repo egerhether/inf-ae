@@ -188,3 +188,88 @@ def inter_list_jaccard_distance(
             result = sum(distances) / len(distances) if distances else 0.0
     
     return result
+
+def prepare_category_counts(
+    recommended_ranked_list: list[int], 
+    item_tag_mapping: dict, 
+    k: int
+) -> list[int]:
+    """
+    Prepare category counts from recommended items for entropy calculation.
+    
+    Args:
+        recommended_ranked_list: List of recommended item IDs ranked by score
+        item_tag_mapping: Dictionary mapping item_id -> category/tag (or set of categories)
+        k: Number of top recommendations to consider
+        
+    Returns:
+        List of counts for each category found in the recommendations
+    """
+    if k == 0 or len(recommended_ranked_list) == 0:
+        return []
+    
+    top_k_items = recommended_ranked_list[:k]
+    category_counts = {}
+    
+    for item_id in top_k_items:
+        if item_id in item_tag_mapping:
+            # Handle both single category and multiple categories (sets)
+            categories = item_tag_mapping[item_id]
+            if isinstance(categories, (set, list, tuple)):
+                # Multiple categories per item
+                for category in categories:
+                    category_counts[category] = category_counts.get(category, 0) + 1
+            else:
+                # Single category per item
+                category_counts[categories] = category_counts.get(categories, 0) + 1
+        else:
+            # Item not in mapping, assign to "UNKNOWN" category
+            category_counts["UNKNOWN"] = category_counts.get("UNKNOWN", 0) + 1
+    
+    return list(category_counts.values())
+
+def entropy(category_counts: list) -> float:
+    """
+    Calculate the entropy of game category recommendations to measure how evenly 
+    recommendations are distributed across categories.
+    
+    Args:
+        category_counts: List of counts for each category
+        
+    Returns:
+        Shannon entropy value (bits). Higher values indicate more diverse and 
+        balanced recommendations, while lower values suggest bias toward few categories.
+        
+    Raises:
+        ValueError: If category_counts contains negative values or all counts are zero
+        ZeroDivisionError: If category_counts is empty
+    """
+    if not category_counts:
+        raise ValueError("Category counts cannot be empty")
+    
+    # Convert to numpy array for easier handling
+    counts = np.array(category_counts, dtype=float)
+    
+    # Check for negative values
+    if np.any(counts < 0):
+        raise ValueError("Category counts cannot be negative")
+    
+    # Remove zero counts (they don't contribute to entropy)
+    nonzero_counts = counts[counts > 0]
+    
+    if len(nonzero_counts) == 0:
+        raise ValueError("All category counts are zero")
+    
+    # Calculate total
+    total = np.sum(nonzero_counts)
+    
+    if total == 0:
+        raise ValueError("Total count cannot be zero")
+    
+    # Calculate probabilities
+    probabilities = nonzero_counts / total
+    
+    # Calculate Shannon entropy using log base 2
+    entropy_value = -np.sum(probabilities * np.log2(probabilities))
+    
+    return float(entropy_value)
