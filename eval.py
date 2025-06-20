@@ -80,10 +80,13 @@ def evaluate(
                 num_eval_users += 1 # only count test users
 
                 # Sampling
-                num_sampled_items = int(0.2 * num_user_items)
+                num_sampled_items = int(np.ceil(0.2 * num_user_items))
                 sampled_items = np.random.choice(list(u), size = num_sampled_items)
                 total_sampled_items += len(sampled_items)
                 added_context[u_idx, sampled_items] = 0 # mask out 20%
+
+                # add input 80% to train_positives to be masked out
+                train_positive_list[u_idx] += list(u - set(sampled_items))
 
                 to_predict.append(set(sampled_items)) 
 
@@ -110,10 +113,13 @@ def evaluate(
                 num_eval_users += 1 # only count val users
 
                 # Sampling 
-                num_sampled_items = int(0.2 * num_user_items)
+                num_sampled_items = int(np.ceil(0.2 * num_user_items))
                 sampled_items = np.random.choice(list(u), size = num_sampled_items)
                 total_sampled_items += len(sampled_items)
                 added_context[u_idx, sampled_items] = 0 # mask out 20%
+
+                # add input 80% to train_positives to be masked out
+                train_positive_list[u_idx] += list(u - set(sampled_items))
 
                 to_predict.append(set(sampled_items))
 
@@ -274,9 +280,15 @@ def evaluate_batch(
     for user_idx in range(len(logits)):
         logits[user_idx][train_positive[user_idx]] = -INF
 
-    # Sort indices for top-{max(topk)} recommendations
-    recommended_item_indices = (-logits).argsort()[:, : max(k_values)].tolist()
-    batch_exposures = {k: np.zeros(logits.shape[1]) for k in k_values}
+    # Exclude -INF entries when selecting top-k
+    recommended_item_indices = []
+    for user_idx, user_logits in enumerate(logits):
+        valid_indices = np.where(user_logits != -INF)[0]
+        valid_logits = user_logits[valid_indices]
+        
+        # Get indices of top-{max(k_values)} from valid logits
+        top_indices = valid_indices[np.argsort(-valid_logits)[:max(k_values)]]
+        recommended_item_indices.append(top_indices.tolist())
 
     user_recommendations = {}
     for k in k_values:
