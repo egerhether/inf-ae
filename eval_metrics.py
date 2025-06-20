@@ -272,9 +272,9 @@ def entropy(category_counts: list) -> float:
     # Calculate Shannon entropy using log base 2
     entropy_value = -np.sum(probabilities * np.log2(probabilities))
 
-    # normalized_entropy = entropy_value / np.log2(len(nonzero_counts)) if len(nonzero_counts) > 1 else 0.0
+    normalized_entropy = entropy_value / np.log2(len(nonzero_counts)) if len(nonzero_counts) > 1 else 0.0
 
-    return float(entropy_value)
+    return float(normalized_entropy)
 
 def gini(category_counts: list) -> float:
     

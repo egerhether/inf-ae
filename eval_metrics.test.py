@@ -399,9 +399,9 @@ class TestEntropy(unittest.TestCase):
     
     def test_entropy_perfect_uniform_distribution(self):
         """Test entropy with perfectly uniform distribution across categories."""
-        # Equal distribution across 4 categories should give maximum entropy
+        # Equal distribution across 4 categories should give maximum normalized entropy
         category_counts = [25, 25, 25, 25]  # 100 recommendations evenly distributed
-        expected_entropy = np.log2(4)  # Maximum entropy for 4 categories
+        expected_entropy = 1.0  # Normalized maximum entropy = log2(4)/log2(4) = 1.0
         result = eval_metrics.entropy(category_counts)
         self.assertAlmostEqual(result, expected_entropy, places=5)
     
@@ -416,17 +416,18 @@ class TestEntropy(unittest.TestCase):
     def test_entropy_two_categories_equal(self):
         """Test entropy with equal distribution across two categories."""
         category_counts = [50, 50, 0, 0]
-        expected_entropy = np.log2(2)  # log2(2) = 1.0
+        expected_entropy = 1.0  # Normalized: log2(2)/log2(2) = 1.0
         result = eval_metrics.entropy(category_counts)
         self.assertAlmostEqual(result, expected_entropy, places=5)
     
     def test_entropy_skewed_distribution(self):
         """Test entropy with skewed distribution favoring one category."""
         category_counts = [80, 10, 5, 5]  # Heavily skewed toward first category
-        # Calculate expected entropy manually
+        # Calculate expected normalized entropy manually
         total = sum(category_counts)
         probs = [count/total for count in category_counts if count > 0]
-        expected_entropy = -sum(p * np.log2(p) for p in probs)
+        raw_entropy = -sum(p * np.log2(p) for p in probs)
+        expected_entropy = raw_entropy / np.log2(len(probs))  # Normalize by log2(4)
         
         result = eval_metrics.entropy(category_counts)
         self.assertAlmostEqual(result, expected_entropy, places=5)
@@ -437,7 +438,8 @@ class TestEntropy(unittest.TestCase):
         # Only two categories have recommendations
         total = 100
         p1, p2 = 60/total, 40/total
-        expected_entropy = -(p1 * np.log2(p1) + p2 * np.log2(p2))
+        raw_entropy = -(p1 * np.log2(p1) + p2 * np.log2(p2))
+        expected_entropy = raw_entropy / np.log2(2)  # Normalize by log2(2)
         
         result = eval_metrics.entropy(category_counts)
         self.assertAlmostEqual(result, expected_entropy, places=5)
@@ -472,7 +474,8 @@ class TestEntropy(unittest.TestCase):
         category_counts = [10.5, 20.3, 15.2]
         total = sum(category_counts)
         probs = [count/total for count in category_counts]
-        expected_entropy = -sum(p * np.log2(p) for p in probs)
+        raw_entropy = -sum(p * np.log2(p) for p in probs)
+        expected_entropy = raw_entropy / np.log2(len(probs))  # Normalize by log2(3)
         
         result = eval_metrics.entropy(category_counts)
         self.assertAlmostEqual(result, expected_entropy, places=5)
@@ -481,7 +484,7 @@ class TestEntropy(unittest.TestCase):
         """Test entropy with many categories."""
         # 10 categories with equal distribution
         category_counts = [10] * 10
-        expected_entropy = np.log2(10)
+        expected_entropy = 1.0  # Normalized: log2(10)/log2(10) = 1.0
         result = eval_metrics.entropy(category_counts)
         self.assertAlmostEqual(result, expected_entropy, places=5)
     
@@ -501,6 +504,7 @@ class TestEntropy(unittest.TestCase):
         # More uniform distributions should have higher entropy
         self.assertLess(skewed_entropy, less_skewed_entropy)
         self.assertLess(less_skewed_entropy, uniform_entropy)
+
 
 if __name__ == '__main__':
     unittest.main()
