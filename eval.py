@@ -1,11 +1,13 @@
-import jax
 import jax.numpy as jnp
 import numpy as np
+# from pprint import pformat
 
 import eval_metrics
 from eval_metrics import GiniCoefficient
 from utils import get_item_propensity
 from utils import filter_out_users_with_no_gt
+from utils import get_cores
+from simulate_cold_start import cold_start_binning
 
 INF = float(1e6)
 
@@ -30,6 +32,7 @@ def evaluate(
     test_set_eval=False,
     alpha = None
 ):
+    np.random.seed(hyper_params["seed"])
     print(f"\n[EVALUATE] Starting evaluation with k_values={k_values}, test_set_eval={test_set_eval}")
     print(f"[EVALUATE] Hyperparams: #users={hyper_params['num_users']}, #items={hyper_params['num_items']}, lambda={hyper_params['lamda']}")
     assert 0 not in k_values, "0 in k values"
@@ -67,7 +70,7 @@ def evaluate(
         if hyper_params["gen"] == "strong":
             total_sampled_items = 0
             added_context = data.data["test_matrix"]
-            to_predict = [] # we predict 20% of val interactions, not entire set like before
+            to_predict = [] # we predict 20% of test interactions, not entire set like before
             num_eval_users = 0 # needed for correct metric aggegation
             for u_idx, u in enumerate(data.data["test_positive_set"]):
                 num_user_items = len(u)
@@ -128,6 +131,21 @@ def evaluate(
         f"[EVALUATION ERROR] Expected to_predict list to have {hyper_params['num_users']} users, "
         f"but got {len(to_predict)}."
     )
+
+    cold_start_test_dict = cold_start_binning(
+        data.data["test_positive_set"],
+        get_cores(
+            data.data["train_positive_set"],
+            data.data["val_positive_set"],
+            data.data["test_positive_set"]
+        ),
+        hyper_params["simulated_max_interactins"],
+        hyper_params["cold_start_bins"],
+        hyper_params["simulated_coldness_levels"],
+    )
+    
+    # with open("data.txt", "w") as f:
+    #     f.write(pformat(cold_start_test_dict))   
     
     # For GINI calculation - track item exposures across all recommendations
     item_exposures = np.zeros(hyper_params["num_items"])
@@ -143,8 +161,6 @@ def evaluate(
         batch_end = min(i + bsz, hyper_params["num_users"])
         print(f"[EVALUATE] Processing batch of users {i} to {batch_end-1} (total: {batch_end-i})")
 
-        # Sanity check for users with no items
-
         # Forward pass
         temp_preds = kernelized_rr_forward(
             train_x, eval_context[i:batch_end].todense(), reg=hyper_params["lamda"], alpha=alpha
@@ -154,8 +170,8 @@ def evaluate(
         metrics, temp_preds, temp_y, user_recommendations_batch = evaluate_batch(
             data.data["negatives"][i:batch_end],
             np.array(temp_preds),
-            train_positive_list[i:batch_end],
-            to_predict[i:batch_end],
+            train_positive_list[i:batch_end], # train positives, used for setting logits to -inf before sorting
+            to_predict[i:batch_end], # test/val items to be predicted
             item_propensity,
             k_values,
             metrics,
@@ -177,7 +193,7 @@ def evaluate(
     print(f"[EVALUATE] All batches processed, computing final metrics")
     y_binary, preds = np.array(y_binary), np.array(preds)
     if (True not in np.isnan(y_binary)) and (True not in np.isnan(preds)):
-        metrics["GLOBAL_AUC"] = round(eval_metrics.auc(y_binary, preds), 4)
+        metrics["GLOBAL_AUC"] = round(eval_metrics.auc(list(y_binary), list(preds)), 4)
     else:
         print("[EVALUATE] Warning: NaN values detected in y_binary or preds, skipping GLOBAL_AUC calculation")
 
@@ -271,7 +287,7 @@ def evaluate_batch(
         temp_y.extend(true_labels.tolist())
 
         # Accumulate per-user AUC for the calculation of meanAUC done in `evaluate(...)`
-        user_auc = eval_metrics.auc(true_labels, item_scores)
+        user_auc = eval_metrics.auc(list(true_labels), list(item_scores))
         metrics["MEAN_AUC"] += user_auc
 
     # Marking train-set consumed items as negative INF
