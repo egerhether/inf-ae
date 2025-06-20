@@ -265,11 +265,18 @@ def load_raw_dataset(
         if neg_sampling_strategy[0] == "total":
             loop_upper_bound = neg_sampling_strategy[1]
         elif neg_sampling_strategy[0] == "positive":
-            num_pos = len(ret["test_positive_set"][u])
+            if len(ret["test_positive_set"][u]) != 0:
+                num_pos = len(ret["test_positive_set"][u]) 
+            elif len(ret["val_positive_set"][u]) != 0:
+                num_pos = len(ret["val_positive_set"][u])
+            elif len(ret["train_positive_set"][u]) != 0:
+                num_pos = len(ret["train_positive_set"][u])
+            else:
+                print("User in none of the splits!")
             loop_upper_bound = neg_sampling_strategy[1] * num_pos
         # print(f"[data.py DEBUG]: {neg_sampling_strategy} -> num_pos = {len(ret['test_positive_set'][u])}; loop_upper_bound {loop_upper_bound}")
 
-        max_attempts = 20 * len(ret["test_positive_set"][u])
+        max_attempts = 20 * num_pos # this is still sometimes not enough
         
         # ret["negatives"][u] is initialized as a set => no duplicates in final negatives 
         while len(ret["negatives"][u]) < loop_upper_bound:
