@@ -215,8 +215,8 @@ def prepare_category_counts(
         if item_id in item_tag_mapping:
             # Handle both single category and multiple categories (sets)
             categories = item_tag_mapping[item_id]
-            if isinstance(categories, (set, list, tuple)):
-                # Multiple categories per item
+            if isinstance(categories, (set, list, tuple)) and not isinstance(categories, str):
+                # weight = 1.0 / len(categories)  # Fractional weight
                 for category in categories:
                     category_counts[category] = category_counts.get(category, 0) + 1
             else:
@@ -225,7 +225,7 @@ def prepare_category_counts(
         else:
             # Item not in mapping, assign to "UNKNOWN" category
             category_counts["UNKNOWN"] = category_counts.get("UNKNOWN", 0) + 1
-    
+
     return list(category_counts.values())
 
 def entropy(category_counts: list) -> float:
@@ -271,5 +271,18 @@ def entropy(category_counts: list) -> float:
     
     # Calculate Shannon entropy using log base 2
     entropy_value = -np.sum(probabilities * np.log2(probabilities))
-    
+
+    # normalized_entropy = entropy_value / np.log2(len(nonzero_counts)) if len(nonzero_counts) > 1 else 0.0
+
     return float(entropy_value)
+
+def gini(category_counts: list) -> float:
+    
+    values = np.sort(category_counts)
+    n = len(values)
+
+    # gini compute
+    cumulative_sum = np.cumsum(values)
+    gini = (n + 1 - 2 * (np.sum(cumulative_sum) / cumulative_sum[-1])) / n
+
+    return gini

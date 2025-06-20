@@ -69,7 +69,7 @@ hyper_params = {
         "user_support": -1,  # -1 implies use all users
         "seed": 42,
         "neg_sampling_strategy": "positive2",
-        "gen": "strong"
+        "gen": "weak"
     },
     "amazon_magazine": {
         "dataset": "amazon_magazine",
@@ -99,6 +99,7 @@ hyper_params = {
         # Number of users to keep (randomly)
         "user_support": -1,  # -1 implies use all users
         "seed": 42,
+        "neg_sampling_strategy": "positive2",
         "gen": "weak"
     },
 }

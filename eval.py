@@ -18,7 +18,8 @@ METRIC_NAMES = [
     "CAPPED_PSP",
     "GINI",
     "INTER_LIST_DISTANCE",
-    "ENTROPY"
+    "ENTROPY",
+    "NEW_GINI",
     "MEAN_AUC",
     "GLOBAL_AUC",
 ]
@@ -316,10 +317,11 @@ def evaluate_batch(
                 )
                 category_recommendations = eval_metrics.prepare_category_counts(
                     recommended_item_indices[user_idx], 
-                    data.data["item_map_to_category"], 
+                    data.data["item_tag_mapping"], 
                     k
                 )
                 entropy = eval_metrics.entropy(category_recommendations)
+                new_gini = eval_metrics.gini(category_recommendations)
 
             precision = eval_metrics.precision(recommended_item_indices[user_idx], test_positive_set[user_idx], k)
             recall = eval_metrics.recall(recommended_item_indices[user_idx], test_positive_set[user_idx], k)
@@ -336,5 +338,6 @@ def evaluate_batch(
             metrics["CAPPED_PSP@{}".format(k)] += capped_psp
             metrics["INTER_LIST_DISTANCE@{}".format(k)] += inter_list_distance
             metrics["ENTROPY@{}".format(k)] += entropy
+            metrics["NEW_GINI@{}".format(k)] += new_gini
 
     return metrics, temp_preds, temp_y, user_recommendations if compute_gini else {}
