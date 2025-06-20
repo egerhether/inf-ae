@@ -15,7 +15,6 @@ tqdm.pandas()
 
 class Dataset:
     def __init__(self, hyper_params):
-        np.random.seed(hyper_params["seed"])
         self.data = load_raw_dataset(
             hyper_params["dataset"],
             hyper_params["item_id"],
