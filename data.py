@@ -15,6 +15,7 @@ tqdm.pandas()
 
 class Dataset:
     def __init__(self, hyper_params):
+        np.random.seed(hyper_params["seed"])
         self.data = load_raw_dataset(
             hyper_params["dataset"],
             hyper_params["item_id"],
@@ -259,41 +260,31 @@ def load_raw_dataset(
     print("Generating negative samples for evaluation")
     ret["negatives"] = [set() for _ in range(num_users)]
 
+    all_items = set(item_map.values())
+
     for u in tqdm(range(num_users), desc="Generating negatives"):
-        attempts = 0
+        user_positives = (
+            ret["train_positive_set"][u] |
+            ret["val_positive_set"][u] |
+            ret["test_positive_set"][u]
+        )
 
         if neg_sampling_strategy[0] == "total":
-            loop_upper_bound = neg_sampling_strategy[1]
+            to_sample = neg_sampling_strategy[1]
         elif neg_sampling_strategy[0] == "positive":
-            if len(ret["test_positive_set"][u]) != 0:
-                num_pos = len(ret["test_positive_set"][u]) 
-            elif len(ret["val_positive_set"][u]) != 0:
-                num_pos = len(ret["val_positive_set"][u])
-            elif len(ret["train_positive_set"][u]) != 0:
-                num_pos = len(ret["train_positive_set"][u])
-            else:
-                print("User in none of the splits!")
-            loop_upper_bound = neg_sampling_strategy[1] * num_pos
-        # print(f"[data.py DEBUG]: {neg_sampling_strategy} -> num_pos = {len(ret['test_positive_set'][u])}; loop_upper_bound {loop_upper_bound}")
+            to_sample = len(user_positives) * neg_sampling_strategy[1] 
 
-        max_attempts = 20 * num_pos # this is still sometimes not enough
-        
-        # ret["negatives"][u] is initialized as a set => no duplicates in final negatives 
-        while len(ret["negatives"][u]) < loop_upper_bound:
-            attempts += 1
-            if attempts > max_attempts:  # Safety check to avoid infinite loops
-                print(f"User {u} could not get {loop_upper_bound} negatives after {max_attempts} attempts")
-                break
+        available_negatives = list(all_items - user_positives)
 
-            rand_item = np.random.randint(0, num_items)
-            if rand_item in ret["train_positive_set"][u]:
-                continue
-            if rand_item in ret["val_positive_set"][u]:
-                continue
-            if rand_item in ret["test_positive_set"][u]:
-                continue
-            ret["negatives"][u].add(rand_item)
-        ret["negatives"][u] = list(ret["negatives"][u])
+        if len(available_negatives) < to_sample:
+            print(f"User {u} has only {len(available_negatives)} available negatives, requested {to_sample}. Taking all...")
+            sampled_negatives = available_negatives
+        else:
+            sampled_negatives = np.random.choice(
+                available_negatives, to_sample, replace=False
+            )
+
+        ret["negatives"][u] = sorted(sampled_negatives)
 
     ret.update(
         {
