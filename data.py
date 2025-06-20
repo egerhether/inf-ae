@@ -21,6 +21,7 @@ class Dataset:
             hyper_params["item_id"],
             hyper_params["category_id"],
             parse_neg_sampling_param(hyper_params["neg_sampling_strategy"]),
+            hyper_params["diversity_metrics"],
         )
         self.set_of_active_users = list(set(self.data["train"][:, 0].tolist()))
         self.hyper_params = self.update_hyper_params(hyper_params)
@@ -69,6 +70,7 @@ def load_raw_dataset(
     item_id,
     category_id,
     neg_sampling_strategy,
+    diversity_metrics=False,
     data_path=None,
     index_path=None,
     item_path=None,
@@ -200,35 +202,39 @@ def load_raw_dataset(
     index = np.array(new_index, dtype=np.int32)
     print(f"Remapped data shape: {data.shape}, index shape: {index.shape}")
 
-    print("Loading item data")
-    if item_path is None:
-        item_path = f"data/{dataset}/{dataset}.item"
-        print(f"Using default item_path: {item_path}")
+    if diversity_metrics:
+        print("Loading item data")
+        if item_path is None:
+            item_path = f"data/{dataset}/{dataset}.item"
+            print(f"Using default item_path: {item_path}")
+    
+        print(f"Reading item data from {item_path}")
+        # FIX: Handle CSV parsing errors with more robust error handling
+        try:
+            # First attempt with standard settings
+            item_df = pd.read_csv(
+                item_path, delimiter="\t", header=0, engine="python", encoding="latin-1"
+            )
+        except pd.errors.ParserError as e:
+            print(f"Parser error with standard settings: {e}")
+            print("Trying with on_bad_lines='warn' and encoding='utf-8'")
+            item_df = pd.read_csv(
+                item_path,
+                delimiter="\t",
+                header=0,
+                engine="python",
+                encoding="utf-8",
+                on_bad_lines="warn",
+            )
+        print(f"Loaded item data with shape: {item_df.shape}")
 
-    print(f"Reading item data from {item_path}")
-    # FIX: Handle CSV parsing errors with more robust error handling
-    try:
-        # First attempt with standard settings
-        item_df = pd.read_csv(
-            item_path, delimiter="\t", header=0, engine="python", encoding="latin-1"
+        # Create both mappings in a unified way
+        item_map_to_category, item_tag_mapping = create_item_mappings(
+            item_df, item_id, category_id, item_map
         )
-    except pd.errors.ParserError as e:
-        print(f"Parser error with standard settings: {e}")
-        print("Trying with on_bad_lines='warn' and encoding='utf-8'")
-        item_df = pd.read_csv(
-            item_path,
-            delimiter="\t",
-            header=0,
-            engine="python",
-            encoding="utf-8",
-            on_bad_lines="warn",
-        )
-    print(f"Loaded item data with shape: {item_df.shape}")
-
-    # Create both mappings in a unified way
-    item_map_to_category, item_tag_mapping = create_item_mappings(
-        item_df, item_id, category_id, item_map
-    )
+    else:
+        item_map_to_category = {}
+        item_tag_mapping = {}
 
 
     print("Creating train/val/test splits")
