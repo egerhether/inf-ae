@@ -1,5 +1,6 @@
 import unittest
 import numpy as np
+import warnings
 
 import eval_metrics
 
@@ -261,6 +262,378 @@ class TestPropensityScoredPrecision(unittest.TestCase):
         k = 3
         
         self.assertAlmostEqual(eval_metrics.psp(recommendations, ground_truth, self.propensities, k), 0.0)
+    
+
+class TestInterListJaccardDistance(unittest.TestCase):
+    """Test cases for Inter-list Jaccard distance metric based on item tags."""
+    
+    def setUp(self):
+        """Set up test data with various tag configurations."""
+        # Sample item-to-tag mapping representing 
+        self.item_tag_mapping = {
+            1: {"Action", "Shooter", "FPS"},
+            2: {"Action", "Adventure", "RPG"},
+            3: {"Strategy", "RTS", "Military"},
+            4: {"Puzzle", "Casual", "Indie"},
+            5: {"Action", "Shooter", "Multiplayer"},
+            6: {"Racing", "Sports", "Simulation"},
+            7: {"Horror", "Survival", "Action"},
+            8: set(),  # Item with no tags
+            9: {"Action"},  # Item with single tag
+            10: {"Action", "Adventure", "RPG", "Strategy", "Shooter"}  # Item with many tags
+        }
+    
+    def test_identical_items_zero_distance(self):
+        """Items with identical tags should have zero Jaccard distance"""
+        recommendations = [1, 1]  # Same item, identical tags
+        k = 2
+        result = eval_metrics.inter_list_jaccard_distance(recommendations, self.item_tag_mapping, k)
+        self.assertAlmostEqual(result, 0.0)
+    
+    def test_completely_different_items_max_distance(self):
+        """Items with no tag overlap should have distance 1.0"""
+        recommendations = [3, 4]
+        k = 2
+        result = eval_metrics.inter_list_jaccard_distance(recommendations, self.item_tag_mapping, k)
+        self.assertAlmostEqual(result, 1.0)
+    
+    def test_partial_overlap_items(self):
+        """Items with partial tag overlap should have intermediate distance"""
+        recommendations = [1, 2]
+        k = 2
+        # Intersection: {"Action"} = 1, Union: {"Action", "Shooter", "FPS", "Adventure", "RPG"} = 5
+        # Jaccard similarity = 1/5 = 0.2, Jaccard distance = 1 - 0.2 = 0.8
+        result = eval_metrics.inter_list_jaccard_distance(recommendations, self.item_tag_mapping, k)
+        self.assertAlmostEqual(result, 0.8)
+
+    def test_subset_relationship(self):
+        """Items where one tag set is subset of another"""
+        recommendations = [2, 10] 
+        k = 2
+        result = eval_metrics.inter_list_jaccard_distance(recommendations, self.item_tag_mapping, k)
+        self.assertAlmostEqual(result, 2.0/5.0, places=5)
+
+    def test_multiple_items_average_distance(self):
+        """Test with more than 2 items - should return average of all pairwise distances"""
+        recommendations = [1, 3, 4]  # Three completely different items
+        k = 3
+        # Pairwise distances: (1,3)=1.0, (1,4)=1.0, (3,4)=1.0
+        # Average = 1.0
+        result = eval_metrics.inter_list_jaccard_distance(recommendations, self.item_tag_mapping, k)
+        self.assertAlmostEqual(result, 1.0)
+
+    def test_items_with_no_tags(self):
+        """Items with no tags should have distance 0.0"""
+        recommendations = [8, 8]  # Both have empty tag sets
+        k = 2
+        result = eval_metrics.inter_list_jaccard_distance(recommendations, self.item_tag_mapping, k)
+        self.assertAlmostEqual(result, 0.0)
+
+    def test_one_item_no_tags_other_has_tags(self):
+        """One item with no tags, other with tags"""
+        recommendations = [1, 8]  # {"Action", "Shooter", "FPS"} vs {}
+        k = 2
+        # Intersection: {} = 0, Union: {"Action", "Shooter", "FPS"} = 3
+        # Jaccard similarity = 0/3 = 0, Jaccard distance = 1.0
+        result = eval_metrics.inter_list_jaccard_distance(recommendations, self.item_tag_mapping, k)
+        self.assertAlmostEqual(result, 1.0)
+
+    def test_single_item_returns_zero(self):
+        """Single item cannot have inter-list distance"""
+        recommendations = [1]
+        k = 1
+        result = eval_metrics.inter_list_jaccard_distance(recommendations, self.item_tag_mapping, k)
+        self.assertAlmostEqual(result, 0.0)
+
+    def test_empty_recommendations_raise_error(self):
+        """Empty recommendation list should raise ValueError"""
+        recommendations = []
+        k = 5
+        with self.assertRaises(ValueError):
+            eval_metrics.inter_list_jaccard_distance(recommendations, self.item_tag_mapping, k)
+
+    def test_k_larger_than_recommendations(self):
+        """k larger than recommendation list should use all recommendations"""
+        recommendations = [1, 5]
+        k = 10
+        result = eval_metrics.inter_list_jaccard_distance(recommendations, self.item_tag_mapping, k)
+        self.assertAlmostEqual(result, 0.5)  # Complete different items
+
+    def test_k_zero_raises_error(self):
+        """k=0 should raise ValueError"""
+        recommendations = [1, 2, 3]
+        k = 0
+        with self.assertRaises(ValueError):
+            eval_metrics.inter_list_jaccard_distance(recommendations, self.item_tag_mapping, k)
+
+    def test_mixed_scenario_realistic(self):
+        """More realistic scenario with mixed tag overlaps"""
+        recommendations = [1, 2, 5, 9]  # Mix of overlapping and different items
+        k = 4
+        # Item tags:
+        # 1: {"Action", "Shooter", "FPS"}
+        # 2: {"Action", "Adventure", "RPG"}  
+        # 5: {"Action", "Shooter", "Multiplayer"}
+        # 9: {"Action"}
+        # Pairwise distances:
+        # (1,2): intersection={"Action"}=1, union=5, distance=1-1/5=0.8
+        # (1,5): intersection={"Action","Shooter"}=2, union=4, distance=1-2/4=0.5
+        # (1,9): intersection={"Action"}=1, union=3, distance=1-1/3=2/3
+        # (2,5): intersection={"Action"}=1, union=5, distance=1-1/5=0.8
+        # (2,9): intersection={"Action"}=1, union=3, distance=1-1/3=2/3
+        # (5,9): intersection={"Action"}=1, union=3, distance=1-1/3=2/3
+        # Average = (0.8 + 0.5 + 2/3 + 0.8 + 2/3 + 2/3) / 6
+        expected = (0.8 + 0.5 + 2.0/3.0 + 0.8 + 2.0/3.0 + 2.0/3.0) / 6
+        result = eval_metrics.inter_list_jaccard_distance(recommendations, self.item_tag_mapping, k)
+        self.assertAlmostEqual(result, expected, places=5)
+
+    def test_single_tag_items(self):
+        """Items with single tags"""
+        recommendations = [9, 9]  # Both have single tag {"Action"}
+        k = 2
+        result = eval_metrics.inter_list_jaccard_distance(recommendations, self.item_tag_mapping, k)
+        self.assertAlmostEqual(result, 0.0)
+
+class TestEntropy(unittest.TestCase):
+    
+    def test_entropy_perfect_uniform_distribution(self):
+        """Test entropy with perfectly uniform distribution across categories."""
+        # Equal distribution across 4 categories should give maximum normalized entropy
+        category_counts = [25, 25, 25, 25]  # 100 recommendations evenly distributed
+        expected_entropy = 1.0  # Normalized maximum entropy = log2(4)/log2(4) = 1.0
+        result = eval_metrics.entropy(category_counts)
+        self.assertAlmostEqual(result, expected_entropy, places=5)
+    
+    def test_entropy_single_category_dominance(self):
+        """Test entropy when all recommendations are from one category."""
+        # All recommendations from one category should give zero entropy
+        category_counts = [100, 0, 0, 0]
+        expected_entropy = 0.0
+        result = eval_metrics.entropy(category_counts)
+        self.assertEqual(result, expected_entropy)
+    
+    def test_entropy_two_categories_equal(self):
+        """Test entropy with equal distribution across two categories."""
+        category_counts = [50, 50, 0, 0]
+        expected_entropy = 1.0  # Normalized: log2(2)/log2(2) = 1.0
+        result = eval_metrics.entropy(category_counts)
+        self.assertAlmostEqual(result, expected_entropy, places=5)
+    
+    def test_entropy_skewed_distribution(self):
+        """Test entropy with skewed distribution favoring one category."""
+        category_counts = [80, 10, 5, 5]  # Heavily skewed toward first category
+        # Calculate expected normalized entropy manually
+        total = sum(category_counts)
+        probs = [count/total for count in category_counts if count > 0]
+        raw_entropy = -sum(p * np.log2(p) for p in probs)
+        expected_entropy = raw_entropy / np.log2(len(probs))  # Normalize by log2(4)
+        
+        result = eval_metrics.entropy(category_counts)
+        self.assertAlmostEqual(result, expected_entropy, places=5)
+    
+    def test_entropy_with_zeros(self):
+        """Test entropy calculation when some categories have zero recommendations."""
+        category_counts = [60, 0, 40, 0, 0]
+        # Only two categories have recommendations
+        total = 100
+        p1, p2 = 60/total, 40/total
+        raw_entropy = -(p1 * np.log2(p1) + p2 * np.log2(p2))
+        expected_entropy = raw_entropy / np.log2(2)  # Normalize by log2(2)
+        
+        result = eval_metrics.entropy(category_counts)
+        self.assertAlmostEqual(result, expected_entropy, places=5)
+    
+    def test_entropy_single_recommendation(self):
+        """Test entropy when there's only one recommendation."""
+        category_counts = [1, 0, 0]
+        expected_entropy = 0.0  # No diversity with single item
+        result = eval_metrics.entropy(category_counts)
+        self.assertEqual(result, expected_entropy)
+    
+    def test_entropy_empty_input(self):
+        """Test entropy with empty category counts."""
+        category_counts = []
+        with self.assertRaises((ValueError, ZeroDivisionError)):
+            eval_metrics.entropy(category_counts)
+    
+    def test_entropy_all_zeros(self):
+        """Test entropy when all category counts are zero."""
+        category_counts = [0, 0, 0, 0]
+        with self.assertRaises((ValueError, ZeroDivisionError)):
+            eval_metrics.entropy(category_counts)
+    
+    def test_entropy_negative_counts(self):
+        """Test entropy with negative counts (should raise error)."""
+        category_counts = [10, -5, 20]
+        with self.assertRaises(ValueError):
+            eval_metrics.entropy(category_counts)
+    
+    def test_entropy_float_counts(self):
+        """Test entropy with float counts (should work)."""
+        category_counts = [10.5, 20.3, 15.2]
+        total = sum(category_counts)
+        probs = [count/total for count in category_counts]
+        raw_entropy = -sum(p * np.log2(p) for p in probs)
+        expected_entropy = raw_entropy / np.log2(len(probs))  # Normalize by log2(3)
+        
+        result = eval_metrics.entropy(category_counts)
+        self.assertAlmostEqual(result, expected_entropy, places=5)
+    
+    def test_entropy_large_number_of_categories(self):
+        """Test entropy with many categories."""
+        # 10 categories with equal distribution
+        category_counts = [10] * 10
+        expected_entropy = 1.0  # Normalized: log2(10)/log2(10) = 1.0
+        result = eval_metrics.entropy(category_counts)
+        self.assertAlmostEqual(result, expected_entropy, places=5)
+    
+    def test_entropy_monotonicity(self):
+        """Test that entropy increases as distribution becomes more uniform."""
+        # More skewed distribution
+        skewed_counts = [90, 5, 3, 2]
+        # Less skewed distribution  
+        less_skewed_counts = [60, 20, 15, 5]
+        # Even more uniform
+        uniform_counts = [30, 25, 25, 20]
+        
+        skewed_entropy = eval_metrics.entropy(skewed_counts)
+        less_skewed_entropy = eval_metrics.entropy(less_skewed_counts)
+        uniform_entropy = eval_metrics.entropy(uniform_counts)
+        
+        # More uniform distributions should have higher entropy
+        self.assertLess(skewed_entropy, less_skewed_entropy)
+        self.assertLess(less_skewed_entropy, uniform_entropy)
+
+
+class TestGini(unittest.TestCase):
+    
+    def test_gini_perfect_equality(self):
+        """Test Gini coefficient with perfect equality across categories."""
+        # Equal distribution should give minimum Gini (perfect equality)
+        category_counts = [25, 25, 25, 25]  # Perfect equality
+        expected_gini = 0.0
+        result = eval_metrics.gini(category_counts)
+        self.assertAlmostEqual(result, expected_gini, places=5)
+    
+    def test_gini_two_categories_equal(self):
+        """Test Gini coefficient with equal distribution across two categories."""
+        category_counts = [50, 50]
+        expected_gini = 0.0  # Perfect equality for two categories
+        result = eval_metrics.gini(category_counts)
+        self.assertAlmostEqual(result, expected_gini, places=5)
+    
+    def test_gini_two_categories_unequal(self):
+        """Test Gini coefficient with unequal distribution across two categories."""
+        category_counts = [80, 20]
+        # Manual calculation: Gini = |80-20|/(2*n*mean) where n=2, mean=50
+        # Gini = 60/(2*2*50) = 60/200 = 0.3
+        expected_gini = 0.3
+        result = eval_metrics.gini(category_counts)
+        self.assertAlmostEqual(result, expected_gini, places=5)
+    
+    def test_gini_moderate_inequality(self):
+        """Test Gini coefficient with moderate inequality."""
+        category_counts = [60, 30, 10]  # Moderate inequality
+        result = eval_metrics.gini(category_counts)
+        # Should be between 0 and 1, closer to inequality
+        self.assertGreater(result, 0.0)
+        self.assertLess(result, 1.0)
+        self.assertGreater(result, 0.1)  # Should show some inequality
+    
+    def test_gini_with_zeros(self):
+        """Test Gini coefficient when some categories have zero recommendations."""
+        category_counts = [60, 40, 0, 0]
+        result = eval_metrics.gini(category_counts)
+        # Should handle zeros properly and be between 0 and 1
+        self.assertGreaterEqual(result, 0.0)
+        self.assertLessEqual(result, 1.0)
+    
+    def test_gini_single_category(self):
+        """Test Gini coefficient with only one category."""
+        category_counts = [100]
+        expected_gini = 0.0  # No inequality when there's only one category
+        result = eval_metrics.gini(category_counts)
+        self.assertEqual(result, expected_gini)
+    
+    def test_gini_empty_input(self):
+        """Test Gini coefficient with empty category counts."""
+        category_counts = []
+        with self.assertRaises((ValueError, ZeroDivisionError, IndexError)):
+            eval_metrics.gini(category_counts)
+    
+    def test_gini_float_counts(self):
+        """Test Gini coefficient with float counts (should work)."""
+        category_counts = [10.5, 20.3, 15.2]
+        result = eval_metrics.gini(category_counts)
+        # Should work with floats and return valid Gini
+        self.assertGreaterEqual(result, 0.0)
+        self.assertLessEqual(result, 1.0)
+    
+    def test_gini_monotonicity(self):
+        """Test that Gini increases as distribution becomes more unequal."""
+        # More equal distribution
+        equal_counts = [25, 25, 25, 25]
+        # Moderately unequal distribution
+        moderate_counts = [40, 30, 20, 10]
+        # Very unequal distribution
+        unequal_counts = [70, 20, 5, 5]
+        
+        equal_gini = eval_metrics.gini(equal_counts)
+        moderate_gini = eval_metrics.gini(moderate_counts)
+        unequal_gini = eval_metrics.gini(unequal_counts)
+        
+        # More unequal distributions should have higher Gini
+        self.assertLess(equal_gini, moderate_gini)
+        self.assertLess(moderate_gini, unequal_gini)
+    
+    def test_gini_bounds(self):
+        """Test that Gini coefficient is always between 0 and 1."""
+        test_cases = [
+            [50, 50],  # Equal
+            [90, 10],  # Unequal
+            [25, 25, 25, 25],  # Four equal
+            [70, 20, 5, 5],  # Four unequal
+            [1, 2, 3, 4, 5],  # Increasing
+            [100, 0, 0],  # With zeros
+        ]
+        
+        for counts in test_cases:
+            result = eval_metrics.gini(counts)
+            self.assertGreaterEqual(result, 0.0, f"Gini should be >= 0 for {counts}")
+            self.assertLessEqual(result, 1.0, f"Gini should be <= 1 for {counts}")
+    
+    def test_gini_input_types(self):
+        """Test Gini coefficient with different input types."""
+        # Test with list
+        list_counts = [20, 30, 50]
+        # Test with numpy array
+        array_counts = np.array([20, 30, 50])
+        # Test with tuple
+        tuple_counts = (20, 30, 50)
+        
+        list_result = eval_metrics.gini(list_counts)
+        array_result = eval_metrics.gini(array_counts)
+        tuple_result = eval_metrics.gini(tuple_counts)
+        
+        # All should give the same result
+        self.assertAlmostEqual(list_result, array_result, places=5)
+        self.assertAlmostEqual(array_result, tuple_result, places=5)
+    
+    def test_gini_inverse_relationship_with_entropy(self):
+        """Test that Gini and entropy have an inverse relationship."""
+        # Perfect equality: low Gini, high entropy
+        equal_counts = [25, 25, 25, 25]
+        # High inequality: high Gini, low entropy
+        unequal_counts = [90, 5, 3, 2]
+        
+        equal_gini = eval_metrics.gini(equal_counts)
+        equal_entropy = eval_metrics.entropy(equal_counts)
+        unequal_gini = eval_metrics.gini(unequal_counts)
+        unequal_entropy = eval_metrics.entropy(unequal_counts)
+        
+        # More equal distribution should have lower Gini and higher entropy
+        self.assertLess(equal_gini, unequal_gini)
+        self.assertGreater(equal_entropy, unequal_entropy)
     
 
 if __name__ == '__main__':

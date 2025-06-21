@@ -2,7 +2,6 @@ import jax.numpy as jnp
 import numpy as np
 
 import eval_metrics
-from eval_metrics import GiniCoefficient
 from utils import get_item_propensity
 from utils import filter_out_users_with_no_gt
 from utils import get_cores
@@ -17,6 +16,8 @@ METRIC_NAMES = [
     "PSP",
     "CAPPED_PSP",
     "GINI",
+    "INTER_LIST_DISTANCE",
+    "ENTROPY",
     "MEAN_AUC",
     "GLOBAL_AUC",
 ]
@@ -129,9 +130,6 @@ def evaluate(
         f"[EVALUATION ERROR] Expected to_predict list to have {hyper_params['num_users']} users, "
         f"but got {len(to_predict)}."
     )
-    
-    # For GINI calculation - track item exposures across all recommendations
-    item_exposures = np.zeros(hyper_params["num_items"])
 
     item_propensity = get_item_propensity(hyper_params, data)
 
@@ -159,16 +157,9 @@ def evaluate(
             k_values,
             metrics,
             data,
-            hyper_params["use_gini"]
+            hyper_params["diversity_metrics"],
         )
         print(f"[EVALUATE] Batch evaluation complete")
-
-        if hyper_params["use_gini"]:
-            # Accumulate item exposures for GINI calculation
-            for k in k_values:
-                if k not in user_recommendations:
-                    user_recommendations[k] = []
-                user_recommendations[k] += user_recommendations_batch[k]
 
         preds += temp_preds
         y_binary += temp_y
@@ -198,10 +189,6 @@ def evaluate(
             )
     metrics["MEAN_AUC"] = round(metrics["MEAN_AUC"] / num_users, 4)
 
-    if hyper_params["use_gini"]:
-        for k in k_values:
-            metrics["GINI@{}".format(k)] = GiniCoefficient().calculate_list_gini(user_recommendations[k], key="category")
-
     metrics["train_users"] = int(train_x.shape[0])
     metrics["train_interactions"] = int(jnp.count_nonzero(train_x.astype(np.int8)))
     print(f"[EVALUATE] Train set statistics: num_users={metrics['train_users']}, num_interactions={metrics['train_interactions']}")
@@ -218,7 +205,7 @@ def evaluate_batch(
     k_values,
     metrics,
     data,
-    compute_gini,
+    diversity_metrics,
 ):
     """
     Args:
@@ -243,7 +230,7 @@ def evaluate_batch(
         data: The main dataset object, passed in here so we can look up item
             category information for calculating the Gini coefficient.
 
-        compute_gini: A flag to tell the function whether update exposures for gini.
+        diversity_metrics: A flag to tell the function whether to compute diversity metrics.
     """
     print(f"[EVAL_BATCH] Starting batch evaluation with {len(logits)} users")
     
@@ -293,16 +280,23 @@ def evaluate_batch(
         user_recommendations[k] = []
 
         for user_idx in valid_user_indices:
-            if compute_gini:
-                # Update item exposures for this batch at this k
-                for item_idx in recommended_item_indices[user_idx][:k]:
-                    category = data.data["item_map_to_category"].get(item_idx + 1)
-                    user_recommendations[k].append(
-                        {
-                            "id": item_idx + 1,
-                            "category": category
-                        }
-                    )
+            gini = -1.0
+            entropy = -1.0
+            inter_list_distance = -1.0
+            if diversity_metrics and "item_tag_mapping" in data.data and len(data.data["item_tag_mapping"]) > 0:
+                inter_list_distance = eval_metrics.inter_list_jaccard_distance(
+                    recommended_item_indices[user_idx], 
+                    data.data["item_tag_mapping"], 
+                    k
+                )
+                category_recommendations = eval_metrics.prepare_category_counts(
+                    recommended_item_indices[user_idx], 
+                    data.data["item_tag_mapping"], 
+                    k
+                )
+                entropy = eval_metrics.entropy(category_recommendations)
+                gini = eval_metrics.gini(category_recommendations)
+
             precision = eval_metrics.precision(recommended_item_indices[user_idx], test_positive_set[user_idx], k)
             recall = eval_metrics.recall(recommended_item_indices[user_idx], test_positive_set[user_idx], k)
             truncated_recall = eval_metrics.truncated_recall(recommended_item_indices[user_idx], test_positive_set[user_idx], k)
@@ -316,5 +310,8 @@ def evaluate_batch(
             metrics["NDCG@{}".format(k)] += ndcg
             metrics["PSP@{}".format(k)] += psp
             metrics["CAPPED_PSP@{}".format(k)] += capped_psp
+            metrics["INTER_LIST_DISTANCE@{}".format(k)] += inter_list_distance
+            metrics["ENTROPY@{}".format(k)] += entropy
+            metrics["GINI@{}".format(k)] += gini
 
-    return metrics, temp_preds, temp_y, user_recommendations if compute_gini else {}
+    return metrics, temp_preds, temp_y, user_recommendations if diversity_metrics else {}

@@ -22,6 +22,7 @@ class Dataset:
             hyper_params["item_id"],
             hyper_params["category_id"],
             parse_neg_sampling_param(hyper_params["neg_sampling_strategy"]),
+            hyper_params["diversity_metrics"],
         )
         self.set_of_active_users = list(set(self.data["train"][:, 0].tolist()))
         self.hyper_params = self.update_hyper_params(hyper_params)
@@ -77,6 +78,7 @@ def load_raw_dataset(
     item_id,
     category_id,
     neg_sampling_strategy,
+    diversity_metrics=False,
     data_path=None,
     index_path=None,
     item_path=None,
@@ -118,6 +120,81 @@ def load_raw_dataset(
         print("User and item mapping created")
 
         return user_map, item_map
+    
+    def select(data, index, index_val):
+        print(f"Selecting data with index value {index_val}")
+        selected_indices = np.where(index == index_val)[0]
+        print(f"Found {len(selected_indices)} entries with index value {index_val}")
+        final = data[selected_indices]
+        final[:, 2] = 1.0
+        return final.astype(np.int32)
+
+    def parse_tags(category_string):
+        """Parse category/tag string into a list of tags."""
+        if pd.isna(category_string) or str(category_string).strip() == "":
+            return []
+        
+        text = str(category_string).strip()
+        
+        # Remove brackets
+        if text.startswith('[') and text.endswith(']'):
+            text = text[1:-1]
+        
+        # Split by common separators
+        for sep in [',', '|', ';']:
+            if sep in text:
+                tags = text.split(sep)
+                break
+        else:
+            # Split by space if no other separator found
+            tags = text.split()
+        
+        # Clean tags
+        cleaned_tags = []
+        for tag in tags:
+            tag = tag.strip(' "\'')
+            if tag and tag.lower() not in ['nan', 'null', 'none', 'n/a']:
+                cleaned_tags.append(tag)
+        
+        return cleaned_tags
+
+    def create_item_mappings(item_df, item_id_col, category_id_col, item_map):
+        """
+        Create item category and tag mappings.
+        
+        Returns:
+            tuple: (item_map_to_category, item_tag_mapping)
+            - item_map_to_category: maps item_id -> first category/tag
+            - item_tag_mapping: maps item_id -> set of all tags
+        """
+        print(f"Creating item mappings from columns: '{item_id_col}', '{category_id_col}'")
+        
+        item_map_to_category = {}
+        item_tag_mapping = {}
+        
+        for _, row in item_df.iterrows():
+            original_item_id = int(row[item_id_col])
+            
+            # Skip items not in final dataset
+            if original_item_id not in item_map:
+                continue
+                
+            remapped_item_id = item_map[original_item_id]
+            category_data = row.get(category_id_col, "")
+            
+            # Parse tags from category data
+            tags = parse_tags(category_data)
+            
+            # Map to first category (for backward compatibility)
+            first_category = tags[0] if tags else ""
+            item_map_to_category[remapped_item_id] = first_category
+            
+            # Map to all tags (for inter-list distance)
+            item_tag_mapping[remapped_item_id] = set(tags)
+        
+        print(f"Created mappings for {len(item_map_to_category)} items")
+        return item_map_to_category, item_tag_mapping
+
 
     user_map, item_map = remap(data, index)
 
@@ -133,69 +210,50 @@ def load_raw_dataset(
     index = np.array(new_index, dtype=np.int32)
     print(f"Remapped data shape: {data.shape}, index shape: {index.shape}")
 
-    print("Loading item data")
-    if item_path is None:
-        item_path = f"data/{dataset}/{dataset}.item"
-        print(f"Using default item_path: {item_path}")
+    if diversity_metrics:
+        print("Loading item data")
+        if item_path is None:
+            item_path = f"data/{dataset}/{dataset}.item"
+            print(f"Using default item_path: {item_path}")
+    
+        print(f"Reading item data from {item_path}")
+        # FIX: Handle CSV parsing errors with more robust error handling
+        try:
+            # First attempt with standard settings
+            item_df = pd.read_csv(
+                item_path, delimiter="\t", header=0, engine="python", encoding="latin-1"
+            )
+        except pd.errors.ParserError as e:
+            print(f"Parser error with standard settings: {e}")
+            print("Trying with on_bad_lines='warn' and encoding='utf-8'")
+            item_df = pd.read_csv(
+                item_path,
+                delimiter="\t",
+                header=0,
+                engine="python",
+                encoding="utf-8",
+                on_bad_lines="warn",
+            )
+        print(f"Loaded item data with shape: {item_df.shape}")
 
-    print(f"Reading item data from {item_path}")
-    # FIX: Handle CSV parsing errors with more robust error handling
-    try:
-        # First attempt with standard settings
-        item_df = pd.read_csv(
-            item_path, delimiter="\t", header=0, engine="python", encoding="latin-1"
-        )
-    except pd.errors.ParserError as e:
-        print(f"Parser error with standard settings: {e}")
-        print("Trying with on_bad_lines='warn' and encoding='utf-8'")
-        item_df = pd.read_csv(
-            item_path,
-            delimiter="\t",
-            header=0,
-            engine="python",
-            encoding="utf-8",
-            on_bad_lines="warn",
-        )
-    print(f"Loaded item data with shape: {item_df.shape}")
-
-    # This section needs refactoring
-    if dataset == "douban":
-        print("Processing Douban dataset")
-        item_map_to_category = dict(
-            zip(item_df[item_id].astype(int) + 1, item_df[category_id])
-        )
-
-    elif dataset == "ml-1m":
-        print("Processing MovieLens 1M dataset")
-        item_map_to_category = dict(
-            zip(item_df[item_id].astype(int) + 1, item_df[category_id.split(" ")[0]]) # using the first genre here
+        # Create both mappings in a unified way
+        item_map_to_category, item_tag_mapping = create_item_mappings(
+            item_df, item_id, category_id, item_map
         )
     else:
-        print("Processing other dataset")
-        all_genres = [
-            genre
-            for genre_list in item_df[category_id].fillna("Nan")
-            for genre in genre_list.strip("[]").split(", ") 
-        ]    
-        item_map_to_category = dict(
-            zip(item_df[item_id].astype(int) + 1, item_df[category_id.split(", ")[0]])
-        )
+        item_map_to_category = {}
+        item_tag_mapping = {}
 
-    def select(data, index, index_val):
-        print(f"Selecting data with index value {index_val}")
-        selected_indices = np.where(index == index_val)[0]
-        print(f"Found {len(selected_indices)} entries with index value {index_val}")
-        final = data[selected_indices]
-        final[:, 2] = 1.0
-        return final.astype(np.int32)
 
     print("Creating train/val/test splits")
+
     ret = {
         "item_map": item_map,
         "train": select(data, index, 0),
         "val": select(data, index, 1),
         "test": select(data, index, 2),
         "item_map_to_category": item_map_to_category,
+        "item_tag_mapping": item_tag_mapping,
     }
     print(
         f"Split sizes - Train: {len(ret['train'])}, Val: {len(ret['val'])}, Test: {len(ret['test'])}"
@@ -307,7 +365,6 @@ def load_raw_dataset(
     print("# users:", num_users)
     print("# items:", num_items)
     print("# interactions:", len(ret["train"]))
-
     return ret
 
 
