@@ -11,6 +11,7 @@ import random
 import numpy as np
 
 from utils import log_end_epoch, get_item_propensity, get_common_path
+from cold_start import run_cold_start_experiment
 
 
 def train(hyper_params, data):
@@ -72,6 +73,14 @@ def train(hyper_params, data):
         sampled_matrix,
         test_set_eval=True,
         alpha = alpha
+    )
+
+    run_cold_start_experiment(
+        data,
+        hyper_params,
+        kernelized_rr_forward,
+        sampled_matrix,
+        alpha
     )
 
     log_end_epoch(hyper_params, test_metrics, 0, time.time() - start_time)
