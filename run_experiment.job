@@ -17,4 +17,4 @@ module load CUDA/12.6.0
 
 source activate inf-ae
 
-CUDA_VISIBLE_DEVICES=0 python main.py douban_fixed
+CUDA_VISIBLE_DEVICES=0 python main.py douban
