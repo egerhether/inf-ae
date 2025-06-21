@@ -1,6 +1,5 @@
 import jax.numpy as jnp
 import numpy as np
-# from pprint import pformat
 
 import eval_metrics
 from eval_metrics import GiniCoefficient

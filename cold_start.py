@@ -8,6 +8,8 @@ import eval_metrics
 from data import Dataset
 from utils import get_cores
 
+MINUS_INF = -float('inf')
+
 def run_cold_start_experiment(
         data: Dataset,
         hyper_params,
@@ -217,7 +219,6 @@ def prepare_cold_start_data(
 
 def get_recommendations(logits: jax.Array, input_items: list[list[int]], k):
     # Set logits of input items to -inf.
-    MINUS_INF = -float('inf')
     logits_masked = logits.copy()
     for i, item_ids in enumerate(input_items):
         logits_masked = logits_masked.at[i, item_ids].set(MINUS_INF)
