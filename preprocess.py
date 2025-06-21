@@ -35,20 +35,15 @@ def prep_recbole(
     if item_file_path is not None and os.path.exists(item_file_path):
         if "original" not in item_file_path:
             print(
-                "provide the original dataset as {dataset_name}_original.item as a new dataset will be created and to not be overwritten!"
+                "Provide the original dataset as {dataset_name}_original.item as a new dataset will be created and to not be overwritten!"
             )
             raise Exception(
                 f"Dataset was not found. I am looking for {item_file_path.replace('.item', '_original.item')}."
             )
-
         # RecBole .item files are typically tab-separated with headers
         item_df = pd.read_csv(item_file_path, sep="\t")
-    elif item_file_path is not None:
-        print("The .item file was not found under the path:" + item_file_path)
-        # If you want to continue without an item file, comment out the next line
-        raise Exception(f"Item file not found at {item_file_path}")
     else:
-        print("No item file specified - continuing without item file")
+        print("No or invalid item file specified - continuing without item file")
         item_df = None
 
     # Check if we have string IDs (like Amazon ASINs) or numeric IDs
