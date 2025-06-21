@@ -1,4 +1,5 @@
 import numpy as np
+import warnings
 from sklearn.metrics import roc_auc_score
 
 """
@@ -93,44 +94,148 @@ def capped_psp(
 
     return upsp / max_psp
 
-class GiniCoefficient:
+def inter_list_jaccard_distance(
+    recommended_ranked_list: list[int], 
+    item_tag_mapping: dict, 
+    k: int
+) -> float:
     """
-    A class to calculate the Gini coefficient, a measure of income inequality.
-    The Gini coefficient ranges from 0 (perfect equality) to 1 (perfect inequality).
+    Calculate Inter-list distance using Jaccard distance based on item tags.
+    
+    Args:
+        recommended_ranked_list: List of recommended item IDs ranked by score
+        item_tag_mapping: Dictionary mapping item_id -> set of tags (any hashable type)
+        k: Number of top recommendations to consider
+        
+    Returns:
+        Average Jaccard distance between all pairs of items in top-k recommendations
     """
 
-    def gini_coefficient(self, values):
-        """
-        Compute the Gini coefficient of array of values.
-        For a frequency vector, G = sum_i sum_j |x_i - x_j| / (2 * n^2 * mu)
-        """
-        # print(f"[GINI] Computing Gini coefficient for {len(values)} values")
-        arr = np.array(values, dtype=float)
-        if arr.sum() == 0:
-            # print("[GINI] Sum of values is 0, returning 0.0")
-            return 0.0
-        # sort and normalize
-        arr = np.sort(arr)
-        n = arr.size
-        cumvals = np.cumsum(arr)
-        mu = arr.mean()
-        # the formula simplifies to:
-        # G = (1 / (n * mu)) * ( sum_i (2*i - n - 1) * arr[i] )
-        index = np.arange(1, n + 1)
-        gini = (np.sum((2 * index - n - 1) * arr)) / (n * n * mu)
-        # print(f"[GINI] Computed Gini coefficient: {gini:.4f}")
-        return gini
+    if k == 0:
+        raise ValueError("k must be greater than 0")
+    elif len(recommended_ranked_list) == 0:
+        raise ValueError("recommended_ranked_list cannot be empty")
+    else:
+        top_k_items = recommended_ranked_list[:k]
+        
+        if len(top_k_items) < 2:
+            result = 0.0  # Cannot compute distance with fewer than 2 items
+        else:
+            distances = []
+            for i in range(len(top_k_items)):
+                for j in range(i + 1, len(top_k_items)):
+                    item_i, item_j = top_k_items[i], top_k_items[j]
+                    
+                    # Get tags, defaulting to empty set if item not in mapping
+                    tags_i = set(item_tag_mapping.get(item_i, set()))
+                    tags_j = set(item_tag_mapping.get(item_j, set()))
+                    
+                    # Jaccard distance = 1 - Jaccard similarity
+                    intersection = len(tags_i & tags_j)
+                    union = len(tags_i | tags_j)
+                    
+                    if union == 0:  # Both items have no tags
+                        jaccard_distance = 0.0
+                    else:
+                        jaccard_similarity = intersection / union
+                        jaccard_distance = 1.0 - jaccard_similarity
+                    
+                    distances.append(jaccard_distance)
+            
+            result = sum(distances) / len(distances)
+    
+    return result
 
-    def calculate_list_gini(self, articles, key="category"):
-        """
-        Given a list of article dicts and a key (e.g. 'category'), compute the
-        Gini coefficient over the frequency distribution of that key.
-        """
-        # print(f"[GINI] Calculating Gini for {len(articles)} articles using key '{key}'")s
-        # count frequencies
-        freqs = {}
-        for art in articles:
-            val = art.get(key, None) or "UNKNOWN"
-            freqs[val] = freqs.get(val, 0) + 1
-        # print(f"[GINI] Found {len(freqs)} unique {key} values")
-        return self.gini_coefficient(list(freqs.values()))
+def prepare_category_counts(
+    recommended_ranked_list: list[int], 
+    item_tag_mapping: dict, 
+    k: int
+) -> list[int]:
+    """
+    Prepare category counts from recommended items for entropy and gini calculation.
+    
+    Args:
+        recommended_ranked_list: List of recommended item IDs ranked by score
+        item_tag_mapping: Dictionary mapping item_id -> category/tag (or set of categories)
+        k: Number of top recommendations to consider
+        
+    Returns:
+        List of counts for each category found in the recommendations
+    """
+    if k == 0 or len(recommended_ranked_list) == 0:
+        return []
+    
+    top_k_items = recommended_ranked_list[:k]
+    category_counts = {}
+    
+    for item_id in top_k_items:
+        if item_id in item_tag_mapping:
+            # Handle both single category and multiple categories (sets)
+            categories = item_tag_mapping[item_id]
+            if isinstance(categories, (set, list, tuple)) and not isinstance(categories, str):
+                # weight = 1.0 / len(categories)  # Fractional weight optional, if needed
+                for category in categories:
+                    category_counts[category] = category_counts.get(category, 0) + 1
+            else:
+                # Single category per item
+                category_counts[categories] = category_counts.get(categories, 0) + 1
+        else:
+            # Item not in mapping, assign to "UNKNOWN" category
+            category_counts["UNKNOWN"] = category_counts.get("UNKNOWN", 0) + 1
+
+    return list(category_counts.values())
+
+def entropy(category_counts: list) -> float:
+    """
+    Calculate the entropy of category recommendations to measure how evenly 
+    recommendations are distributed across categories.
+    
+    Args:
+        category_counts: List of counts for each category
+        
+    Returns:
+        Shannon entropy value (bits). Higher values indicate more diverse and 
+        balanced recommendations, while lower values suggest bias toward few categories.
+        
+    Raises:
+        ValueError: If category_counts contains negative values or all counts are zero
+    """
+    if not category_counts:
+        raise ValueError("Category counts cannot be empty")
+    
+    # Convert to numpy array for easier handling
+    counts = np.array(category_counts, dtype=float)
+    
+    # Check for negative values
+    if np.any(counts < 0):
+        raise ValueError("Category counts cannot be negative")
+    
+    # Remove zero counts (they don't contribute to entropy)
+    nonzero_counts = counts[counts > 0]
+    
+    if len(nonzero_counts) == 0:
+        raise ValueError("All category counts are zero")
+    
+    # Calculate total
+    total = np.sum(nonzero_counts)
+    
+    # Calculate probabilities
+    probabilities = nonzero_counts / total
+    
+    # Calculate Shannon entropy using log base 2
+    entropy_value = -np.sum(probabilities * np.log2(probabilities))
+
+    normalized_entropy = entropy_value / np.log2(len(nonzero_counts)) if len(nonzero_counts) > 1 else 0.0
+
+    return float(normalized_entropy)
+
+def gini(category_counts: list) -> float:
+    
+    values = np.sort(category_counts)
+    n = len(values)
+
+    # gini compute
+    cumulative_sum = np.cumsum(values)
+    gini = (n + 1 - 2 * (np.sum(cumulative_sum) / cumulative_sum[-1])) / n
+
+    return gini
