@@ -112,10 +112,9 @@ def inter_list_jaccard_distance(
     """
 
     if k == 0:
-        result = 0.0
+        raise ValueError("k must be greater than 0")
     elif len(recommended_ranked_list) == 0:
-        warnings.warn("Empty recommendation list provided", UserWarning)
-        result = 0.0
+        raise ValueError("recommended_ranked_list cannot be empty")
     else:
         top_k_items = recommended_ranked_list[:k]
         
@@ -143,7 +142,7 @@ def inter_list_jaccard_distance(
                     
                     distances.append(jaccard_distance)
             
-            result = sum(distances) / len(distances) if distances else 0.0
+            result = sum(distances) / len(distances)
     
     return result
 
@@ -153,7 +152,7 @@ def prepare_category_counts(
     k: int
 ) -> list[int]:
     """
-    Prepare category counts from recommended items for entropy calculation.
+    Prepare category counts from recommended items for entropy and gini calculation.
     
     Args:
         recommended_ranked_list: List of recommended item IDs ranked by score
@@ -174,7 +173,7 @@ def prepare_category_counts(
             # Handle both single category and multiple categories (sets)
             categories = item_tag_mapping[item_id]
             if isinstance(categories, (set, list, tuple)) and not isinstance(categories, str):
-                # weight = 1.0 / len(categories)  # Fractional weight
+                # weight = 1.0 / len(categories)  # Fractional weight optional, if needed
                 for category in categories:
                     category_counts[category] = category_counts.get(category, 0) + 1
             else:
@@ -188,7 +187,7 @@ def prepare_category_counts(
 
 def entropy(category_counts: list) -> float:
     """
-    Calculate the entropy of game category recommendations to measure how evenly 
+    Calculate the entropy of category recommendations to measure how evenly 
     recommendations are distributed across categories.
     
     Args:
@@ -200,7 +199,6 @@ def entropy(category_counts: list) -> float:
         
     Raises:
         ValueError: If category_counts contains negative values or all counts are zero
-        ZeroDivisionError: If category_counts is empty
     """
     if not category_counts:
         raise ValueError("Category counts cannot be empty")
@@ -220,9 +218,6 @@ def entropy(category_counts: list) -> float:
     
     # Calculate total
     total = np.sum(nonzero_counts)
-    
-    if total == 0:
-        raise ValueError("Total count cannot be zero")
     
     # Calculate probabilities
     probabilities = nonzero_counts / total

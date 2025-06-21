@@ -269,7 +269,7 @@ class TestInterListJaccardDistance(unittest.TestCase):
     
     def setUp(self):
         """Set up test data with various tag configurations."""
-        # Sample item-to-tag mapping representing Steam-like game tags
+        # Sample item-to-tag mapping representing 
         self.item_tag_mapping = {
             1: {"Action", "Shooter", "FPS"},
             2: {"Action", "Adventure", "RPG"},
@@ -345,13 +345,12 @@ class TestInterListJaccardDistance(unittest.TestCase):
         result = eval_metrics.inter_list_jaccard_distance(recommendations, self.item_tag_mapping, k)
         self.assertAlmostEqual(result, 0.0)
 
-    def test_empty_recommendations_returns_zero(self):
-        """Empty recommendation list should return Warning and 0.0"""
+    def test_empty_recommendations_raise_error(self):
+        """Empty recommendation list should raise ValueError"""
         recommendations = []
         k = 5
-        with self.assertWarns(UserWarning):
-            result = eval_metrics.inter_list_jaccard_distance(recommendations, self.item_tag_mapping, k)
-        self.assertAlmostEqual(result, 0.0)
+        with self.assertRaises(ValueError):
+            eval_metrics.inter_list_jaccard_distance(recommendations, self.item_tag_mapping, k)
 
     def test_k_larger_than_recommendations(self):
         """k larger than recommendation list should use all recommendations"""
@@ -360,12 +359,12 @@ class TestInterListJaccardDistance(unittest.TestCase):
         result = eval_metrics.inter_list_jaccard_distance(recommendations, self.item_tag_mapping, k)
         self.assertAlmostEqual(result, 0.5)  # Complete different items
 
-    def test_k_zero_returns_zero(self):
-        """k=0 should return 0.0"""
+    def test_k_zero_raises_error(self):
+        """k=0 should raise ValueError"""
         recommendations = [1, 2, 3]
         k = 0
-        result = eval_metrics.inter_list_jaccard_distance(recommendations, self.item_tag_mapping, k)
-        self.assertAlmostEqual(result, 0.0)
+        with self.assertRaises(ValueError):
+            eval_metrics.inter_list_jaccard_distance(recommendations, self.item_tag_mapping, k)
 
     def test_mixed_scenario_realistic(self):
         """More realistic scenario with mixed tag overlaps"""
