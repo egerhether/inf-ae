@@ -1,4 +1,4 @@
-results/
+results/logs
 
 # dont add RecBole dataset
 #*.item
