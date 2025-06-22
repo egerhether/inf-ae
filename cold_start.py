@@ -1,8 +1,8 @@
-import jax
 import numpy as np
 from scipy.sparse import vstack, csr_matrix
 from collections import defaultdict
 from pprint import pformat
+from jax import Array as jaxArray
 
 import eval_metrics
 from data import Dataset
@@ -46,16 +46,16 @@ def run_cold_start_experiment(
                 alpha=precomputed_alpha,
             )
 
-            recommendations = get_recommendations(logits, split["input_items"], max_k)
-            
             metrics_k = metrics[bin_key][coldness_key] = defaultdict(float)
-            for k in k_values:
+            recommendations = get_recommendations(logits, split["input_items"], max_k)
+            for u in range(len(recommendations)):
+                auc_result, true_labels, scores = eval_metrics.auc_with_prep(np.array(logits[u]), split["ground_truth_items"][u], data.data["negatives"][u])
+                metrics[bin_key][coldness_key][f"MEAN_AUC"] += auc_result
 
-                for u in range(len(recommendations)):
+                for k in k_values:
                     metrics_k[f"PRECISION@{k}"] += eval_metrics.precision(recommendations[u], split["ground_truth_items"][u], k)
                     metrics_k[f"RECALL@{k}"] += eval_metrics.recall(recommendations[u], split["ground_truth_items"][u], k)
                     metrics_k[f"NDCG@{k}"] += eval_metrics.ndcg(recommendations[u], split["ground_truth_items"][u], k)
-                    
                     if "item_tag_mapping" in data.data and len(data.data["item_tag_mapping"]) > 0:
                         category_recommendations = eval_metrics.prepare_category_counts(recommendations[u], data.data["item_tag_mapping"], k)
                         metrics_k[f"INTER_LIST_DISTANCE@{k}"] += eval_metrics.inter_list_jaccard_distance(recommendations[u], data.data["item_tag_mapping"], k)
@@ -219,7 +219,7 @@ def prepare_cold_start_data(
         
     return results, bin_stats
 
-def get_recommendations(logits: jax.Array, input_items: list[list[int]], k: int) -> list[list[int]]:
+def get_recommendations(logits: jaxArray, input_items: list[list[int]], k: int) -> list[list[int]]:
     """
     Generates top-k recommendations, excluding items the user has already interacted with.
 

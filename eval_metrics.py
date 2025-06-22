@@ -1,6 +1,6 @@
 import numpy as np
-import warnings
 from sklearn.metrics import roc_auc_score
+from jax import Array as jaxArray
 
 """
 Original Paper Title: "Infinite Recommendation Networks: A Data-Centric Approach"
@@ -50,6 +50,20 @@ def auc(y_true: list[int], y_score: list[float]) -> float:
     if len(set(y_true)) < 2:
         raise ValueError("ROC AUC is undefined with only one class in y_true.")
     return roc_auc_score(y_true, y_score)
+
+def auc_with_prep(logits: np.ndarray, ground_truth_items: set[int], negatives: list[int]):
+    positive_items = np.array(list(ground_truth_items))
+    negative_items = np.array(negatives)
+
+    positive_scores = np.take(logits, positive_items)
+    negative_scores = np.take(logits, negative_items)
+
+    item_scores = np.concatenate([positive_scores, negative_scores])
+    true_labels = np.concatenate([np.ones_like(positive_scores), np.zeros_like(negative_scores)])
+
+    result = auc(list(true_labels), list(item_scores))
+
+    return result, true_labels, item_scores
 
 def psp(
     recommended_ranked_list: list[int],
