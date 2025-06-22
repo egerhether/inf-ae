@@ -51,7 +51,8 @@ def run_cold_start_experiment(
 
             recommendations = get_recommendations(logits, split["input_items"], max_k)
             for u in range(len(recommendations)):
-                auc_result, auc_labels, auc_scores = eval_metrics.auc_with_prep(np.array(logits[u]), split["ground_truth_items"][u], data.data["negatives"][u])
+                orig_user_id = split["users"][u]
+                auc_result, auc_labels, auc_scores = eval_metrics.auc_with_prep(np.array(logits[u]), split["ground_truth_items"][u], data.data["negatives"][orig_user_id])
                 total_metrics["MEAN_AUC"] += auc_result
                 global_auc_labels.extend(auc_labels)
                 global_auc_scores.extend(auc_scores)
