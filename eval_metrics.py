@@ -1,6 +1,5 @@
 import numpy as np
 from sklearn.metrics import roc_auc_score
-from jax import Array as jaxArray
 
 """
 Original Paper Title: "Infinite Recommendation Networks: A Data-Centric Approach"
@@ -93,7 +92,7 @@ def capped_psp(
     k: int
 ) -> float:
     """
-    What actually computed. (eval.py lines 76- 88)
+    What actually computed. (eval.py lines 76 - 88)
     """
     upsp, max_psp = 0.0, 0.0
     denum = float(min(k, len(ground_truth_items))) # difference 1: normalization of upsp

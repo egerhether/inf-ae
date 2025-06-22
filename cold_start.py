@@ -46,25 +46,31 @@ def run_cold_start_experiment(
                 alpha=precomputed_alpha,
             )
 
-            metrics_k = metrics[bin_key][coldness_key] = defaultdict(float)
+            total_metrics =  defaultdict(float)
+            global_auc_labels, global_auc_scores = [], []
+
             recommendations = get_recommendations(logits, split["input_items"], max_k)
             for u in range(len(recommendations)):
-                auc_result, true_labels, scores = eval_metrics.auc_with_prep(np.array(logits[u]), split["ground_truth_items"][u], data.data["negatives"][u])
-                metrics[bin_key][coldness_key][f"MEAN_AUC"] += auc_result
+                auc_result, auc_labels, auc_scores = eval_metrics.auc_with_prep(np.array(logits[u]), split["ground_truth_items"][u], data.data["negatives"][u])
+                total_metrics["MEAN_AUC"] += auc_result
+                global_auc_labels.extend(auc_labels)
+                global_auc_scores.extend(auc_scores)
 
                 for k in k_values:
-                    metrics_k[f"PRECISION@{k}"] += eval_metrics.precision(recommendations[u], split["ground_truth_items"][u], k)
-                    metrics_k[f"RECALL@{k}"] += eval_metrics.recall(recommendations[u], split["ground_truth_items"][u], k)
-                    metrics_k[f"NDCG@{k}"] += eval_metrics.ndcg(recommendations[u], split["ground_truth_items"][u], k)
+                    total_metrics[f"PRECISION@{k}"] += eval_metrics.precision(recommendations[u], split["ground_truth_items"][u], k)
+                    total_metrics[f"RECALL@{k}"] += eval_metrics.recall(recommendations[u], split["ground_truth_items"][u], k)
+                    total_metrics[f"NDCG@{k}"] += eval_metrics.ndcg(recommendations[u], split["ground_truth_items"][u], k)
                     if "item_tag_mapping" in data.data and len(data.data["item_tag_mapping"]) > 0:
                         category_recommendations = eval_metrics.prepare_category_counts(recommendations[u], data.data["item_tag_mapping"], k)
-                        metrics_k[f"INTER_LIST_DISTANCE@{k}"] += eval_metrics.inter_list_jaccard_distance(recommendations[u], data.data["item_tag_mapping"], k)
-                        metrics_k[f"ENTROPY@{k}"] += eval_metrics.entropy(category_recommendations)
-                        metrics_k[f"GINI@{k}"] += eval_metrics.gini(category_recommendations)
+                        total_metrics[f"INTER_LIST_DISTANCE@{k}"] += eval_metrics.inter_list_jaccard_distance(recommendations[u], data.data["item_tag_mapping"], k)
+                        total_metrics[f"ENTROPY@{k}"] += eval_metrics.entropy(category_recommendations)
+                        total_metrics[f"GINI@{k}"] += eval_metrics.gini(category_recommendations)
                 
-                num_users = cold_start_stats[bin_key]["#users"][coldness_key]
-                for metric in metrics_k:
-                    metrics_k[metric] /= num_users
+            metrics[bin_key][coldness_key]["GLOBAL_AUC"] = eval_metrics.auc(global_auc_labels, global_auc_scores)
+            num_users = cold_start_stats[bin_key]["#users"][coldness_key]
+            for metric in total_metrics:
+                metrics[bin_key][coldness_key][metric] = total_metrics[metric] / num_users
+
 
     with open(f"./results/cold-start/{hyper_params['dataset']}-{hyper_params['seed']}.stats.txt", "w") as f:
         f.write(pformat(cold_start_stats, indent=4))
