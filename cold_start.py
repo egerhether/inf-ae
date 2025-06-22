@@ -217,20 +217,50 @@ def prepare_cold_start_data(
         
     return results, bin_stats
 
-def get_recommendations(logits: jax.Array, input_items: list[list[int]], k):
-    # Set logits of input items to -inf.
-    logits_masked = logits.copy()
+def get_recommendations(logits: jax.Array, input_items: list[list[int]], k: int) -> list[list[int]]:
+    """
+    Generates top-k recommendations, excluding items the user has already interacted with.
+
+    Args:
+        logits: A JAX array of shape (#users, #items) with the model's prediction scores.
+        input_items: A list of lists, where each inner list contains the item IDs used as input for a user.
+        k: The number of recommendations to generate.
+
+    Returns:
+       A list of lists of integers. Each inner list contains up to `k`
+       recommended item IDs for a user, sorted by score. The lists can be
+       shorter than `k` if fewer than `k` items are available to recommend. 
+    """
+    num_users, num_items= logits.shape
+    if k == 0:
+        raise ValueError(f"k = 0 is not allowed.")
+
+    # Set the score of input items to -inf for each user.
+    logits_masked = np.array(logits) 
     for i, item_ids in enumerate(input_items):
-        logits_masked = logits_masked.at[i, item_ids].set(MINUS_INF)
+        if item_ids:
+            logits_masked[i, item_ids] = MINUS_INF
 
-    # Exclude -INF entries and select top-k
-    recommended_item_indices = []
-    for user_idx, user_logits in enumerate(logits_masked):
-        valid_indices = np.where(user_logits != MINUS_INF)[0]
-        valid_logits = user_logits[valid_indices]
+    # Partition to get the top k items (will be at the end of the array)
+    candidate_indices = np.argpartition(logits_masked, -k, axis=1)[:, -k:]
+    row_indices_for_gather = np.arange(num_users)[:, np.newaxis]
+    candidate_scores = logits_masked[row_indices_for_gather, candidate_indices]
+
+    # Filter invalid items and sort
+    final_recommendations = []
+    for u in range(num_users):
+        user_indices = candidate_indices[u]
+        user_scores = candidate_scores[u]
+
+        # Filter to get only valid indices and their corresponding scores
+        is_valid = user_scores > MINUS_INF
+        valid_indices = user_indices[is_valid]
+        valid_scores = user_scores[is_valid]
         
-        # Get indices of top-k from valid logits
-        top_indices = valid_indices[np.argsort(-valid_logits)[:k]]
-        recommended_item_indices.append(top_indices)
-
-    return recommended_item_indices
+        # Sort the valid items by score in descending order
+        final_order = np.argsort(-valid_scores)
+        ranked_recs = valid_indices[final_order]
+        
+        final_recommendations.append(ranked_recs.tolist())
+        
+    return final_recommendations
