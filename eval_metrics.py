@@ -94,14 +94,14 @@ def capped_psp(
 
     return upsp / max_psp
 
-def inter_list_jaccard_distance(
+def intra_list_jaccard_distance(
     recommended_ranked_list: list[int], 
     item_tag_mapping: dict, 
     k: int
 ) -> float:
     """
-    Calculate Inter-list distance using Jaccard distance based on item tags.
-    
+    Calculate Intra-list distance (ILD) using Jaccard distance based on item tags.
+
     Args:
         recommended_ranked_list: List of recommended item IDs ranked by score
         item_tag_mapping: Dictionary mapping item_id -> set of tags (any hashable type)
@@ -160,7 +160,7 @@ def prepare_category_counts(
         k: Number of top recommendations to consider
         
     Returns:
-        List of counts for each category found in the recommendations
+        Dict of counts for each category found in the recommendations
     """
     if k == 0 or len(recommended_ranked_list) == 0:
         return []
@@ -183,7 +183,7 @@ def prepare_category_counts(
             # Item not in mapping, assign to "UNKNOWN" category
             category_counts["UNKNOWN"] = category_counts.get("UNKNOWN", 0) + 1
 
-    return list(category_counts.values())
+    return category_counts
 
 def entropy(category_counts: list) -> float:
     """
@@ -230,12 +230,21 @@ def entropy(category_counts: list) -> float:
     return float(normalized_entropy)
 
 def gini(category_counts: list) -> float:
+    if not category_counts:
+        raise ValueError("Category counts cannot be empty")
     
-    values = np.sort(category_counts)
-    n = len(values)
+    counts = np.array(category_counts, dtype=float)
 
-    # gini compute
-    cumulative_sum = np.cumsum(values)
-    gini = (n + 1 - 2 * (np.sum(cumulative_sum) / cumulative_sum[-1])) / n
+    # Check for negative values
+    if np.any(counts < 0):
+        raise ValueError("Category counts cannot be negative")
+    
+    # Remove zero counts (they don't contribute to Gini)
+    nonzero_counts = counts[counts > 0]
 
+    # Check for empty nonzero counts
+    if len(nonzero_counts) == 0:
+        raise ValueError("All category counts are zero")
+
+    gini = 1 - np.sum((nonzero_counts/np.sum(nonzero_counts))**2)
     return gini
