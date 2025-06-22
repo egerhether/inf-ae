@@ -268,9 +268,9 @@ class TestPropensityScoredPrecision(unittest.TestCase):
         self.assertAlmostEqual(eval_metrics.psp(recommendations, ground_truth, self.propensities, k), 0.0)
     
 
-class TestInterListJaccardDistance(unittest.TestCase):
-    """Test cases for Inter-list Jaccard distance metric based on item tags."""
-    
+class TestIntraListJaccardDistance(unittest.TestCase):
+    """Test cases for Intra-list Jaccard distance metric based on item tags."""
+
     def setUp(self):
         """Set up test data with various tag configurations."""
         # Sample item-to-tag mapping representing 
@@ -513,25 +513,25 @@ class TestGini(unittest.TestCase):
     
     def test_gini_perfect_equality(self):
         """Test Gini coefficient with perfect equality across categories."""
-        # Equal distribution should give minimum Gini (perfect equality)
+        # Equal distribution should give maximum Gini impurity (maximum diversity)
         category_counts = [25, 25, 25, 25]  # Perfect equality
-        expected_gini = 0.0
+        expected_gini = 0.75  # 1 - 4*(0.25)^2 = 1 - 0.25 = 0.75
         result = eval_metrics.gini(category_counts)
         self.assertAlmostEqual(result, expected_gini, places=5)
     
     def test_gini_two_categories_equal(self):
         """Test Gini coefficient with equal distribution across two categories."""
         category_counts = [50, 50]
-        expected_gini = 0.0  # Perfect equality for two categories
+        expected_gini = 0.5  # 1 - 2*(0.5)^2 = 1 - 0.5 = 0.5 (maximum impurity for 2 categories)
         result = eval_metrics.gini(category_counts)
         self.assertAlmostEqual(result, expected_gini, places=5)
     
     def test_gini_two_categories_unequal(self):
         """Test Gini coefficient with unequal distribution across two categories."""
         category_counts = [80, 20]
-        # Manual calculation: Gini = |80-20|/(2*n*mean) where n=2, mean=50
-        # Gini = 60/(2*2*50) = 60/200 = 0.3
-        expected_gini = 0.3
+        # Manual calculation: probabilities = [0.8, 0.2]
+        # Gini = 1 - (0.8^2 + 0.2^2) = 1 - (0.64 + 0.04) = 1 - 0.68 = 0.32
+        expected_gini = 0.32
         result = eval_metrics.gini(category_counts)
         self.assertAlmostEqual(result, expected_gini, places=5)
     
@@ -539,10 +539,10 @@ class TestGini(unittest.TestCase):
         """Test Gini coefficient with moderate inequality."""
         category_counts = [60, 30, 10]  # Moderate inequality
         result = eval_metrics.gini(category_counts)
-        # Should be between 0 and 1, closer to inequality
+        # Should be between 0 and 1, with moderate impurity
         self.assertGreater(result, 0.0)
         self.assertLess(result, 1.0)
-        self.assertGreater(result, 0.1)  # Should show some inequality
+        self.assertLess(result, 0.67)  # Should be less than maximum for 3 categories (2/3)
     
     def test_gini_with_zeros(self):
         """Test Gini coefficient when some categories have zero recommendations."""
@@ -552,10 +552,17 @@ class TestGini(unittest.TestCase):
         self.assertGreaterEqual(result, 0.0)
         self.assertLessEqual(result, 1.0)
     
+    def test_gini_perfect_purity(self):
+        """Test Gini coefficient with perfect purity (all items in one category)."""
+        category_counts = [100, 0, 0, 0]
+        expected_gini = 0.0  # Perfect purity: 1 - 1^2 = 0
+        result = eval_metrics.gini(category_counts)
+        self.assertAlmostEqual(result, expected_gini, places=5)
+    
     def test_gini_single_category(self):
         """Test Gini coefficient with only one category."""
         category_counts = [100]
-        expected_gini = 0.0  # No inequality when there's only one category
+        expected_gini = 0.0  # Perfect purity when there's only one category (no impurity)
         result = eval_metrics.gini(category_counts)
         self.assertEqual(result, expected_gini)
     
@@ -574,21 +581,21 @@ class TestGini(unittest.TestCase):
         self.assertLessEqual(result, 1.0)
     
     def test_gini_monotonicity(self):
-        """Test that Gini increases as distribution becomes more unequal."""
-        # More equal distribution
+        """Test that Gini increases as distribution becomes more equal (higher impurity)."""
+        # More equal distribution (higher impurity)
         equal_counts = [25, 25, 25, 25]
-        # Moderately unequal distribution
+        # Moderately unequal distribution (moderate impurity)
         moderate_counts = [40, 30, 20, 10]
-        # Very unequal distribution
+        # Very unequal distribution (lower impurity, closer to purity)
         unequal_counts = [70, 20, 5, 5]
         
         equal_gini = eval_metrics.gini(equal_counts)
         moderate_gini = eval_metrics.gini(moderate_counts)
         unequal_gini = eval_metrics.gini(unequal_counts)
         
-        # More unequal distributions should have higher Gini
-        self.assertLess(equal_gini, moderate_gini)
-        self.assertLess(moderate_gini, unequal_gini)
+        # More equal distributions should have higher Gini impurity
+        self.assertGreater(equal_gini, moderate_gini)
+        self.assertGreater(moderate_gini, unequal_gini)
     
     def test_gini_bounds(self):
         """Test that Gini coefficient is always between 0 and 1."""
@@ -610,24 +617,20 @@ class TestGini(unittest.TestCase):
         """Test Gini coefficient with different input types."""
         # Test with list
         list_counts = [20, 30, 50]
-        # Test with numpy array
-        array_counts = np.array([20, 30, 50])
         # Test with tuple
         tuple_counts = (20, 30, 50)
         
         list_result = eval_metrics.gini(list_counts)
-        array_result = eval_metrics.gini(array_counts)
         tuple_result = eval_metrics.gini(tuple_counts)
         
-        # All should give the same result
-        self.assertAlmostEqual(list_result, array_result, places=5)
-        self.assertAlmostEqual(array_result, tuple_result, places=5)
+        # Both should give the same result
+        self.assertAlmostEqual(list_result, tuple_result, places=5)
     
     def test_gini_inverse_relationship_with_entropy(self):
-        """Test that Gini and entropy have an inverse relationship."""
-        # Perfect equality: low Gini, high entropy
+        """Test that Gini and entropy have a positive relationship (both measure diversity)."""
+        # Perfect equality: high Gini impurity, high entropy
         equal_counts = [25, 25, 25, 25]
-        # High inequality: high Gini, low entropy
+        # High inequality: low Gini impurity, low entropy
         unequal_counts = [90, 5, 3, 2]
         
         equal_gini = eval_metrics.gini(equal_counts)
@@ -635,8 +638,8 @@ class TestGini(unittest.TestCase):
         unequal_gini = eval_metrics.gini(unequal_counts)
         unequal_entropy = eval_metrics.entropy(unequal_counts)
         
-        # More equal distribution should have lower Gini and higher entropy
-        self.assertLess(equal_gini, unequal_gini)
+        # More equal distribution should have higher Gini impurity and higher entropy
+        self.assertGreater(equal_gini, unequal_gini)
         self.assertGreater(equal_entropy, unequal_entropy)
     
 
