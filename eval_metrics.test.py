@@ -264,9 +264,9 @@ class TestPropensityScoredPrecision(unittest.TestCase):
         self.assertAlmostEqual(eval_metrics.psp(recommendations, ground_truth, self.propensities, k), 0.0)
     
 
-class TestInterListJaccardDistance(unittest.TestCase):
-    """Test cases for Inter-list Jaccard distance metric based on item tags."""
-    
+class TestIntraListJaccardDistance(unittest.TestCase):
+    """Test cases for Intra-list Jaccard distance metric based on item tags."""
+
     def setUp(self):
         """Set up test data with various tag configurations."""
         # Sample item-to-tag mapping representing 

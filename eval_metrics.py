@@ -94,14 +94,14 @@ def capped_psp(
 
     return upsp / max_psp
 
-def inter_list_jaccard_distance(
+def intra_list_jaccard_distance(
     recommended_ranked_list: list[int], 
     item_tag_mapping: dict, 
     k: int
 ) -> float:
     """
-    Calculate Inter-list distance using Jaccard distance based on item tags.
-    
+    Calculate Intra-list distance (ILD) using Jaccard distance based on item tags.
+
     Args:
         recommended_ranked_list: List of recommended item IDs ranked by score
         item_tag_mapping: Dictionary mapping item_id -> set of tags (any hashable type)

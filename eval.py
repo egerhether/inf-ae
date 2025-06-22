@@ -15,8 +15,8 @@ METRIC_NAMES = [
     "NDCG",
     "PSP",
     "CAPPED_PSP",
+    "ILD",
     "GINI",
-    "INTER_LIST_DISTANCE",
     "ENTROPY",
     "MEAN_AUC",
     "GLOBAL_AUC",
@@ -312,9 +312,9 @@ def evaluate_batch(
         for user_idx in valid_user_indices:
             gini = -1.0
             entropy = -1.0
-            inter_list_distance = -1.0
+            ild = -1.0
             if diversity_metrics and "item_tag_mapping" in data.data and len(data.data["item_tag_mapping"]) > 0:
-                inter_list_distance = eval_metrics.inter_list_jaccard_distance(
+                ild = eval_metrics.intra_list_jaccard_distance(
                     recommended_item_indices[user_idx], 
                     data.data["item_tag_mapping"], 
                     k
@@ -344,7 +344,7 @@ def evaluate_batch(
             metrics["NDCG@{}".format(k)] += ndcg
             metrics["PSP@{}".format(k)] += psp
             metrics["CAPPED_PSP@{}".format(k)] += capped_psp
-            metrics["INTER_LIST_DISTANCE@{}".format(k)] += inter_list_distance
+            metrics["ILD@{}".format(k)] += ild
             metrics["ENTROPY@{}".format(k)] += entropy
             metrics["GINI@{}".format(k)] += gini
 
