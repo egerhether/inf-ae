@@ -47,25 +47,27 @@ def run_cold_start_experiment(
             )
 
             recommendations = get_recommendations(logits, split["input_items"], max_k)
-
+            
+            metrics_k = metrics[bin_key][coldness_key] = defaultdict(float)
             for k in k_values:
 
-                metrics_k = defaultdict(float)
-                for i in range(len(recommendations)):
-                    metrics_k[f"PRECISION@{k}"] += eval_metrics.precision(recommendations[i], split["ground_truth_items"][i], k)
-                    metrics_k[f"RECALL@{k}"] += eval_metrics.recall(recommendations[i], split["ground_truth_items"][i], k)
-                    metrics_k[f"NDCG@{k}"] += eval_metrics.ndcg(recommendations[i], split["ground_truth_items"][i], k)
+                for u in range(len(recommendations)):
+                    metrics_k[f"PRECISION@{k}"] += eval_metrics.precision(recommendations[u], split["ground_truth_items"][u], k)
+                    metrics_k[f"RECALL@{k}"] += eval_metrics.recall(recommendations[u], split["ground_truth_items"][u], k)
+                    metrics_k[f"NDCG@{k}"] += eval_metrics.ndcg(recommendations[u], split["ground_truth_items"][u], k)
+                    
+                    if "item_tag_mapping" in data.data and len(data.data["item_tag_mapping"]) > 0:
+                        category_recommendations = eval_metrics.prepare_category_counts(recommendations[u], data.data["item_tag_mapping"], k)
+                        metrics_k[f"INTER_LIST_DISTANCE@{k}"] += eval_metrics.inter_list_jaccard_distance(recommendations[u], data.data["item_tag_mapping"], k)
+                        metrics_k[f"ENTROPY@{k}"] += eval_metrics.entropy(category_recommendations)
+                        metrics_k[f"GINI@{k}"] += eval_metrics.gini(category_recommendations)
                 
                 num_users = cold_start_stats[bin_key]["#users"][coldness_key]
                 for metric in metrics_k:
                     metrics_k[metric] /= num_users
 
-                metrics[bin_key][coldness_key] = metrics_k
-
-    # with open(f"./results/cold-start/{hyper_params['dataset']}-{hyper_params['seed']}.splits.txt", "w") as f:
-    #     f.write(pformat(cold_start_splits, indent=4))
-    # with open(f"./results/cold-start/{hyper_params['dataset']}-{hyper_params['seed']}.stats.txt", "w") as f:
-    #     f.write(pformat(cold_start_stats, indent=4))
+    with open(f"./results/cold-start/{hyper_params['dataset']}-{hyper_params['seed']}.stats.txt", "w") as f:
+        f.write(pformat(cold_start_stats, indent=4))
     with open(f"./results/cold-start/{hyper_params['dataset']}-{hyper_params['seed']}.metrics.txt", "w") as f:
         f.write(pformat(metrics, indent=4))
     
