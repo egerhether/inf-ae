@@ -225,7 +225,7 @@ def get_recommendations(logits: jax.Array, input_items: list[list[int]], k):
 
     # Exclude -INF entries and select top-k
     recommended_item_indices = []
-    for user_idx, user_logits in enumerate(logits):
+    for user_idx, user_logits in enumerate(logits_masked):
         valid_indices = np.where(user_logits != MINUS_INF)[0]
         valid_logits = user_logits[valid_indices]
         
