@@ -121,7 +121,7 @@ def load_raw_dataset(
         return final.astype(np.int32)
 
     def parse_tags(category_string):
-        """Parse category/tag string into a list of tags."""
+        """DIVERSITY METRICS function. Parse category/tag string into a list of tags."""
         if pd.isna(category_string) or str(category_string).strip() == "":
             return []
         
@@ -151,8 +151,8 @@ def load_raw_dataset(
 
     def create_item_mappings(item_df, item_id_col, category_id_col, item_map):
         """
-        Create item category and tag mappings.
-        
+        DIVERSITY METRICS function. Create item category and tag mappings.
+
         Returns:
             tuple: (item_map_to_category, item_tag_mapping)
             - item_map_to_category: maps item_id -> first category/tag
