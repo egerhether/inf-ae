@@ -9,12 +9,13 @@ from plot import plot_cold_start_data
 Here is how you can run this script
 python plot_cold_start.py \
     --dataset ml-1m --seed 42 \
-    --metrics NDCG@10 \
+    --metrics \
+    NDCG@10 \
     MEAN_AUC \
     TRUNCATED_RECALL@10 \
     GINI@10 \
     ENTROPY@10 \
-    INTER_LIST_DISTANCE@10
+    ILD@10
 """
 
 def load_json(path):

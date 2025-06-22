@@ -65,9 +65,9 @@ def run_cold_start_experiment(
                     total_metrics[f"NDCG@{k}"] += eval_metrics.ndcg(recommendations[u], split["ground_truth_items"][u], k)
                     if "item_tag_mapping" in data.data and len(data.data["item_tag_mapping"]) > 0:
                         category_recommendations = eval_metrics.prepare_category_counts(recommendations[u], data.data["item_tag_mapping"], k)
-                        total_metrics[f"INTER_LIST_DISTANCE@{k}"] += eval_metrics.inter_list_jaccard_distance(recommendations[u], data.data["item_tag_mapping"], k)
-                        total_metrics[f"ENTROPY@{k}"] += eval_metrics.entropy(category_recommendations)
-                        total_metrics[f"GINI@{k}"] += eval_metrics.gini(category_recommendations)
+                        total_metrics[f"ILD@{k}"] += eval_metrics.intra_list_jaccard_distance(recommendations[u], data.data["item_tag_mapping"], k)
+                        total_metrics[f"ENTROPY@{k}"] += eval_metrics.entropy(list(category_recommendations.values()))
+                        total_metrics[f"GINI@{k}"] += eval_metrics.gini(list(category_recommendations.values()))
                 
             metrics[bin_key][coldness_key]["GLOBAL_AUC"] = eval_metrics.auc(global_auc_labels, global_auc_scores)
             num_users = cold_start_stats[bin_key]["#users"][coldness_key]

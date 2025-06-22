@@ -163,7 +163,7 @@ def prepare_category_counts(
     recommended_ranked_list: list[int], 
     item_tag_mapping: dict, 
     k: int
-) -> list[int]:
+) -> dict:
     """
     Prepare category counts from recommended items for entropy and gini calculation.
     
