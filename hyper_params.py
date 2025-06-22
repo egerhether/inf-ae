@@ -54,9 +54,9 @@ hyper_params = {
         "seed": 42,
         "neg_sampling_strategy": "positive2",
         "gen": "strong",
-        "cold_start_bins": 10,
-        "simulated_coldness_levels": [0, 1, 2, 3, 10],
-        "simulated_max_interactins": 100
+        "cold_start_bins": 5,
+        "simulated_coldness_levels": [0, 1, 3, 5, 10, 20],
+        "simulated_max_interactins": 40
     },
     "amazon_magazine": {
         "dataset": "amazon_magazine",

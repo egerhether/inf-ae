@@ -1,8 +1,9 @@
 import numpy as np
 from scipy.sparse import vstack, csr_matrix
 from collections import defaultdict
-from pprint import pformat
 from jax import Array as jaxArray
+import json
+import os
 
 import eval_metrics
 from data import Dataset
@@ -60,6 +61,7 @@ def run_cold_start_experiment(
                 for k in k_values:
                     total_metrics[f"PRECISION@{k}"] += eval_metrics.precision(recommendations[u], split["ground_truth_items"][u], k)
                     total_metrics[f"RECALL@{k}"] += eval_metrics.recall(recommendations[u], split["ground_truth_items"][u], k)
+                    total_metrics[f"TRUNCATED_RECALL@{k}"] += eval_metrics.truncated_recall(recommendations[u], split["ground_truth_items"][u], k)
                     total_metrics[f"NDCG@{k}"] += eval_metrics.ndcg(recommendations[u], split["ground_truth_items"][u], k)
                     if "item_tag_mapping" in data.data and len(data.data["item_tag_mapping"]) > 0:
                         category_recommendations = eval_metrics.prepare_category_counts(recommendations[u], data.data["item_tag_mapping"], k)
@@ -72,11 +74,12 @@ def run_cold_start_experiment(
             for metric in total_metrics:
                 metrics[bin_key][coldness_key][metric] = total_metrics[metric] / num_users
 
-
-    with open(f"./results/cold-start/{hyper_params['dataset']}-{hyper_params['seed']}.stats.txt", "w") as f:
-        f.write(pformat(cold_start_stats, indent=4))
-    with open(f"./results/cold-start/{hyper_params['dataset']}-{hyper_params['seed']}.metrics.txt", "w") as f:
-        f.write(pformat(metrics, indent=4))
+    dir = f"./results/cold-start/{hyper_params['dataset']}/seed{hyper_params['seed']}/"
+    os.makedirs(dir, exist_ok=True)
+    with open(f"{dir}stats.json", "w") as f:
+        f.write(json.dumps(cold_start_stats, indent=4))
+    with open(f"{dir}metrics.json", "w") as f:
+        f.write(json.dumps(metrics, indent=4))
     
 def prepare_cold_start_data(
     test_positive_set: list[set[int]],
@@ -220,7 +223,7 @@ def prepare_cold_start_data(
             coldness_stats[coldness_key] = len(results[bin_key][coldness_key]["users"])
 
         bin_stats[bin_key] = {
-            "range": [start_range, end_range],
+            "range": [int(start_range), int(end_range)],
             "#users": coldness_stats
         }
         
