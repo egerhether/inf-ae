@@ -14,6 +14,7 @@ def main():
     parser.add_argument('--seeds', type=int, nargs='+', required=True, help="A list of random seeds used for the experiments (e.g., 41 42 43).")
     parser.add_argument('--metrics', nargs='+', required=True, help='A list of metric names to plot in subplots.')
     parser.add_argument('--results-dir', type=str, default="./results/cold-start/", help="The directory where result files are stored.")
+    parser.add_argument('--metrics_filename', type=str, required=True, help="The name of the metrics.json file to plot. Used for switching between experiments")
     args = parser.parse_args()
 
     # Load data from all seeds
@@ -23,7 +24,7 @@ def main():
     print("Loading data from all seeds...")
     for seed in args.seeds:
         filedir = f"{args.results_dir}{args.dataset}/seed{seed}/"
-        metrics_path = f"{filedir}metrics.json"
+        metrics_path = f"{filedir}{args.metrics_filename}"
         
         with open(metrics_path, "r") as f:
             metrics_data = json.load(f)
@@ -54,6 +55,10 @@ def main():
                 mean_metrics[bin_key][coldness_key][metric_name] = np.mean(values)
                 std_metrics[bin_key][coldness_key][metric_name] = np.std(values)
 
+    if "baseline" in args.metrics_filename: with_text = ""
+    elif "popularity_filled" in args.metrics_filename: with_text = " with Popular-item Filling"
+    else: with_text = " with Popular Diverse-item Filling"
+    
     generate_combined_cold_start_plot(
         mean_metrics=mean_metrics,
         std_metrics=std_metrics,
@@ -61,7 +66,8 @@ def main():
         metrics_to_plot=args.metrics,
         dataset_name=args.dataset,
         seeds=args.seeds,
-        results_dir=args.results_dir
+        results_dir=args.results_dir,
+        with_text = with_text
     )
     
     print("\nDone.")

@@ -151,7 +151,7 @@ def _draw_single_3d_subplot(fig, ax, metrics_data, split_stats, metric_to_plot):
     ax.view_init(elev=40, azim=-50)
 
 
-def generate_combined_cold_start_plot(mean_metrics, std_metrics, stats_data, metrics_to_plot, dataset_name, seeds, results_dir):
+def generate_combined_cold_start_plot(mean_metrics, std_metrics, stats_data, metrics_to_plot, dataset_name, seeds, results_dir, with_text):
     """
     Generates and saves a single figure containing 3D subplots for multiple metrics,
     including a visual representation of the standard deviation.
@@ -185,7 +185,7 @@ def generate_combined_cold_start_plot(mean_metrics, std_metrics, stats_data, met
     for i in range(num_metrics, len(axes)):
         axes[i].axis('off')
 
-    fig.suptitle(f"Cold-Start Performance on {dataset_name.upper()} (seeds={seeds})", fontsize=20)
+    fig.suptitle(f"Cold-Start Performance{with_text} on {dataset_name.upper()} (seeds={seeds})", fontsize=20)
     fig.tight_layout(rect=[0, 0.03, 1, 0.95])
 
     save_dir = f"{results_dir}{dataset_name}"
