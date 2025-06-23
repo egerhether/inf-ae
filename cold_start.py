@@ -31,6 +31,12 @@ def run_cold_start_experiment(
         dataset_cores + max(hyper_params["simulated_coldness_levels"])
     )
 
+    popular_diverse_train_items = get_popular_diverse_items(
+        data.data["train_matrix"],
+        data.data["item_map_to_category"],
+        dataset_cores + max(hyper_params["simulated_coldness_levels"])
+    )
+
     cold_start_splits, cold_start_stats = prepare_cold_start_data(
         data.data["test_positive_set"],
         data.data["test_matrix"],
@@ -38,7 +44,8 @@ def run_cold_start_experiment(
         hyper_params["simulated_max_interactins"],
         hyper_params["cold_start_bins"],
         hyper_params["simulated_coldness_levels"],
-        most_popular_train_items
+        most_popular_train_items,
+        popular_diverse_train_items,
     )
 
     baseline_metrics = evaluate(
@@ -53,7 +60,7 @@ def run_cold_start_experiment(
         "input_matrix"
     )
 
-    popularity_filled_metrics = evaluate(
+    popular_item_filled_metrics = evaluate(
         k_values,
         cold_start_splits,
         cold_start_stats,
@@ -62,7 +69,19 @@ def run_cold_start_experiment(
         precomputed_alpha,
         data,
         hyper_params,
-        "filled_input_matrix"
+        "popular_input_matrix"
+    )
+
+    popular_diverse_item_filled_metrics = evaluate(
+        k_values,
+        cold_start_splits,
+        cold_start_stats,
+        krr_forward,
+        train_matrix,
+        precomputed_alpha,
+        data,
+        hyper_params,
+        "popular_diverse_input_matrix"
     )
 
     dir = f"./results/cold-start/{hyper_params['dataset']}/seed{hyper_params['seed']}/"
@@ -71,8 +90,10 @@ def run_cold_start_experiment(
         f.write(json.dumps(cold_start_stats, indent=4))
     with open(f"{dir}baseline_metrics.json", "w") as f:
         f.write(json.dumps(baseline_metrics, indent=4))
-    with open(f"{dir}popularity_filled_metrics.json", "w") as f:
-        f.write(json.dumps(popularity_filled_metrics, indent=4))
+    with open(f"{dir}popular_filled_metrics.json", "w") as f:
+        f.write(json.dumps(popular_item_filled_metrics, indent=4))
+    with open(f"{dir}popular_diverse_filled_metrics.json", "w") as f:
+        f.write(json.dumps(popular_diverse_item_filled_metrics, indent=4))
     
 def get_popular_items(train_matrix: csr_matrix, k: int) -> list[int]:
     """
@@ -92,6 +113,102 @@ def get_popular_items(train_matrix: csr_matrix, k: int) -> list[int]:
     top_k_item_indices = np.argsort(item_popularity)[-k:][::-1]
     return top_k_item_indices.tolist()
 
+def get_popular_diverse_items(
+    train_matrix: csr_matrix,
+    item_tag_mapping: dict[int, str],
+    k: int
+) -> list[int]:
+    """
+    Gets the top-k items by selecting one item at a time from categories
+    in a round-robin fashion, ordered by category popularity.
+
+    The algorithm works as follows:
+    1.  Calculates the popularity of each item.
+    2.  Groups items by category and sorts them by popularity within each category.
+    3.  Calculates the total popularity of each category.
+    4.  Orders the categories from most to least popular.
+    5.  Iterates through the sorted categories, picking the top available item from
+        each one, until k items have been selected. This ensures the most popular
+        categories get their top items included first, while still giving less
+        popular categories a chance to be represented.
+
+    Args:
+        train_matrix: A binary matrix of user-item interactions.
+        item_tag_mapping: A dictionary mapping item_id (int) to its category/tag_id (string but
+    such that the distribution of item categories is as uniform as possible diverse).
+        k: The number of items to return.
+
+    Returns:
+        A list of the integer IDs of the top-k most popular diverse items,
+        ordered by the round-robin selection process.
+    """
+    item_popularity = train_matrix.sum(axis=0).A1
+    
+    category_to_items = defaultdict(list)
+    for item_id, pop in enumerate(item_popularity):
+        category_id = item_tag_mapping.get(item_id)
+        if category_id is not None:
+            category_to_items[category_id].append((pop, item_id))
+    
+    for category_id in category_to_items:
+        category_to_items[category_id].sort(key=lambda x: x[0], reverse=True)
+
+    category_popularity = {
+        cat_id: sum(pop for pop, item in items)
+        for cat_id, items in category_to_items.items()
+    }
+
+    sorted_categories = sorted(
+        category_popularity.keys(),
+        key=lambda cat_id: category_popularity[cat_id],
+        reverse=True
+    )
+
+    top_k_item_indices = []
+    selected_item_ids = set()
+    category_item_pointer = defaultdict(int) 
+
+    while len(top_k_item_indices) < k:
+        items_added_in_this_round = 0
+        for category_id in sorted_categories:
+            items_in_category = category_to_items[category_id]
+            pointer = category_item_pointer[category_id]
+            
+            if pointer < len(items_in_category):
+                _, item_id = items_in_category[pointer]
+                
+                if item_id not in selected_item_ids:
+                    top_k_item_indices.append(item_id)
+                    selected_item_ids.add(item_id)
+                    items_added_in_this_round += 1
+
+                category_item_pointer[category_id] += 1
+
+                if len(top_k_item_indices) == k:
+                    break
+        
+        if items_added_in_this_round == 0:
+            break
+
+    return top_k_item_indices
+
+def stack_sparse_rows_into_matrix(list_of_rows: list[csr_matrix], num_items):
+    if list_of_rows:
+        return vstack(list_of_rows, format='csr')
+    return csr_matrix((0, num_items))
+
+def fill_input_row_with(
+    row_to_fill: csr_matrix,
+    input_items: list[int],
+    filler_items: list[int],
+    min_interactions: int,
+    coldness_level: int
+):
+    valid_filler_items = [fi for fi in filler_items if fi not in input_items]
+    fill_with = valid_filler_items[:min_interactions - coldness_level]
+    row_to_fill[0, fill_with] = 1
+    assert (len(fill_with) + len(input_items)) == min_interactions
+
 def prepare_cold_start_data(
     test_positive_set: list[set[int]],
     test_matrix: csr_matrix,
@@ -99,7 +216,8 @@ def prepare_cold_start_data(
     max_interactions: int,
     interaction_bins: int,
     simulated_coldness_levels: list[int],
-    filler_items: list[int]
+    popular_items: list[int],
+    popular_diverse_items: list[int],
 ):
     """
     - Splits users into bins based on their number of interactions.
@@ -116,9 +234,10 @@ def prepare_cold_start_data(
         simulated_coldness_levels: A list of integers, where each integer represents 
             a number of interactions to be used as input for the model, simulating a
             user with that level of "coldness".
-        filler_items: A list of item ids to be used to filling in sparse user input
-            vectors until they reach `min_interactions` number of interactions.
-
+        popular_items: A list of popular item ids to be used to filling in sparse user 
+            input vectors until they reach `min_interactions` number of interactions.
+        popular_diverse_items: A list of popular diverse item ids to be used to filling in
+            sparse user input vectors until they reach `min_interactions` number of interactions.
     Returns:
         A dictionary structured for evaluating cold-start performance. The structure is:
         {
@@ -128,7 +247,8 @@ def prepare_cold_start_data(
                     "input_matrix": <scipy.sparse.matrix of shape [#users, #items]>,
                     "input_items": [[items_ids...], [items_ids...], ...],
                     "ground_truth_items": [[items_ids...], [items_ids...], ...],
-                    "filled_input_matrix": <scipy.sparse.matrix of shape [#users, #items]>,
+                    "popular_input_matrix": <scipy.sparse.matrix of shape [#users, #items]>,
+                    "popular_diverse_input_matrix": <scipy.sparse.matrix of shape [#users, #items]>,  
                 }, 
                 ...
             }, 
@@ -166,7 +286,8 @@ def prepare_cold_start_data(
                 "input_matrix": [],
                 "input_items": [],
                 "ground_truth_items": [],
-                "filled_input_matrix": []
+                "popular_input_matrix": [],
+                "popular_diverse_input_matrix": [],
             }
     
     actual_max_interactions = 0
@@ -207,33 +328,21 @@ def prepare_cold_start_data(
                 results[bin_key][coldness_key]["input_items"].append(input_items)
                 results[bin_key][coldness_key]["ground_truth_items"].append(set(held_out_items))
 
-                # For filled with popular/diverse items experiment
-                valid_filler_items = [fi for fi in filler_items if fi not in input_items]
-                fill_with = valid_filler_items[:min_interactions-coldness]
-                filled_input_row = test_matrix[user_id, :].copy()
-                filled_input_row[0, held_out_items] = 0
-                filled_input_row[0, fill_with] = 1
-                assert (len(fill_with) + len(input_items)) == min_interactions
+                popular_item_filled_row = input_row.copy()
+                fill_input_row_with(popular_item_filled_row, input_items, popular_items, min_interactions, coldness)
+                results[bin_key][coldness_key]["popular_input_matrix"].append(popular_item_filled_row)
 
-                results[bin_key][coldness_key]["filled_input_matrix"].append(filled_input_row)
+                popular_diverse_filled_row = input_row.copy()
+                fill_input_row_with(popular_diverse_filled_row, input_items, popular_diverse_items, min_interactions, coldness)
+                results[bin_key][coldness_key]["popular_diverse_input_matrix"].append(popular_diverse_filled_row)
 
     # Make input items a sparse matrix 
     num_items = test_matrix.shape[1]
     for bin_key in results:
         for coldness_key in results[bin_key]:
-            list_of_rows = results[bin_key][coldness_key]["input_matrix"]
-            if list_of_rows:
-                stacked_matrix = vstack(list_of_rows, format='csr')
-            else:
-                stacked_matrix = csr_matrix((0, num_items)) 
-            results[bin_key][coldness_key]["input_matrix"] = stacked_matrix
-
-            filled_list_of_rows = results[bin_key][coldness_key]["filled_input_matrix"]
-            if list_of_rows:
-                stacked_matrix = vstack(filled_list_of_rows, format='csr')
-            else:
-                stacked_matrix = csr_matrix((0, num_items)) 
-            results[bin_key][coldness_key]["filled_input_matrix"] = stacked_matrix
+            for matrix_key in ["input_matrix", "popular_input_matrix", "popular_diverse_input_matrix"]:
+                results[bin_key][coldness_key][matrix_key] = stack_sparse_rows_into_matrix(
+                    results[bin_key][coldness_key][matrix_key], num_items)
 
     # Collect bin stats
     bin_stats = {} 

@@ -1,4 +1,3 @@
-import os
 import json
 import argparse
 import numpy as np
@@ -56,9 +55,9 @@ def main():
                 std_metrics[bin_key][coldness_key][metric_name] = np.std(values)
 
     if "baseline" in args.metrics_filename: with_text = ""
-    elif "popularity_filled" in args.metrics_filename: with_text = " with Popular-item Filling"
-    else: with_text = " with Popular Diverse-item Filling"
-    
+    elif "popular_filled" in args.metrics_filename: with_text = " with Popularity-Filled User Profiles"
+    else: with_text = " with Diverse-Popularity-Filled User Profiles"
+
     generate_combined_cold_start_plot(
         mean_metrics=mean_metrics,
         std_metrics=std_metrics,

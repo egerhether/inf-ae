@@ -176,7 +176,7 @@ def prepare_category_counts(
         Dict of counts for each category found in the recommendations
     """
     if k == 0 or len(recommended_ranked_list) == 0:
-        return []
+        return {} 
     
     top_k_items = recommended_ranked_list[:k]
     category_counts = {}
