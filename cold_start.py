@@ -20,78 +20,78 @@ def run_cold_start_experiment(
         k_values = [10, 100]
     ):
 
-    cold_start_splits, cold_start_stats = prepare_cold_start_data(
-        data.data["test_positive_set"],
-        data.data["test_matrix"],
-        get_cores(
+    dataset_cores = get_cores(
             data.data["train_positive_set"],
             data.data["val_positive_set"],
             data.data["test_positive_set"]
-        ),
+        )
+
+    most_popular_train_items = get_popular_items(
+        data.data["train_matrix"],
+        dataset_cores + max(hyper_params["simulated_coldness_levels"])
+    )
+
+    cold_start_splits, cold_start_stats = prepare_cold_start_data(
+        data.data["test_positive_set"],
+        data.data["test_matrix"],
+        dataset_cores,
         hyper_params["simulated_max_interactins"],
         hyper_params["cold_start_bins"],
         hyper_params["simulated_coldness_levels"],
+        most_popular_train_items
     )
 
-    max_k = max(k_values)
-    metrics = {}
-    for (bin_key, coldness_splits) in cold_start_splits.items():
-        metrics[bin_key] = {}
-        for (coldness_key, split) in coldness_splits.items():
-            metrics[bin_key][coldness_key] = {}
+    baseline_metrics = evaluate(
+        k_values,
+        cold_start_splits,
+        cold_start_stats,
+        krr_forward,
+        train_matrix,
+        precomputed_alpha,
+        data,
+        hyper_params,
+        "input_matrix"
+    )
 
-            logits = krr_forward(
-                X_train=train_matrix,
-                X_predict=split["input_matrix"].todense(),
-                reg=hyper_params["lamda"],
-                alpha=precomputed_alpha,
-            )
-
-            total_metrics =  defaultdict(float)
-            global_auc_labels, global_auc_scores = [], []
-            global_category_counts = {}
-            for k in k_values:
-                global_category_counts[k] = {}
-
-            recommendations = get_recommendations(logits, split["input_items"], max_k)
-            for u in range(len(recommendations)):
-                orig_user_id = split["users"][u]
-                auc_result, auc_labels, auc_scores = eval_metrics.auc_with_prep(np.array(logits[u]), split["ground_truth_items"][u], data.data["negatives"][orig_user_id])
-                total_metrics["MEAN_AUC"] += auc_result
-                global_auc_labels.extend(auc_labels)
-                global_auc_scores.extend(auc_scores)
-
-                for k in k_values:
-                    total_metrics[f"PRECISION@{k}"] += eval_metrics.precision(recommendations[u], split["ground_truth_items"][u], k)
-                    total_metrics[f"RECALL@{k}"] += eval_metrics.recall(recommendations[u], split["ground_truth_items"][u], k)
-                    total_metrics[f"TRUNCATED_RECALL@{k}"] += eval_metrics.truncated_recall(recommendations[u], split["ground_truth_items"][u], k)
-                    total_metrics[f"NDCG@{k}"] += eval_metrics.ndcg(recommendations[u], split["ground_truth_items"][u], k)
-                    if "item_tag_mapping" in data.data and len(data.data["item_tag_mapping"]) > 0:
-                        category_recommendations = eval_metrics.prepare_category_counts(recommendations[u], data.data["item_tag_mapping"], k)
-                        total_metrics[f"ILD@{k}"] += eval_metrics.intra_list_jaccard_distance(recommendations[u], data.data["item_tag_mapping"], k)
-                        total_metrics[f"ENTROPY@{k}"] += eval_metrics.entropy(list(category_recommendations.values()))
-                        total_metrics[f"GINI@{k}"] += eval_metrics.gini(list(category_recommendations.values()))
-
-                        for category, count in category_recommendations.items():
-                            global_category_counts[k][category] = global_category_counts[k].get(category, 0) + count
-                
-            metrics[bin_key][coldness_key]["GLOBAL_AUC"] = eval_metrics.auc(global_auc_labels, global_auc_scores)
-            for k in k_values:
-                category_counts_array = list(global_category_counts[k].values())
-                metrics[bin_key][coldness_key][f"GLOBAL_GINI@{k}"] = eval_metrics.gini(category_counts_array)
-                metrics[bin_key][coldness_key][f"GLOBAL_ENTROPY@{k}"] = eval_metrics.entropy(category_counts_array)
-
-            num_users = cold_start_stats[bin_key]["#users"][coldness_key]
-            for metric in total_metrics:
-                metrics[bin_key][coldness_key][metric] = total_metrics[metric] / num_users
+    popularity_filled_metrics = evaluate(
+        k_values,
+        cold_start_splits,
+        cold_start_stats,
+        krr_forward,
+        train_matrix,
+        precomputed_alpha,
+        data,
+        hyper_params,
+        "filled_input_matrix"
+    )
 
     dir = f"./results/cold-start/{hyper_params['dataset']}/seed{hyper_params['seed']}/"
     os.makedirs(dir, exist_ok=True)
     with open(f"{dir}stats.json", "w") as f:
         f.write(json.dumps(cold_start_stats, indent=4))
-    with open(f"{dir}metrics.json", "w") as f:
-        f.write(json.dumps(metrics, indent=4))
+    with open(f"{dir}baseline_metrics.json", "w") as f:
+        f.write(json.dumps(baseline_metrics, indent=4))
+    with open(f"{dir}popularity_filled_metrics.json", "w") as f:
+        f.write(json.dumps(popularity_filled_metrics, indent=4))
     
+def get_popular_items(train_matrix: csr_matrix, k: int) -> list[int]:
+    """
+    Gets the top-k most popular item ids based on the train matrix.
+
+    Args:
+        train_matrix: A binary matrix representing user interactions from the train set.
+            Each row is a user, each column is an item.
+        k: The number of top popular items to return.
+
+    Returns:
+        A list of the integer IDs of the top-k most popular items, sorted from
+        most to least popular.
+    """
+    item_popularity_matrix = train_matrix.sum(axis=0)
+    item_popularity = item_popularity_matrix.A1 # flatten
+    top_k_item_indices = np.argsort(item_popularity)[-k:][::-1]
+    return top_k_item_indices.tolist()
+
 def prepare_cold_start_data(
     test_positive_set: list[set[int]],
     test_matrix: csr_matrix,
@@ -99,6 +99,7 @@ def prepare_cold_start_data(
     max_interactions: int,
     interaction_bins: int,
     simulated_coldness_levels: list[int],
+    filler_items: list[int]
 ):
     """
     - Splits users into bins based on their number of interactions.
@@ -115,6 +116,8 @@ def prepare_cold_start_data(
         simulated_coldness_levels: A list of integers, where each integer represents 
             a number of interactions to be used as input for the model, simulating a
             user with that level of "coldness".
+        filler_items: A list of item ids to be used to filling in sparse user input
+            vectors until they reach `min_interactions` number of interactions.
 
     Returns:
         A dictionary structured for evaluating cold-start performance. The structure is:
@@ -125,6 +128,7 @@ def prepare_cold_start_data(
                     "input_matrix": <scipy.sparse.matrix of shape [#users, #items]>,
                     "input_items": [[items_ids...], [items_ids...], ...],
                     "ground_truth_items": [[items_ids...], [items_ids...], ...],
+                    "filled_input_matrix": <scipy.sparse.matrix of shape [#users, #items]>,
                 }, 
                 ...
             }, 
@@ -162,6 +166,7 @@ def prepare_cold_start_data(
                 "input_matrix": [],
                 "input_items": [],
                 "ground_truth_items": [],
+                "filled_input_matrix": []
             }
     
     actual_max_interactions = 0
@@ -190,9 +195,9 @@ def prepare_cold_start_data(
         pos_list = sorted(pos_set)
         for coldness in simulated_coldness_levels:
             if num_interactions > coldness:
+                # Baseline cold-start data
                 input_items = pos_list[:coldness]
                 held_out_items = pos_list[coldness:]
-
                 input_row = test_matrix[user_id, :].copy()
                 input_row[0, held_out_items] = 0
                 
@@ -201,7 +206,17 @@ def prepare_cold_start_data(
                 results[bin_key][coldness_key]["input_matrix"].append(input_row)
                 results[bin_key][coldness_key]["input_items"].append(input_items)
                 results[bin_key][coldness_key]["ground_truth_items"].append(set(held_out_items))
-        
+
+                # For filled with popular/diverse items experiment
+                valid_filler_items = [fi for fi in filler_items if fi not in input_items]
+                fill_with = valid_filler_items[:min_interactions-coldness]
+                filled_input_row = test_matrix[user_id, :].copy()
+                filled_input_row[0, held_out_items] = 0
+                filled_input_row[0, fill_with] = 1
+                assert (len(fill_with) + len(input_items)) == min_interactions
+
+                results[bin_key][coldness_key]["filled_input_matrix"].append(filled_input_row)
+
     # Make input items a sparse matrix 
     num_items = test_matrix.shape[1]
     for bin_key in results:
@@ -212,6 +227,13 @@ def prepare_cold_start_data(
             else:
                 stacked_matrix = csr_matrix((0, num_items)) 
             results[bin_key][coldness_key]["input_matrix"] = stacked_matrix
+
+            filled_list_of_rows = results[bin_key][coldness_key]["filled_input_matrix"]
+            if list_of_rows:
+                stacked_matrix = vstack(filled_list_of_rows, format='csr')
+            else:
+                stacked_matrix = csr_matrix((0, num_items)) 
+            results[bin_key][coldness_key]["filled_input_matrix"] = stacked_matrix
 
     # Collect bin stats
     bin_stats = {} 
@@ -279,20 +301,67 @@ def get_recommendations(logits: jaxArray, input_items: list[list[int]], k: int) 
         
     return final_recommendations
 
-def get_popular_items(train_matrix: csr_matrix, k: int) -> list[int]:
-    """
-    Gets the top-k most popular item ids based on the train matrix.
+def evaluate(
+        k_values: list[int],
+        cold_start_splits: dict,
+        cold_start_stats: dict,
+        krr_forward,
+        train_matrix: csr_matrix,
+        precomputed_alpha,
+        data: Dataset,
+        hyper_params: dict,
+        input_matrix_key
+        ):
+    max_k = max(k_values)
+    metrics = {}
+    for (bin_key, coldness_splits) in cold_start_splits.items():
+        metrics[bin_key] = {}
+        for (coldness_key, split) in coldness_splits.items():
+            metrics[bin_key][coldness_key] = {}
 
-    Args:
-        train_matrix: A binary matrix representing user interactions from the train set.
-            Each row is a user, each column is an item.
-        k: The number of top popular items to return.
+            logits = krr_forward(
+                X_train=train_matrix,
+                X_predict=split[input_matrix_key].todense(),
+                reg=hyper_params["lamda"],
+                alpha=precomputed_alpha,
+            )
 
-    Returns:
-        A list of the integer IDs of the top-k most popular items, sorted from
-        most to least popular.
-    """
-    item_popularity_matrix = train_matrix.sum(axis=0)
-    item_popularity = item_popularity_matrix.A1 # flatten
-    top_k_item_indices = np.argsort(item_popularity)[-k:][::-1]
-    return top_k_item_indices.tolist()
+            total_metrics =  defaultdict(float)
+            global_auc_labels, global_auc_scores = [], []
+            global_category_counts = {}
+            for k in k_values:
+                global_category_counts[k] = {}
+
+            recommendations = get_recommendations(logits, split["input_items"], max_k)
+            for u in range(len(recommendations)):
+                orig_user_id = split["users"][u]
+                auc_result, auc_labels, auc_scores = eval_metrics.auc_with_prep(np.array(logits[u]), split["ground_truth_items"][u], data.data["negatives"][orig_user_id])
+                total_metrics["MEAN_AUC"] += auc_result
+                global_auc_labels.extend(auc_labels)
+                global_auc_scores.extend(auc_scores)
+
+                for k in k_values:
+                    total_metrics[f"PRECISION@{k}"] += eval_metrics.precision(recommendations[u], split["ground_truth_items"][u], k)
+                    total_metrics[f"RECALL@{k}"] += eval_metrics.recall(recommendations[u], split["ground_truth_items"][u], k)
+                    total_metrics[f"TRUNCATED_RECALL@{k}"] += eval_metrics.truncated_recall(recommendations[u], split["ground_truth_items"][u], k)
+                    total_metrics[f"NDCG@{k}"] += eval_metrics.ndcg(recommendations[u], split["ground_truth_items"][u], k)
+                    if "item_tag_mapping" in data.data and len(data.data["item_tag_mapping"]) > 0:
+                        category_recommendations = eval_metrics.prepare_category_counts(recommendations[u], data.data["item_tag_mapping"], k)
+                        total_metrics[f"ILD@{k}"] += eval_metrics.intra_list_jaccard_distance(recommendations[u], data.data["item_tag_mapping"], k)
+                        total_metrics[f"ENTROPY@{k}"] += eval_metrics.entropy(list(category_recommendations.values()))
+                        total_metrics[f"GINI@{k}"] += eval_metrics.gini(list(category_recommendations.values()))
+
+                        for category, count in category_recommendations.items():
+                            global_category_counts[k][category] = global_category_counts[k].get(category, 0) + count
+                
+            metrics[bin_key][coldness_key]["GLOBAL_AUC"] = eval_metrics.auc(global_auc_labels, global_auc_scores)
+            for k in k_values:
+                category_counts_array = list(global_category_counts[k].values())
+                metrics[bin_key][coldness_key][f"GLOBAL_GINI@{k}"] = eval_metrics.gini(category_counts_array)
+                metrics[bin_key][coldness_key][f"GLOBAL_ENTROPY@{k}"] = eval_metrics.entropy(category_counts_array)
+
+            num_users = cold_start_stats[bin_key]["#users"][coldness_key]
+            for metric in total_metrics:
+                metrics[bin_key][coldness_key][metric] = total_metrics[metric] / num_users
+
+    return metrics 
