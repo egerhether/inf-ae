@@ -64,6 +64,7 @@ def train(hyper_params, data):
 
     # Return metrics with the best lamda on the test-set
     hyper_params["lamda"] = best_lamda
+    print(f"Found best lambda to be {best_lamda}")
     # Precompute for speedup
     alpha = precompute_alpha(sampled_matrix, lamda=best_lamda) 
     test_metrics = evaluate(

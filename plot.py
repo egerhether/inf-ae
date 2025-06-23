@@ -40,7 +40,7 @@ def save_interaction_statistics(train_sets, val_sets, test_sets, dataset_name, s
 
     # Save plot
     save_dir = f"./results/{dataset_name}/seed{seed}/"
-    save_path = os.path.join(save_dir, dataset_name, f"seed{seed}", "interaction-hist.png")
+    save_path = os.path.join(save_dir, "interaction-hist.png")
     os.makedirs(os.path.dirname(save_path), exist_ok=True)
     plt.savefig(save_path)
     plt.close()
@@ -86,7 +86,7 @@ def plot_cold_start_data(metrics_data, stats_data, metrics_to_plot, dataset_name
         bottom=0.04,   
         top=0.95, 
         wspace=0.0,    
-        hspace=0.1     
+        hspace=0.15     
     )
 
     save_path = os.path.join(save_dir, dataset_name, f"seed{seed}", "curves.png")
@@ -102,7 +102,7 @@ def _draw_single_3d_subplot(fig, ax, metrics_data, split_stats, metric_to_plot):
     """
     # Parse data for labels 
     bin_keys = sorted(metrics_data.keys(), key=lambda k: int(''.join(filter(str.isdigit, k))))
-    coldness_keys = sorted(metrics_data[bin_keys[0]].keys(), key=lambda k: int(''.join(filter(str.isdigit, k))))
+    coldness_keys = sorted(metrics_data[bin_keys[0]].keys(), key=lambda k: int(''.join(filter(str.isdigit, k))))[:-1]
     
     # Prepare axes
     Z = np.zeros((len(bin_keys), len(coldness_keys)))
@@ -129,8 +129,6 @@ def _draw_single_3d_subplot(fig, ax, metrics_data, split_stats, metric_to_plot):
         min_val, max_val = split_stats[bin_key]['range']
         if i == 0:
             label_range = f"[{min_val}-{max_val}]"
-        elif i == len(bin_keys) - 1 and max_val > min_val:
-            label_range = f"({min_val}+)"
         else:
             label_range = f"({min_val}-{max_val}]"
         y_tick_labels.append(f"{label_range}")
@@ -147,7 +145,7 @@ def _draw_single_3d_subplot(fig, ax, metrics_data, split_stats, metric_to_plot):
     ax.tick_params(axis='z', labelsize=10)
 
     # Add color bar 
-    fig.colorbar(surf, ax=ax, shrink=0.6, aspect=20, pad=0.1)
+    fig.colorbar(surf, ax=ax, shrink=0.6, aspect=20, pad=0.15)
 
     # For better view 
-    ax.view_init(elev=20, azim=-50)
+    ax.view_init(elev=30, azim=-50)

@@ -49,6 +49,9 @@ def run_cold_start_experiment(
 
             total_metrics =  defaultdict(float)
             global_auc_labels, global_auc_scores = [], []
+            global_category_counts = {}
+            for k in k_values:
+                global_category_counts[k] = {}
 
             recommendations = get_recommendations(logits, split["input_items"], max_k)
             for u in range(len(recommendations)):
@@ -68,8 +71,16 @@ def run_cold_start_experiment(
                         total_metrics[f"ILD@{k}"] += eval_metrics.intra_list_jaccard_distance(recommendations[u], data.data["item_tag_mapping"], k)
                         total_metrics[f"ENTROPY@{k}"] += eval_metrics.entropy(list(category_recommendations.values()))
                         total_metrics[f"GINI@{k}"] += eval_metrics.gini(list(category_recommendations.values()))
+
+                        for category, count in category_recommendations.items():
+                            global_category_counts[k][category] = global_category_counts[k].get(category, 0) + count
                 
             metrics[bin_key][coldness_key]["GLOBAL_AUC"] = eval_metrics.auc(global_auc_labels, global_auc_scores)
+            for k in k_values:
+                category_counts_array = list(global_category_counts[k].values())
+                metrics[bin_key][coldness_key][f"GLOBAL_GINI@{k}"] = eval_metrics.gini(category_counts_array)
+                metrics[bin_key][coldness_key][f"GLOBAL_ENTROPY@{k}"] = eval_metrics.entropy(category_counts_array)
+
             num_users = cold_start_stats[bin_key]["#users"][coldness_key]
             for metric in total_metrics:
                 metrics[bin_key][coldness_key][metric] = total_metrics[metric] / num_users
@@ -99,9 +110,7 @@ def prepare_cold_start_data(
         test_positive_set: List of sets of item ids representing user-items histories.
         test_matrix: The sparse interaction matrix for the test set. Each row is a user.
         min_interactions: Lower bound for the first interaction bin.
-        max_interactions: Upper bound for the last interaction bin. After the initial
-            bins are determined, another bin is created for all other users with higher
-            number of interactions (rest-of-the-users bin). 
+        max_interactions: Upper bound for the last interaction bin.
         interaction_bins: Number of bins to create between min and max interactions.
         simulated_coldness_levels: A list of integers, where each integer represents 
             a number of interactions to be used as input for the model, simulating a
@@ -140,13 +149,10 @@ def prepare_cold_start_data(
     num_edges = interaction_bins + 1
     bin_edges = np.linspace(min_interactions, max_interactions, num_edges)
     bin_edges = np.round(bin_edges).astype(int)
-    
-    # a bin for users with interactions higher than `max_interactions`
-    total_bins = interaction_bins + 1
 
     # Initialize results dict
     results = {}
-    for bin_id in range(total_bins):
+    for bin_id in range(interaction_bins):
         bin_key = f"bin{bin_id}"
         results[bin_key] = {}
         for coldness in simulated_coldness_levels:
@@ -168,17 +174,17 @@ def prepare_cold_start_data(
             # are represented by rows of zeroes, we skip those here.
             continue
 
+        if num_interactions > max_interactions:
+            continue
+
         if num_interactions > actual_max_interactions:
             actual_max_interactions = num_interactions
         
         # Determine bin for the user
-        if num_interactions > max_interactions:
-            bin_id = interaction_bins 
-        else:
-            # lower edge - exclusive, upper edge - inclusive
-            bin_id = np.digitize(num_interactions, bin_edges, right=True) - 1
-            if num_interactions == min_interactions:
-                bin_id = 0
+        # lower edge - exclusive, upper edge - inclusive
+        bin_id = np.digitize(num_interactions, bin_edges, right=True) - 1
+        if num_interactions == min_interactions:
+            bin_id = 0
         bin_key = f"bin{bin_id}"
         
         pos_list = sorted(pos_set)
@@ -209,14 +215,10 @@ def prepare_cold_start_data(
 
     # Collect bin stats
     bin_stats = {} 
-    for bin_id in range(total_bins):
+    for bin_id in range(interaction_bins):
         bin_key = f"bin{bin_id}"
-        if bin_id < interaction_bins:
-            start_range = bin_edges[bin_id]
-            end_range = bin_edges[bin_id + 1]
-        else:
-            start_range = max_interactions
-            end_range = actual_max_interactions
+        start_range = bin_edges[bin_id]
+        end_range = bin_edges[bin_id + 1]
 
         coldness_stats = {}
         for coldness_key in results[bin_key]:

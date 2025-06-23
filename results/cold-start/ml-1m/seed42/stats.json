@@ -10,7 +10,7 @@
             "coldness3": 48,
             "coldness5": 48,
             "coldness10": 48,
-            "coldness20": 39
+            "coldness15": 48
         }
     },
     "bin1": {
@@ -24,7 +24,7 @@
             "coldness3": 20,
             "coldness5": 20,
             "coldness10": 20,
-            "coldness20": 20
+            "coldness15": 20
         }
     },
     "bin2": {
@@ -38,7 +38,7 @@
             "coldness3": 30,
             "coldness5": 30,
             "coldness10": 30,
-            "coldness20": 30
+            "coldness15": 30
         }
     },
     "bin3": {
@@ -52,7 +52,7 @@
             "coldness3": 22,
             "coldness5": 22,
             "coldness10": 22,
-            "coldness20": 22
+            "coldness15": 22
         }
     },
     "bin4": {
@@ -66,21 +66,7 @@
             "coldness3": 15,
             "coldness5": 15,
             "coldness10": 15,
-            "coldness20": 15
-        }
-    },
-    "bin5": {
-        "range": [
-            40,
-            1850
-        ],
-        "#users": {
-            "coldness0": 469,
-            "coldness1": 469,
-            "coldness3": 469,
-            "coldness5": 469,
-            "coldness10": 469,
-            "coldness20": 469
+            "coldness15": 15
         }
     }
 }

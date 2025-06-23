@@ -47,15 +47,15 @@ hyper_params = {
         "diversity_metrics": True,
         "float64": False,
         "depth": 1,
-        "grid_search_lamda": True,
-        "lamda": 1.0,  # Only used if grid_search_lamda == False
+        "grid_search_lamda": False, # lambda (below) only used if grid_search_lamda == False
+        "lamda": 5.0,  # Found through grid search in a strong generalizaion setting
         # Number of users to keep (randomly)
         "user_support": -1,  # -1 implies use all users
         "seed": 42,
         "neg_sampling_strategy": "positive2",
         "gen": "strong",
         "cold_start_bins": 5,
-        "simulated_coldness_levels": [0, 1, 3, 5, 10, 20],
+        "simulated_coldness_levels": [0, 1, 3, 5, 10, 15],
         "simulated_max_interactins": 40
     },
     "amazon_magazine": {
