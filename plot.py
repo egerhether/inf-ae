@@ -39,7 +39,7 @@ def save_interaction_statistics(train_sets, val_sets, test_sets, dataset_name, s
     plt.tight_layout()
 
     # Save plot
-    save_dir = f"./results/{dataset_name}/seed{seed}/"
+    save_dir = f"./results/cold_start/{dataset_name}/seed{seed}/"
     save_path = os.path.join(save_dir, "interaction-hist.png")
     os.makedirs(os.path.dirname(save_path), exist_ok=True)
     plt.savefig(save_path)
@@ -148,4 +148,4 @@ def _draw_single_3d_subplot(fig, ax, metrics_data, split_stats, metric_to_plot):
     fig.colorbar(surf, ax=ax, shrink=0.6, aspect=20, pad=0.15)
 
     # For better view 
-    ax.view_init(elev=30, azim=-50)
+    ax.view_init(elev=40, azim=-50)
