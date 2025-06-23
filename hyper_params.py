@@ -1,17 +1,23 @@
 hyper_params = {
     "steam": {
         "dataset": "steam",
-        "item_id": "id",  # configure it based on the .item file
-        "category_id": "tags",  # configure it based on the .item file
+        "item_id": "id:token",  # configure it based on the .item file
+        "category_id": "tags:token_seq",  # configure it based on the .item file
         "diversity_metrics": True,
         "float64": False,
         "depth": 1,
         "grid_search_lamda": True,
         "lamda": 1.0,  # Only used if grid_search_lamda == False
         # Number of users to keep (randomly)
-        "user_support": 20000,  # -1 implies use all users
+        "user_support": 25000,  # -1 implies use all users
         "seed": 42,
-        "gen": "weak"
+        "gen": "strong",
+        "neg_sampling_strategy": "positive2",
+        # Cold-Start Experiment Params
+        "cold_start_bins": 5,
+        "simulated_coldness_levels": [0, 1, 3, 5, 10, 15],
+        "simulated_min_interactions": 20,
+        "simulated_max_interactions": 40
     },
     "ml-20m": {
         "dataset": "ml-20m",
@@ -54,9 +60,11 @@ hyper_params = {
         "seed": 42,
         "neg_sampling_strategy": "positive2",
         "gen": "strong",
+        # Cold-Start Experiment Params
         "cold_start_bins": 5,
         "simulated_coldness_levels": [0, 1, 3, 5, 10, 15],
-        "simulated_max_interactins": 40
+        "simulated_min_interactions": 20,
+        "simulated_max_interactions": 40
     },
     "amazon_magazine": {
         "dataset": "amazon_magazine",
