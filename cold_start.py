@@ -40,8 +40,8 @@ def run_cold_start_experiment(
     cold_start_splits, cold_start_stats = prepare_cold_start_data(
         data.data["test_positive_set"],
         data.data["test_matrix"],
-        dataset_cores,
-        hyper_params["simulated_max_interactins"],
+        hyper_params["simulated_min_interactions"],
+        hyper_params["simulated_max_interactions"],
         hyper_params["cold_start_bins"],
         hyper_params["simulated_coldness_levels"],
         most_popular_train_items,
