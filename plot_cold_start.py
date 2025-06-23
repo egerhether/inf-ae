@@ -1,76 +1,70 @@
 import os
-import sys
 import json
 import argparse
-
-from plot import plot_cold_start_data
-
-"""
-Here is how you can run this script
-python plot_cold_start.py \
-    --dataset ml-1m --seed 42 \
-    --metrics \
-    NDCG@10 \
-    MEAN_AUC \
-    TRUNCATED_RECALL@10 \
-    GINI@10 \
-    ENTROPY@10 \
-    ILD@10
-"""
-
-def load_json(path):
-    try:
-        with open(path, 'r') as f:
-            data = json.load(f)
-        return data
-    except FileNotFoundError:
-        print(f"Error: File not found at '{path}'", file=sys.stderr)
-        return None
-
+import numpy as np
+from collections import defaultdict
+from plot import generate_combined_cold_start_plot
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Generate 3D plots from cold-start experiment result files.",
+        description="Generate 3D plots with confidence intervals from multi-seed experiment results.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
-    parser.add_argument(
-        '--dataset',
-        type=str,
-        required=True,
-        help="Name of the dataset (e.g., 'ml-1m', 'amazon_magazine')."
-    )
-    parser.add_argument(
-        '--seed',
-        type=int,
-        required=True,
-        help="The random seed used for the experiment."
-    )
-    parser.add_argument(
-        '--metrics',
-        nargs='+',
-        required=True,
-        help='A list of metric names to plot (e.g., "NDCG@10" "MEAN_AUC"). A separate plot will be generated for each.'
-    )
-    parser.add_argument(
-        '--results-dir',
-        type=str,
-        default="./results/cold-start/",
-        help="The directory where result files are stored."
-    )
+    parser.add_argument('--dataset', type=str, required=True, help="Name of the dataset.")
+    parser.add_argument('--seeds', type=int, nargs='+', required=True, help="A list of random seeds used for the experiments (e.g., 41 42 43).")
+    parser.add_argument('--metrics', nargs='+', required=True, help='A list of metric names to plot in subplots.')
+    parser.add_argument('--results-dir', type=str, default="./results/cold-start/", help="The directory where result files are stored.")
     args = parser.parse_args()
 
-    # Construct file paths from arguments
-    stats_path = os.path.join(args.results_dir, args.dataset, f"seed{args.seed}", "stats.json")
-    metrics_path = os.path.join(args.results_dir, args.dataset, f"seed{args.seed}", "metrics.json")
+    # Load data from all seeds
+    all_metrics_data = []
+    stats_data_from_one_seed = None
+    
+    print("Loading data from all seeds...")
+    for seed in args.seeds:
+        filedir = f"{args.results_dir}{args.dataset}/seed{seed}/"
+        metrics_path = f"{filedir}metrics.json"
+        
+        with open(metrics_path, "r") as f:
+            metrics_data = json.load(f)
+        if metrics_data:
+            all_metrics_data.append(metrics_data)
+        
+        # Load one stats file for the axis labels
+        if stats_data_from_one_seed is None:
+            stats_path = f"{filedir}stats.json"
+            with open(stats_path, "r") as f:
+                stats_data_from_one_seed = json.load(f)
 
-    # Load data from files
-    print("Loading data...")
-    metrics_data = load_json(metrics_path)
-    stats_data = load_json(stats_path)
+    print("Aggregating results across seeds...")
+    aggregated_values = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
+
+    for single_run_metrics in all_metrics_data:
+        for bin_key, coldness_dict in single_run_metrics.items():
+            for coldness_key, metrics_dict in coldness_dict.items():
+                for metric_name, value in metrics_dict.items():
+                    aggregated_values[bin_key][coldness_key][metric_name].append(value)
     
-    plot_cold_start_data(metrics_data, stats_data, args.metrics, args.dataset, args.seed, args.results_dir)
+    mean_metrics = defaultdict(lambda: defaultdict(dict))
+    std_metrics = defaultdict(lambda: defaultdict(dict))
+
+    for bin_key, coldness_dict in aggregated_values.items():
+        for coldness_key, metrics_dict in coldness_dict.items():
+            for metric_name, values in metrics_dict.items():
+                mean_metrics[bin_key][coldness_key][metric_name] = np.mean(values)
+                std_metrics[bin_key][coldness_key][metric_name] = np.std(values)
+
+    generate_combined_cold_start_plot(
+        mean_metrics=mean_metrics,
+        std_metrics=std_metrics,
+        stats_data=stats_data_from_one_seed,
+        metrics_to_plot=args.metrics,
+        dataset_name=args.dataset,
+        seeds=args.seeds,
+        results_dir=args.results_dir
+    )
     
-    print("\nAll plots generated.")
+    print("\nDone.")
 
 if __name__ == '__main__':
     main()

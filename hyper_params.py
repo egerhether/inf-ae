@@ -47,7 +47,7 @@ hyper_params = {
         "diversity_metrics": True,
         "float64": False,
         "depth": 1,
-        "grid_search_lamda": False, # lambda (below) only used if grid_search_lamda == False
+        "grid_search_lamda": True, # lambda (below) only used if grid_search_lamda == False
         "lamda": 5.0,  # Found through grid search in a strong generalizaion setting seeds 42, 41, 40
         # Number of users to keep (randomly)
         "user_support": -1,  # -1 implies use all users
