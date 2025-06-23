@@ -159,6 +159,9 @@ def generate_combined_cold_start_plot(mean_metrics, std_metrics, stats_data, met
     num_metrics = len(metrics_to_plot)
     ncols = math.ceil(math.sqrt(num_metrics))
     nrows = math.ceil(num_metrics / ncols)
+    if num_metrics <= 4:
+        ncols = num_metrics
+        nrows = 1
     
     fig, axes = plt.subplots(
         nrows=nrows, 
@@ -228,7 +231,7 @@ def _draw_confidence_subplot(fig, ax, mean_data, std_data, stats_data, metric_to
     ax.plot_surface(X, Y, Z_lower, color='red', alpha=0.4, antialiased=True)
 
     ax.set_xlabel('Size of User\'s Input History', labelpad=10, fontsize=9)
-    ax.set_ylabel('User Total Interaction Groups', labelpad=20, fontsize=9)
+    ax.set_ylabel('User Total\nInteraction Groups', labelpad=20, fontsize=9)
     ax.set_title(metric_to_plot, fontsize=12)
     
     # Y-axis tick labels (bins)
@@ -244,9 +247,9 @@ def _draw_confidence_subplot(fig, ax, mean_data, std_data, stats_data, metric_to
     # X-axis tick labels (coldness)
     x_tick_labels = [f"{''.join(filter(str.isdigit, k))} items" for k in coldness_keys]
     ax.set_xticks(x_indices)
-    ax.set_xticklabels(x_tick_labels, fontsize=8)
+    ax.set_xticklabels(x_tick_labels, fontsize=8, rotation= 15)
     
     ax.zaxis.set_major_locator(MaxNLocator(nbins=10))
     ax.tick_params(axis='z', labelsize=8)
     
-    ax.view_init(elev=35, azim=-55)
+    ax.view_init(elev=15, azim=-70)
