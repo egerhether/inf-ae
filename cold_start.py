@@ -278,3 +278,21 @@ def get_recommendations(logits: jaxArray, input_items: list[list[int]], k: int) 
         final_recommendations.append(ranked_recs.tolist())
         
     return final_recommendations
+
+def get_popular_items(train_matrix: csr_matrix, k: int) -> list[int]:
+    """
+    Gets the top-k most popular item ids based on the train matrix.
+
+    Args:
+        train_matrix: A binary matrix representing user interactions from the train set.
+            Each row is a user, each column is an item.
+        k: The number of top popular items to return.
+
+    Returns:
+        A list of the integer IDs of the top-k most popular items, sorted from
+        most to least popular.
+    """
+    item_popularity_matrix = train_matrix.sum(axis=0)
+    item_popularity = item_popularity_matrix.A1 # flatten
+    top_k_item_indices = np.argsort(item_popularity)[-k:][::-1]
+    return top_k_item_indices.tolist()
