@@ -1,4 +1,4 @@
-results/
+results/logs
 
 # dont add RecBole dataset
 #*.item
@@ -134,3 +134,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# VSCode
+.vscode
