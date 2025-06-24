@@ -48,7 +48,7 @@ def save_interaction_statistics(train_sets, val_sets, test_sets, dataset_name, s
 TITLE_SIZE=35
 SUBTITLE_SIZE=28
 AX_LABEL_SIZE=23
-AX_VAL_SIZE=18
+AX_VAL_SIZE=14
 
 def generate_combined_cold_start_plot(mean_metrics, std_metrics, stats_data, metrics_to_plot,
         results_dir, title, section_names, dataset_name, metric_lims):
@@ -146,8 +146,8 @@ def _draw_confidence_subplot(fig, ax, mean_data, std_data, stats_data, metric_to
     # MEAN surface
     ax.plot_surface(X, Y, Z_mean, cmap='viridis', alpha=0.9, antialiased=True, zorder=2)
 
-    ax.set_xlabel('#Input Items', labelpad=15, fontsize=AX_LABEL_SIZE)
-    ax.set_ylabel('#Interaction\nGroups', labelpad=45, fontsize=AX_LABEL_SIZE)
+    ax.set_xlabel('Input Items', labelpad=20, fontsize=AX_LABEL_SIZE)
+    ax.set_ylabel('History Length', labelpad=20, fontsize=AX_LABEL_SIZE)
     if row == 1: 
         print(metric_to_plot)
         if metric_to_plot == "MEAN_AUC":
@@ -165,15 +165,15 @@ def _draw_confidence_subplot(fig, ax, mean_data, std_data, stats_data, metric_to
         else: label_range = f"({min_val}-{max_val}]"
         y_tick_labels.append(f"\n{label_range}")
     ax.set_yticks(y_indices)
-    ax.set_yticklabels(y_tick_labels, fontsize=AX_VAL_SIZE, va='center', ha='left', rotation=-15)
+    ax.set_yticklabels(y_tick_labels, fontsize=AX_VAL_SIZE, va='center', ha='left', rotation=-5)
 
     # X-axis tick labels (coldness)
     x_tick_labels = [f"{''.join(filter(str.isdigit, k))}" for k in coldness_keys]
     ax.set_xticks(x_indices)
-    ax.set_xticklabels(x_tick_labels, fontsize=AX_VAL_SIZE, va='center')
+    ax.set_xticklabels(x_tick_labels, fontsize=AX_VAL_SIZE, va='center', rotation=-5)
     
     ax.zaxis.set_major_locator(MaxNLocator(nbins=5))
-    ax.tick_params(axis='z', labelsize=AX_VAL_SIZE-4)
+    ax.tick_params(axis='z', labelsize=AX_VAL_SIZE)
     ax.set_zlim(lims["min"], lims["max"])
     
     ax.view_init(elev=15, azim=-45)
