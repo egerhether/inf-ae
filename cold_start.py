@@ -20,21 +20,15 @@ def run_cold_start_experiment(
         k_values = [10, 100]
     ):
 
-    dataset_cores = get_cores(
-            data.data["train_positive_set"],
-            data.data["val_positive_set"],
-            data.data["test_positive_set"]
-        )
-
     most_popular_train_items = get_popular_items(
         data.data["train_matrix"],
-        dataset_cores + max(hyper_params["simulated_coldness_levels"])
+        hyper_params["simulated_min_interactions"] + max(hyper_params["simulated_coldness_levels"])
     )
 
     popular_diverse_train_items = get_popular_diverse_items(
         data.data["train_matrix"],
         data.data["item_map_to_category"],
-        dataset_cores + max(hyper_params["simulated_coldness_levels"])
+        hyper_params["simulated_min_interactions"] + max(hyper_params["simulated_coldness_levels"])
     )
 
     cold_start_splits, cold_start_stats = prepare_cold_start_data(
