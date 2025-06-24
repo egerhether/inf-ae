@@ -34,11 +34,12 @@ We also include a slurm job file for the purposes of setting up the environment 
 
 This repository contains serveral already preprocessed datasets ready for inference. If you wish to preprocess data yourself, we recommend sourcing datasets (except Douban) from [RecSysDatasets](https://github.com/RUCAIBox/RecSysDatasets). Each dataset (under `conversion_tools/usage`) will have instructions on preprocessing the raw data into format understood by the `preprocess.py` script. After converting datasets using these instructions place them under `data/<dataset_name>` under names `<dataset_name>.inter` (and if dataset contains it) `<dataset_name>_original.item`.
 
-For Douban, original authors use a different source of the datasets than the repository we use. For that reason you can obtain the dataset at [Kaggle](https://www.kaggle.com/datasets/fengzhujoey/douban-datasetratingreviewside-information). Dataset used in the original paper and thus in our reproduction is the movie portion in the source above, so please download `moviereviews_cleaned.txt` and `movies_cleaned.txt`. Then run 
+For Douban, original authors use a different source of the datasets than the repository we use. For that reason you can obtain the dataset at [Kaggle](https://www.kaggle.com/datasets/fengzhujoey/douban-datasetratingreviewside-information). Dataset used in the original paper and thus in our reproduction is the movie portion in the source above, so please download `moviereviews_cleaned.txt` and `movies_cleaned.txt`. Place them under `data/douban/douban_dataset` Then run 
 ```
-python <script_for_douban>.py
+cd data/douban
+python preprocess_movies_only.py
 ```
-to prepare the data for further preprocessing.
+to prepare the data for further preprocessing. 
 
 ## Usage
 

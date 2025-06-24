@@ -22,11 +22,11 @@ def convert_timestamp(time_str):
 
 def preprocess_movies_only():
     """Preprocess movies data to RecBole format"""
-    BASE_PATH = "" # Set this to the base path of your dataset 
+    BASE_PATH = "." # Set this to the base path of your dataset 
     
     # Define paths
-    data_dir = os.path.join(BASE_PATH, "douban_dataset(text information)")
-    output_dir = os.path.join(BASE_PATH, "movies_recbole")
+    data_dir = os.path.join(BASE_PATH, "douban_dataset")
+    output_dir = BASE_PATH
     
     # Create output directory
     os.makedirs(output_dir, exist_ok=True)
@@ -87,7 +87,7 @@ def preprocess_movies_only():
         })
     
     inter_df = pd.DataFrame(inter_data)
-    inter_output_path = os.path.join(output_dir, "movies.inter")
+    inter_output_path = os.path.join(output_dir, "douban.inter")
     inter_df.to_csv(inter_output_path, sep='\t', index=False)
     print(f"Saved .inter file: {inter_output_path}")
     
@@ -115,7 +115,7 @@ def preprocess_movies_only():
             continue
     
     items_df = pd.DataFrame(item_data)
-    item_output_path = os.path.join(output_dir, "movies.item")
+    item_output_path = os.path.join(output_dir, "douban_original.item")
     items_df.to_csv(item_output_path, sep='\t', index=False)
     print(f"Saved .item file: {item_output_path}")
     
@@ -130,8 +130,8 @@ def preprocess_movies_only():
     print(f"Date range: {interactions_df[interactions_df['timestamp'] > 0]['timestamp'].min():.0f} - {interactions_df[interactions_df['timestamp'] > 0]['timestamp'].max():.0f}")
     
     print(f"\nFiles saved in: {output_dir}")
-    print("- movies.inter (interactions)")
-    print("- movies.item (movie metadata)")
+    print("- douban.inter (interactions)")
+    print("- douban_original.item (movie metadata)")
 
 if __name__ == "__main__":
     preprocess_movies_only()
