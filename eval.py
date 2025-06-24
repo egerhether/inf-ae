@@ -33,7 +33,6 @@ def evaluate(
     test_set_eval=False,
     alpha = None
 ):
-    np.random.seed(hyper_params["seed"])
     print(f"\n[EVALUATE] Starting evaluation with k_values={k_values}, test_set_eval={test_set_eval}")
     print(f"[EVALUATE] Hyperparams: #users={hyper_params['num_users']}, #items={hyper_params['num_items']}, lambda={hyper_params['lamda']}")
     assert 0 not in k_values, "0 in k values"
