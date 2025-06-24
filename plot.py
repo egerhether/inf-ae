@@ -45,123 +45,23 @@ def save_interaction_statistics(train_sets, val_sets, test_sets, dataset_name, s
     plt.savefig(save_path)
     plt.close()
 
-def plot_cold_start_data(metrics_data, stats_data, metrics_to_plot, dataset_name, seed, save_dir):
-    """
-    Generates and saves a figure containing 3D subplots for multiple metrics.
-    """
-    # Set up the subplot grid
-    num_metrics = len(metrics_to_plot)
-    ncols = math.ceil(math.sqrt(num_metrics))
-    nrows = math.ceil(num_metrics / ncols)
-    
-    fig, axes = plt.subplots(
-        nrows=nrows, 
-        ncols=ncols, 
-        figsize=(ncols * 7, nrows * 6), 
-        subplot_kw={'projection': '3d'}
-    )
-    axes = np.array(axes).flatten()
+TITLE_SIZE=35
+SUBTITLE_SIZE=28
+AX_LABEL_SIZE=23
+AX_VAL_SIZE=18
 
-    # Loop through metrics and draw each subplot
-    for i, metric in enumerate(metrics_to_plot):
-        print(f"  -> Drawing subplot for {metric}...")
-        _draw_single_3d_subplot(
-            fig=fig,
-            ax=axes[i],
-            metrics_data=metrics_data,
-            split_stats=stats_data,
-            metric_to_plot=metric
-        )
-
-
-    # Hide any unused subplots
-    for i in range(num_metrics, len(axes)):
-        axes[i].axis('off')
-
-    # Save the figure
-    fig.suptitle(f"Cold-Start Performance on {dataset_name.upper()} (seed={seed})", fontsize=20, y = 0.95)
-    fig.subplots_adjust(
-        left=0.02,     
-        right=0.98,    
-        bottom=0.04,   
-        top=0.95, 
-        wspace=0.0,    
-        hspace=0.15     
-    )
-
-    save_path = os.path.join(save_dir, dataset_name, f"seed{seed}", "curves.png")
-    os.makedirs(os.path.dirname(save_path), exist_ok=True)
-    
-    print(f"\nSaving figure to: {save_path}")
-    plt.savefig(save_path, dpi=150)
-    plt.show()
-    
-def _draw_single_3d_subplot(fig, ax, metrics_data, split_stats, metric_to_plot):
-    """
-    Draws a single 3D surface plot onto a given Matplotlib subplot axis (ax).
-    """
-    # Parse data for labels 
-    bin_keys = sorted(metrics_data.keys(), key=lambda k: int(''.join(filter(str.isdigit, k))))
-    coldness_keys = sorted(metrics_data[bin_keys[0]].keys(), key=lambda k: int(''.join(filter(str.isdigit, k))))[:-1]
-    
-    # Prepare axes
-    Z = np.zeros((len(bin_keys), len(coldness_keys)))
-    for i, bin_key in enumerate(bin_keys):
-        for j, coldness_key in enumerate(coldness_keys):
-            metric_value = metrics_data.get(bin_key, {}).get(coldness_key, {}).get(metric_to_plot)
-            if metric_value is not None:
-                Z[i, j] = metric_value
-
-    x_indices = np.arange(len(coldness_keys))
-    y_indices = np.arange(len(bin_keys))
-    X, Y = np.meshgrid(x_indices, y_indices)
-    
-    surf = ax.plot_surface(X, Y, Z, cmap='viridis', edgecolor='none', alpha=0.9)
-
-    # Label axes 
-    ax.set_xlabel('Size of User\'s\nInput History', labelpad=15, fontsize=13)
-    ax.set_ylabel('User Total\nInteraction Groups', labelpad=20, fontsize=13)
-    ax.set_zlabel(metric_to_plot, fontsize=13, labelpad=5)
-    
-    # Label user bin ticks 
-    y_tick_labels = []
-    for i, bin_key in enumerate(bin_keys):
-        min_val, max_val = split_stats[bin_key]['range']
-        if i == 0:
-            label_range = f"[{min_val}-{max_val}]"
-        else:
-            label_range = f"({min_val}-{max_val}]"
-        y_tick_labels.append(f"{label_range}")
-    ax.set_yticks(y_indices)
-    ax.set_yticklabels(y_tick_labels, fontsize=10, va='center', ha='left')
-
-    # Label user coldness ticks 
-    x_tick_labels = [f"{''.join(filter(str.isdigit, k))} items" for k in coldness_keys]
-    ax.set_xticks(x_indices)
-    ax.set_xticklabels(x_tick_labels, fontsize=10, rotation=10)
-    
-    # Label metric ticks 
-    ax.zaxis.set_major_locator(MaxNLocator(nbins=5))
-    ax.tick_params(axis='z', labelsize=10)
-
-    # Add color bar 
-    fig.colorbar(surf, ax=ax, shrink=0.6, aspect=20, pad=0.15)
-
-    # For better view 
-    ax.view_init(elev=40, azim=-50)
-
-
-def generate_combined_cold_start_plot(mean_metrics, std_metrics, stats_data, metrics_to_plot, dataset_name, seeds, results_dir, with_text):
+def generate_combined_cold_start_plot(mean_metrics, std_metrics, stats_data, metrics_to_plot,
+        results_dir, title, section_names, dataset_name, metric_lims):
     """
     Generates and saves a single figure containing 3D subplots for multiple metrics,
     including a visual representation of the standard deviation.
     """
     num_metrics = len(metrics_to_plot)
     ncols = math.ceil(math.sqrt(num_metrics))
-    nrows = math.ceil(num_metrics / ncols)
+    nrows = math.ceil(num_metrics / ncols) * len(section_names)
     if num_metrics <= 4:
         ncols = num_metrics
-        nrows = 1
+        nrows = 1 * len(section_names)
     
     fig, axes = plt.subplots(
         nrows=nrows, 
@@ -171,32 +71,44 @@ def generate_combined_cold_start_plot(mean_metrics, std_metrics, stats_data, met
     )
     axes = np.array(axes).flatten()
 
-    for i, metric in enumerate(metrics_to_plot):
-        print(f"  -> Drawing subplot for {metric}...")
-        _draw_confidence_subplot(
-            fig=fig,
-            ax=axes[i],
-            mean_data=mean_metrics,
-            std_data=std_metrics,
-            stats_data=stats_data,
-            metric_to_plot=metric
-        )
+    ax_pos=0
+    for (j, section_name) in enumerate(section_names):
+        for i, metric in enumerate(metrics_to_plot):
+            print(f"  -> Drawing subplot for {metric}...")
+            _draw_confidence_subplot(
+                fig=fig,
+                ax=axes[ax_pos],
+                mean_data=mean_metrics[j],
+                std_data=std_metrics[j],
+                stats_data=stats_data,
+                metric_to_plot=metric,
+                section_name=section_name if i == 0 else None,
+                row=j+1,
+                num_rows=len(section_names),
+                lims=metric_lims[metric]
+            )
+            ax_pos+=1
 
-    for i in range(num_metrics, len(axes)):
-        axes[i].axis('off')
+    fig.suptitle(title, fontsize=TITLE_SIZE, y=0.98)
 
-    fig.suptitle(f"Cold-Start Performance{with_text} on {dataset_name.upper()} (seeds={seeds})", fontsize=20)
-    fig.tight_layout(rect=[0, 0.03, 1, 0.95])
+    fig.subplots_adjust(
+        left=0.08,
+        right=0.9,
+        bottom=0.1,
+        top=0.9,
+        wspace=0.1,
+        hspace=0.2
+    )
 
     save_dir = f"{results_dir}{dataset_name}"
-    save_filename = f"{dataset_name}-all_seeds.png"
+    save_filename = f"{dataset_name}-plot.png"
     save_path = os.path.join(save_dir, save_filename)
     
     print(f"\nSaving combined figure to: {save_path}")
     plt.savefig(save_path, dpi=150)
     plt.show()
 
-def _draw_confidence_subplot(fig, ax, mean_data, std_data, stats_data, metric_to_plot):
+def _draw_confidence_subplot(fig, ax, mean_data, std_data, stats_data, metric_to_plot, section_name, row, num_rows, lims):
     """
     Draws a single 3D surface plot with a confidence interval onto a subplot axis.
     """
@@ -210,12 +122,14 @@ def _draw_confidence_subplot(fig, ax, mean_data, std_data, stats_data, metric_to
 
     for i, bin_key in enumerate(bin_keys):
         for j, coldness_key in enumerate(coldness_keys):
-            mean_val = mean_data.get(bin_key, {}).get(coldness_key, {}).get(metric_to_plot, 0)
-            std_val = std_data.get(bin_key, {}).get(coldness_key, {}).get(metric_to_plot, 0)
+            mean_val = mean_data.get(bin_key).get(coldness_key).get(metric_to_plot)
+            std_val = std_data.get(bin_key).get(coldness_key).get(metric_to_plot)
             
             Z_mean[i, j] = mean_val
             Z_upper[i, j] = mean_val + std_val
             Z_lower[i, j] = mean_val - std_val
+
+    assert np.all(Z_lower <= Z_upper)
 
     # Prepare X and Y axes
     x_indices = np.arange(len(coldness_keys))
@@ -223,16 +137,25 @@ def _draw_confidence_subplot(fig, ax, mean_data, std_data, stats_data, metric_to
     X, Y = np.meshgrid(x_indices, y_indices)
     
     # Draw the three surfaces
+    # STD bottom surfaces
+    ax.plot_surface(X, Y, Z_lower, color='#ff2929',edgecolor='#ff2929', alpha=0.2, antialiased=True, zorder=1)
+
+    # STD upper surfaces
+    ax.plot_surface(X, Y, Z_upper, color='#ff2929', edgecolor='#ff2929', alpha=0.2, antialiased=True, zorder=1)
+
     # MEAN surface
-    ax.plot_surface(X, Y, Z_mean, cmap='viridis', edgecolor='none', alpha=0.9, antialiased=True)
+    ax.plot_surface(X, Y, Z_mean, cmap='viridis', alpha=0.9, antialiased=True, zorder=2)
 
-    # STD surfaces
-    ax.plot_surface(X, Y, Z_upper, color='red', alpha=0.4, antialiased=True)
-    ax.plot_surface(X, Y, Z_lower, color='red', alpha=0.4, antialiased=True)
-
-    ax.set_xlabel('Size of User\'s Input History', labelpad=10, fontsize=9)
-    ax.set_ylabel('User Total\nInteraction Groups', labelpad=20, fontsize=9)
-    ax.set_title(metric_to_plot, fontsize=12)
+    ax.set_xlabel('#Input Items', labelpad=15, fontsize=AX_LABEL_SIZE)
+    ax.set_ylabel('#Interaction\nGroups', labelpad=45, fontsize=AX_LABEL_SIZE)
+    if row == 1: 
+        print(metric_to_plot)
+        if metric_to_plot == "MEAN_AUC":
+            ax.set_title("mAUC:pos2", fontsize=SUBTITLE_SIZE)
+        elif metric_to_plot == "GLOBAL_ENTROPY@10":
+            ax.set_title("gEntropy@10", fontsize=SUBTITLE_SIZE)
+        else:
+            ax.set_title(metric_to_plot, fontsize=SUBTITLE_SIZE)
     
     # Y-axis tick labels (bins)
     y_tick_labels = []
@@ -242,14 +165,20 @@ def _draw_confidence_subplot(fig, ax, mean_data, std_data, stats_data, metric_to
         else: label_range = f"({min_val}-{max_val}]"
         y_tick_labels.append(f"\n{label_range}")
     ax.set_yticks(y_indices)
-    ax.set_yticklabels(y_tick_labels, fontsize=8, va='center', ha='left')
+    ax.set_yticklabels(y_tick_labels, fontsize=AX_VAL_SIZE, va='center', ha='left', rotation=-15)
 
     # X-axis tick labels (coldness)
-    x_tick_labels = [f"{''.join(filter(str.isdigit, k))} items" for k in coldness_keys]
+    x_tick_labels = [f"{''.join(filter(str.isdigit, k))}" for k in coldness_keys]
     ax.set_xticks(x_indices)
-    ax.set_xticklabels(x_tick_labels, fontsize=8, rotation= 15)
+    ax.set_xticklabels(x_tick_labels, fontsize=AX_VAL_SIZE, va='center')
     
-    ax.zaxis.set_major_locator(MaxNLocator(nbins=10))
-    ax.tick_params(axis='z', labelsize=8)
+    ax.zaxis.set_major_locator(MaxNLocator(nbins=5))
+    ax.tick_params(axis='z', labelsize=AX_VAL_SIZE-4)
+    ax.set_zlim(lims["min"], lims["max"])
     
-    ax.view_init(elev=15, azim=-70)
+    ax.view_init(elev=15, azim=-45)
+
+    if section_name is not None:
+        # Add section name to the left of the plot, rotated vertically
+        adjustment = 0.2 if row == 1 else 0.6 if row == num_rows else 0.4
+        fig.text(0.06, 1 - (row - adjustment) / num_rows, section_name, rotation='vertical', fontsize=SUBTITLE_SIZE, va='center', ha='center')
