@@ -19,7 +19,7 @@ def main():
     parser.add_argument('--dataset', type=str, required=True, help="Name of the dataset.")
     parser.add_argument('--seeds', type=int, nargs='+', required=True, help="A list of random seeds used for the experiments (e.g., 41 42 43).")
     parser.add_argument('--metrics', nargs='+', required=True, help='A list of metric names to plot in subplots.')
-    parser.add_argument('--results-dir', type=str, default="./results/cold-start/", help="The directory where result files are stored.")
+    parser.add_argument('--results-dir', type=str, default="./", help="The directory where result files are stored.")
     parser.add_argument('--metric_filenames', nargs='+', required=True, help="The names of the metrics.json file to plot.")
     args = parser.parse_args()
 

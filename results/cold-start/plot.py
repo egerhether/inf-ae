@@ -3,7 +3,9 @@ from matplotlib.ticker import MaxNLocator
 import numpy as np
 import math
 import os
+import sys
 
+sys.path.insert(0, '../..')
 from utils import get_cores
 
 def save_interaction_statistics(train_sets, val_sets, test_sets, dataset_name, seed, bin_width=2):
@@ -39,7 +41,7 @@ def save_interaction_statistics(train_sets, val_sets, test_sets, dataset_name, s
     plt.tight_layout()
 
     # Save plot
-    save_dir = f"./results/cold-start/{dataset_name}/seed{seed}/"
+    save_dir = f"./{dataset_name}/seed{seed}/"
     save_path = os.path.join(save_dir, "interaction-hist.png")
     os.makedirs(os.path.dirname(save_path), exist_ok=True)
     plt.savefig(save_path)
