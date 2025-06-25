@@ -1,0 +1,2775 @@
+Performing analysis for dataset ml-10m
+Creating Data
+Using default paths: data_path=data/ml-10m/total_data.hdf5, index_path=data/ml-10m/index.npz
+Loading data from data/ml-10m/total_data.hdf5
+Loaded raw data with shape: (10000054, 3)
+Loading index from data/ml-10m/index.npz
+Loaded index with shape: (10000054,)
+Remapping user and item IDs
+Identifying valid users and items
+Found 69878 valid users and 10677 valid items
+User and item mapping created
+Creating new data and index arrays with mapped IDs
+Remapped data shape: (10000054, 3), index shape: (10000054,)
+Loading item data
+Using default item_path: data/ml-10m/ml-10m.item
+Reading item data from data/ml-10m/ml-10m.item
+Loaded item data with shape: (10681, 4)
+Creating train/val/test splits
+Selecting data with index value 0
+Found 7902704 entries with index value 0
+Selecting data with index value 1
+Found 995759 entries with index value 1
+Selecting data with index value 2
+Found 1101591 entries with index value 2
+Split sizes - Train: 7902704, Val: 995759, Test: 1101591
+Dataset has 69878 users and 10677 items
+Cleaning up memory
+Creating positive sets for train/val/test
+Creating user history from array with shape (7902704, 3)
+User history stats - Min: 15, Max: 5886, Avg: 113.09
+Creating user history from array with shape (995759, 3)
+User history stats - Min: 2, Max: 736, Avg: 14.25
+Creating user history from array with shape (1101591, 3)
+User history stats - Min: 3, Max: 737, Avg: 15.76
+Creating sparse matrices
+Created train matrix with shape (69878, 10677) and 7902704 non-zeros
+Created val matrix with shape (69878, 10677) and 995759 non-zeros
+Generating negative samples for evaluation
+Generated negative samples with shape (69878, 50)
+Dataset loading complete. Summary:
+# users: 69878
+# items: 10677
+# interactions: 7902704
+# unique genres: 797
+Start training!
+Get item propensity!
+Checking lamda: 0.0
+
+[EVALUATE] Starting evaluation with topk=[10, 100], test_set_eval=False
+[EVALUATE] Hyperparameters: num_users=69878, num_items=10677, lambda=0.0
+[EVALUATE] Train positive set size: 69878
+[EVALUATE] Prediction set size: 69878
+[EVALUATE] Processing users in batches of 20000
+Num users: 69878
+[EVALUATE] Processing batch of users 0 to 19999 (total: 20000)
+[EVALUATE] Running forward pass for batch 0 to 19999
+(10000, 10000)
+(10000, 10677)
+[EVALUATE] Forward pass complete, prediction shape: (20000, 10677)
+[EVALUATE] Evaluating batch 0 to 19999
+[EVAL_BATCH] Starting batch evaluation with 20000 users
+[EVAL_BATCH] User 0: processing 2 positive and 50 negative examples
+[EVAL_BATCH] User 1000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 2000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 3000: processing 19 positive and 50 negative examples
+[EVAL_BATCH] User 4000: processing 5 positive and 50 negative examples
+[EVAL_BATCH] User 5000: processing 4 positive and 50 negative examples
+[EVAL_BATCH] User 6000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 7000: processing 14 positive and 50 negative examples
+[EVAL_BATCH] User 8000: processing 2 positive and 50 negative examples
+[EVAL_BATCH] User 9000: processing 10 positive and 50 negative examples
+[EVAL_BATCH] User 10000: processing 5 positive and 50 negative examples
+[EVAL_BATCH] User 11000: processing 17 positive and 50 negative examples
+[EVAL_BATCH] User 12000: processing 6 positive and 50 negative examples
+[EVAL_BATCH] User 13000: processing 42 positive and 50 negative examples
+[EVAL_BATCH] User 14000: processing 9 positive and 50 negative examples
+[EVAL_BATCH] User 15000: processing 4 positive and 50 negative examples
+[EVAL_BATCH] User 16000: processing 9 positive and 50 negative examples
+[EVAL_BATCH] User 17000: processing 7 positive and 50 negative examples
+[EVAL_BATCH] User 18000: processing 32 positive and 50 negative examples
+[EVAL_BATCH] User 19000: processing 2 positive and 50 negative examples
+[EVAL_BATCH] Collected 1283147 predictions for AUC calculation
+[EVAL_BATCH] Marking train-set consumed items as negative infinity
+[EVAL_BATCH] User 0: marking 16 train positive items as -INF
+[EVAL_BATCH] User 1000: marking 23 train positive items as -INF
+[EVAL_BATCH] User 2000: marking 25 train positive items as -INF
+[EVAL_BATCH] User 3000: marking 149 train positive items as -INF
+[EVAL_BATCH] User 4000: marking 41 train positive items as -INF
+[EVAL_BATCH] User 5000: marking 31 train positive items as -INF
+[EVAL_BATCH] User 6000: marking 19 train positive items as -INF
+[EVAL_BATCH] User 7000: marking 107 train positive items as -INF
+[EVAL_BATCH] User 8000: marking 16 train positive items as -INF
+[EVAL_BATCH] User 9000: marking 79 train positive items as -INF
+[EVAL_BATCH] User 10000: marking 39 train positive items as -INF
+[EVAL_BATCH] User 11000: marking 134 train positive items as -INF
+[EVAL_BATCH] User 12000: marking 47 train positive items as -INF
+[EVAL_BATCH] User 13000: marking 331 train positive items as -INF
+[EVAL_BATCH] User 14000: marking 67 train positive items as -INF
+[EVAL_BATCH] User 15000: marking 31 train positive items as -INF
+[EVAL_BATCH] User 16000: marking 68 train positive items as -INF
+[EVAL_BATCH] User 17000: marking 56 train positive items as -INF
+[EVAL_BATCH] User 18000: marking 259 train positive items as -INF
+[EVAL_BATCH] User 19000: marking 18 train positive items as -INF
+[EVAL_BATCH] Sorting indices for top-100 recommendations
+[EVAL_BATCH] Computing metrics for k=10
+[EVAL_BATCH] User 0, k=10: 1 hits out of 2.0 possible
+[EVAL_BATCH] User 1000, k=10: 2 hits out of 3.0 possible
+[EVAL_BATCH] User 2000, k=10: 1 hits out of 3.0 possible
+[EVAL_BATCH] User 3000, k=10: 0 hits out of 10 possible
+[EVAL_BATCH] User 4000, k=10: 0 hits out of 5.0 possible
+[EVAL_BATCH] User 5000, k=10: 0 hits out of 4.0 possible
+[EVAL_BATCH] User 6000, k=10: 2 hits out of 3.0 possible
+[EVAL_BATCH] User 7000, k=10: 1 hits out of 10 possible
+[EVAL_BATCH] User 8000, k=10: 0 hits out of 2.0 possible
+[EVAL_BATCH] User 9000, k=10: 0 hits out of 10.0 possible
+[EVAL_BATCH] User 10000, k=10: 1 hits out of 5.0 possible
+[EVAL_BATCH] User 11000, k=10: 3 hits out of 10 possible
+[EVAL_BATCH] User 12000, k=10: 2 hits out of 6.0 possible
+[EVAL_BATCH] User 13000, k=10: 3 hits out of 10 possible
+[EVAL_BATCH] User 14000, k=10: 0 hits out of 9.0 possible
+[EVAL_BATCH] User 15000, k=10: 2 hits out of 4.0 possible
+[EVAL_BATCH] User 16000, k=10: 2 hits out of 9.0 possible
+[EVAL_BATCH] User 17000, k=10: 1 hits out of 7.0 possible
+[EVAL_BATCH] User 18000, k=10: 6 hits out of 10 possible
+[EVAL_BATCH] User 19000, k=10: 0 hits out of 2.0 possible
+[EVAL_BATCH] k=10 metrics - Average HR: 0.2484, Average NDCG: 0.2285, Average PSP: 0.0491
+[EVAL_BATCH] Collected 200000 recommendations for k=10
+[EVAL_BATCH] Computing metrics for k=100
+[EVAL_BATCH] User 0, k=100: 1 hits out of 2.0 possible
+[EVAL_BATCH] User 1000, k=100: 3 hits out of 3.0 possible
+[EVAL_BATCH] User 2000, k=100: 3 hits out of 3.0 possible
+[EVAL_BATCH] User 3000, k=100: 7 hits out of 19.0 possible
+[EVAL_BATCH] User 4000, k=100: 0 hits out of 5.0 possible
+[EVAL_BATCH] User 5000, k=100: 3 hits out of 4.0 possible
+[EVAL_BATCH] User 6000, k=100: 2 hits out of 3.0 possible
+[EVAL_BATCH] User 7000, k=100: 9 hits out of 14.0 possible
+[EVAL_BATCH] User 8000, k=100: 1 hits out of 2.0 possible
+[EVAL_BATCH] User 9000, k=100: 1 hits out of 10.0 possible
+[EVAL_BATCH] User 10000, k=100: 2 hits out of 5.0 possible
+[EVAL_BATCH] User 11000, k=100: 10 hits out of 17.0 possible
+[EVAL_BATCH] User 12000, k=100: 6 hits out of 6.0 possible
+[EVAL_BATCH] User 13000, k=100: 19 hits out of 42.0 possible
+[EVAL_BATCH] User 14000, k=100: 4 hits out of 9.0 possible
+[EVAL_BATCH] User 15000, k=100: 3 hits out of 4.0 possible
+[EVAL_BATCH] User 16000, k=100: 4 hits out of 9.0 possible
+[EVAL_BATCH] User 17000, k=100: 1 hits out of 7.0 possible
+[EVAL_BATCH] User 18000, k=100: 15 hits out of 32.0 possible
+[EVAL_BATCH] User 19000, k=100: 2 hits out of 2.0 possible
+[EVAL_BATCH] k=100 metrics - Average HR: 0.5690, Average NDCG: 0.3400, Average PSP: 0.1146
+[EVAL_BATCH] Collected 2000000 recommendations for k=100
+[EVAL_BATCH] Batch evaluation complete, returning 1283147 predictions
+[EVALUATE] Batch evaluation complete
+[EVALUATE] Accumulated 200000 recommendations for k=10
+[EVALUATE] Accumulated 2000000 recommendations for k=100
+[EVALUATE] Accumulated 1283147 predictions and 1283147 labels
+[EVALUATE] Processing batch of users 20000 to 39999 (total: 20000)
+[EVALUATE] Running forward pass for batch 20000 to 39999
+[EVALUATE] Forward pass complete, prediction shape: (20000, 10677)
+[EVALUATE] Evaluating batch 20000 to 39999
+[EVAL_BATCH] Starting batch evaluation with 20000 users
+[EVAL_BATCH] User 0: processing 11 positive and 50 negative examples
+[EVAL_BATCH] User 1000: processing 34 positive and 50 negative examples
+[EVAL_BATCH] User 2000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 3000: processing 20 positive and 50 negative examples
+[EVAL_BATCH] User 4000: processing 11 positive and 50 negative examples
+[EVAL_BATCH] User 5000: processing 22 positive and 50 negative examples
+[EVAL_BATCH] User 6000: processing 42 positive and 50 negative examples
+[EVAL_BATCH] User 7000: processing 10 positive and 50 negative examples
+[EVAL_BATCH] User 8000: processing 24 positive and 50 negative examples
+[EVAL_BATCH] User 9000: processing 13 positive and 50 negative examples
+[EVAL_BATCH] User 10000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 11000: processing 6 positive and 50 negative examples
+[EVAL_BATCH] User 12000: processing 9 positive and 50 negative examples
+[EVAL_BATCH] User 13000: processing 7 positive and 50 negative examples
+[EVAL_BATCH] User 14000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 15000: processing 11 positive and 50 negative examples
+[EVAL_BATCH] User 16000: processing 28 positive and 50 negative examples
+[EVAL_BATCH] User 17000: processing 6 positive and 50 negative examples
+[EVAL_BATCH] User 18000: processing 7 positive and 50 negative examples
+[EVAL_BATCH] User 19000: processing 9 positive and 50 negative examples
+[EVAL_BATCH] Collected 1288136 predictions for AUC calculation
+[EVAL_BATCH] Marking train-set consumed items as negative infinity
+[EVAL_BATCH] User 0: marking 89 train positive items as -INF
+[EVAL_BATCH] User 1000: marking 267 train positive items as -INF
+[EVAL_BATCH] User 2000: marking 25 train positive items as -INF
+[EVAL_BATCH] User 3000: marking 160 train positive items as -INF
+[EVAL_BATCH] User 4000: marking 87 train positive items as -INF
+[EVAL_BATCH] User 5000: marking 176 train positive items as -INF
+[EVAL_BATCH] User 6000: marking 338 train positive items as -INF
+[EVAL_BATCH] User 7000: marking 79 train positive items as -INF
+[EVAL_BATCH] User 8000: marking 187 train positive items as -INF
+[EVAL_BATCH] User 9000: marking 103 train positive items as -INF
+[EVAL_BATCH] User 10000: marking 23 train positive items as -INF
+[EVAL_BATCH] User 11000: marking 43 train positive items as -INF
+[EVAL_BATCH] User 12000: marking 72 train positive items as -INF
+[EVAL_BATCH] User 13000: marking 54 train positive items as -INF
+[EVAL_BATCH] User 14000: marking 27 train positive items as -INF
+[EVAL_BATCH] User 15000: marking 85 train positive items as -INF
+[EVAL_BATCH] User 16000: marking 224 train positive items as -INF
+[EVAL_BATCH] User 17000: marking 47 train positive items as -INF
+[EVAL_BATCH] User 18000: marking 51 train positive items as -INF
+[EVAL_BATCH] User 19000: marking 71 train positive items as -INF
+[EVAL_BATCH] Sorting indices for top-100 recommendations
+[EVAL_BATCH] Computing metrics for k=10
+[EVAL_BATCH] User 0, k=10: 5 hits out of 10 possible
+[EVAL_BATCH] User 1000, k=10: 5 hits out of 10 possible
+[EVAL_BATCH] User 2000, k=10: 2 hits out of 3.0 possible
+[EVAL_BATCH] User 3000, k=10: 3 hits out of 10 possible
+[EVAL_BATCH] User 4000, k=10: 1 hits out of 10 possible
+[EVAL_BATCH] User 5000, k=10: 2 hits out of 10 possible
+[EVAL_BATCH] User 6000, k=10: 3 hits out of 10 possible
+[EVAL_BATCH] User 7000, k=10: 4 hits out of 10.0 possible
+[EVAL_BATCH] User 8000, k=10: 5 hits out of 10 possible
+[EVAL_BATCH] User 9000, k=10: 1 hits out of 10 possible
+[EVAL_BATCH] User 10000, k=10: 2 hits out of 3.0 possible
+[EVAL_BATCH] User 11000, k=10: 0 hits out of 6.0 possible
+[EVAL_BATCH] User 12000, k=10: 2 hits out of 9.0 possible
+[EVAL_BATCH] User 13000, k=10: 1 hits out of 7.0 possible
+[EVAL_BATCH] User 14000, k=10: 0 hits out of 3.0 possible
+[EVAL_BATCH] User 15000, k=10: 2 hits out of 10 possible
+[EVAL_BATCH] User 16000, k=10: 5 hits out of 10 possible
+[EVAL_BATCH] User 17000, k=10: 2 hits out of 6.0 possible
+[EVAL_BATCH] User 18000, k=10: 0 hits out of 7.0 possible
+[EVAL_BATCH] User 19000, k=10: 1 hits out of 9.0 possible
+[EVAL_BATCH] k=10 metrics - Average HR: 0.2499, Average NDCG: 0.2296, Average PSP: 0.0490
+[EVAL_BATCH] Collected 200000 recommendations for k=10
+[EVAL_BATCH] Computing metrics for k=100
+[EVAL_BATCH] User 0, k=100: 10 hits out of 11.0 possible
+[EVAL_BATCH] User 1000, k=100: 21 hits out of 34.0 possible
+[EVAL_BATCH] User 2000, k=100: 3 hits out of 3.0 possible
+[EVAL_BATCH] User 3000, k=100: 9 hits out of 20.0 possible
+[EVAL_BATCH] User 4000, k=100: 4 hits out of 11.0 possible
+[EVAL_BATCH] User 5000, k=100: 11 hits out of 22.0 possible
+[EVAL_BATCH] User 6000, k=100: 12 hits out of 42.0 possible
+[EVAL_BATCH] User 7000, k=100: 9 hits out of 10.0 possible
+[EVAL_BATCH] User 8000, k=100: 13 hits out of 24.0 possible
+[EVAL_BATCH] User 9000, k=100: 4 hits out of 13.0 possible
+[EVAL_BATCH] User 10000, k=100: 2 hits out of 3.0 possible
+[EVAL_BATCH] User 11000, k=100: 5 hits out of 6.0 possible
+[EVAL_BATCH] User 12000, k=100: 6 hits out of 9.0 possible
+[EVAL_BATCH] User 13000, k=100: 4 hits out of 7.0 possible
+[EVAL_BATCH] User 14000, k=100: 2 hits out of 3.0 possible
+[EVAL_BATCH] User 15000, k=100: 8 hits out of 11.0 possible
+[EVAL_BATCH] User 16000, k=100: 15 hits out of 28.0 possible
+[EVAL_BATCH] User 17000, k=100: 6 hits out of 6.0 possible
+[EVAL_BATCH] User 18000, k=100: 2 hits out of 7.0 possible
+[EVAL_BATCH] User 19000, k=100: 4 hits out of 9.0 possible
+[EVAL_BATCH] k=100 metrics - Average HR: 0.5682, Average NDCG: 0.3406, Average PSP: 0.1131
+[EVAL_BATCH] Collected 2000000 recommendations for k=100
+[EVAL_BATCH] Batch evaluation complete, returning 1288136 predictions
+[EVALUATE] Batch evaluation complete
+[EVALUATE] Accumulated 200000 recommendations for k=10
+[EVALUATE] Accumulated 2000000 recommendations for k=100
+[EVALUATE] Accumulated 1288136 predictions and 1288136 labels
+[EVALUATE] Processing batch of users 40000 to 59999 (total: 20000)
+[EVALUATE] Running forward pass for batch 40000 to 59999
+[EVALUATE] Forward pass complete, prediction shape: (20000, 10677)
+[EVALUATE] Evaluating batch 40000 to 59999
+[EVAL_BATCH] Starting batch evaluation with 20000 users
+[EVAL_BATCH] User 0: processing 98 positive and 50 negative examples
+[EVAL_BATCH] User 1000: processing 31 positive and 50 negative examples
+[EVAL_BATCH] User 2000: processing 21 positive and 50 negative examples
+[EVAL_BATCH] User 3000: processing 23 positive and 50 negative examples
+[EVAL_BATCH] User 4000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 5000: processing 2 positive and 50 negative examples
+[EVAL_BATCH] User 6000: processing 8 positive and 50 negative examples
+[EVAL_BATCH] User 7000: processing 2 positive and 50 negative examples
+[EVAL_BATCH] User 8000: processing 7 positive and 50 negative examples
+[EVAL_BATCH] User 9000: processing 36 positive and 50 negative examples
+[EVAL_BATCH] User 10000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 11000: processing 7 positive and 50 negative examples
+[EVAL_BATCH] User 12000: processing 4 positive and 50 negative examples
+[EVAL_BATCH] User 13000: processing 2 positive and 50 negative examples
+[EVAL_BATCH] User 14000: processing 11 positive and 50 negative examples
+[EVAL_BATCH] User 15000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 16000: processing 27 positive and 50 negative examples
+[EVAL_BATCH] User 17000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 18000: processing 46 positive and 50 negative examples
+[EVAL_BATCH] User 19000: processing 2 positive and 50 negative examples
+[EVAL_BATCH] Collected 1280633 predictions for AUC calculation
+[EVAL_BATCH] Marking train-set consumed items as negative infinity
+[EVAL_BATCH] User 0: marking 781 train positive items as -INF
+[EVAL_BATCH] User 1000: marking 250 train positive items as -INF
+[EVAL_BATCH] User 2000: marking 170 train positive items as -INF
+[EVAL_BATCH] User 3000: marking 186 train positive items as -INF
+[EVAL_BATCH] User 4000: marking 21 train positive items as -INF
+[EVAL_BATCH] User 5000: marking 17 train positive items as -INF
+[EVAL_BATCH] User 6000: marking 65 train positive items as -INF
+[EVAL_BATCH] User 7000: marking 17 train positive items as -INF
+[EVAL_BATCH] User 8000: marking 58 train positive items as -INF
+[EVAL_BATCH] User 9000: marking 291 train positive items as -INF
+[EVAL_BATCH] User 10000: marking 27 train positive items as -INF
+[EVAL_BATCH] User 11000: marking 59 train positive items as -INF
+[EVAL_BATCH] User 12000: marking 31 train positive items as -INF
+[EVAL_BATCH] User 13000: marking 15 train positive items as -INF
+[EVAL_BATCH] User 14000: marking 86 train positive items as -INF
+[EVAL_BATCH] User 15000: marking 25 train positive items as -INF
+[EVAL_BATCH] User 16000: marking 214 train positive items as -INF
+[EVAL_BATCH] User 17000: marking 25 train positive items as -INF
+[EVAL_BATCH] User 18000: marking 365 train positive items as -INF
+[EVAL_BATCH] User 19000: marking 16 train positive items as -INF
+[EVAL_BATCH] Sorting indices for top-100 recommendations
+[EVAL_BATCH] Computing metrics for k=10
+[EVAL_BATCH] User 0, k=10: 5 hits out of 10 possible
+[EVAL_BATCH] User 1000, k=10: 5 hits out of 10 possible
+[EVAL_BATCH] User 2000, k=10: 3 hits out of 10 possible
+[EVAL_BATCH] User 3000, k=10: 3 hits out of 10 possible
+[EVAL_BATCH] User 4000, k=10: 0 hits out of 3.0 possible
+[EVAL_BATCH] User 5000, k=10: 2 hits out of 2.0 possible
+[EVAL_BATCH] User 6000, k=10: 3 hits out of 8.0 possible
+[EVAL_BATCH] User 7000, k=10: 0 hits out of 2.0 possible
+[EVAL_BATCH] User 8000, k=10: 1 hits out of 7.0 possible
+[EVAL_BATCH] User 9000, k=10: 4 hits out of 10 possible
+[EVAL_BATCH] User 10000, k=10: 1 hits out of 3.0 possible
+[EVAL_BATCH] User 11000, k=10: 2 hits out of 7.0 possible
+[EVAL_BATCH] User 12000, k=10: 1 hits out of 4.0 possible
+[EVAL_BATCH] User 13000, k=10: 0 hits out of 2.0 possible
+[EVAL_BATCH] User 14000, k=10: 0 hits out of 10 possible
+[EVAL_BATCH] User 15000, k=10: 0 hits out of 3.0 possible
+[EVAL_BATCH] User 16000, k=10: 1 hits out of 10 possible
+[EVAL_BATCH] User 17000, k=10: 0 hits out of 3.0 possible
+[EVAL_BATCH] User 18000, k=10: 4 hits out of 10 possible
+[EVAL_BATCH] User 19000, k=10: 1 hits out of 2.0 possible
+[EVAL_BATCH] k=10 metrics - Average HR: 0.2494, Average NDCG: 0.2280, Average PSP: 0.0491
+[EVAL_BATCH] Collected 200000 recommendations for k=10
+[EVAL_BATCH] Computing metrics for k=100
+[EVAL_BATCH] User 0, k=100: 25 hits out of 98.0 possible
+[EVAL_BATCH] User 1000, k=100: 16 hits out of 31.0 possible
+[EVAL_BATCH] User 2000, k=100: 13 hits out of 21.0 possible
+[EVAL_BATCH] User 3000, k=100: 11 hits out of 23.0 possible
+[EVAL_BATCH] User 4000, k=100: 2 hits out of 3.0 possible
+[EVAL_BATCH] User 5000, k=100: 2 hits out of 2.0 possible
+[EVAL_BATCH] User 6000, k=100: 6 hits out of 8.0 possible
+[EVAL_BATCH] User 7000, k=100: 1 hits out of 2.0 possible
+[EVAL_BATCH] User 8000, k=100: 5 hits out of 7.0 possible
+[EVAL_BATCH] User 9000, k=100: 18 hits out of 36.0 possible
+[EVAL_BATCH] User 10000, k=100: 2 hits out of 3.0 possible
+[EVAL_BATCH] User 11000, k=100: 3 hits out of 7.0 possible
+[EVAL_BATCH] User 12000, k=100: 3 hits out of 4.0 possible
+[EVAL_BATCH] User 13000, k=100: 1 hits out of 2.0 possible
+[EVAL_BATCH] User 14000, k=100: 7 hits out of 11.0 possible
+[EVAL_BATCH] User 15000, k=100: 1 hits out of 3.0 possible
+[EVAL_BATCH] User 16000, k=100: 10 hits out of 27.0 possible
+[EVAL_BATCH] User 17000, k=100: 0 hits out of 3.0 possible
+[EVAL_BATCH] User 18000, k=100: 19 hits out of 46.0 possible
+[EVAL_BATCH] User 19000, k=100: 1 hits out of 2.0 possible
+[EVAL_BATCH] k=100 metrics - Average HR: 0.5699, Average NDCG: 0.3403, Average PSP: 0.1128
+[EVAL_BATCH] Collected 2000000 recommendations for k=100
+[EVAL_BATCH] Batch evaluation complete, returning 1280633 predictions
+[EVALUATE] Batch evaluation complete
+[EVALUATE] Accumulated 200000 recommendations for k=10
+[EVALUATE] Accumulated 2000000 recommendations for k=100
+[EVALUATE] Accumulated 1280633 predictions and 1280633 labels
+[EVALUATE] Processing batch of users 60000 to 69877 (total: 9878)
+[EVALUATE] Running forward pass for batch 60000 to 69877
+(10000, 10000)
+(10000, 10677)
+[EVALUATE] Forward pass complete, prediction shape: (9878, 10677)
+[EVALUATE] Evaluating batch 60000 to 69877
+[EVAL_BATCH] Starting batch evaluation with 9878 users
+[EVAL_BATCH] User 0: processing 2 positive and 50 negative examples
+[EVAL_BATCH] User 1000: processing 68 positive and 50 negative examples
+[EVAL_BATCH] User 2000: processing 18 positive and 50 negative examples
+[EVAL_BATCH] User 3000: processing 7 positive and 50 negative examples
+[EVAL_BATCH] User 4000: processing 11 positive and 50 negative examples
+[EVAL_BATCH] User 5000: processing 22 positive and 50 negative examples
+[EVAL_BATCH] User 6000: processing 39 positive and 50 negative examples
+[EVAL_BATCH] User 7000: processing 54 positive and 50 negative examples
+[EVAL_BATCH] User 8000: processing 61 positive and 50 negative examples
+[EVAL_BATCH] User 9000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] Collected 637743 predictions for AUC calculation
+[EVAL_BATCH] Marking train-set consumed items as negative infinity
+[EVAL_BATCH] User 0: marking 18 train positive items as -INF
+[EVAL_BATCH] User 1000: marking 543 train positive items as -INF
+[EVAL_BATCH] User 2000: marking 145 train positive items as -INF
+[EVAL_BATCH] User 3000: marking 54 train positive items as -INF
+[EVAL_BATCH] User 4000: marking 85 train positive items as -INF
+[EVAL_BATCH] User 5000: marking 177 train positive items as -INF
+[EVAL_BATCH] User 6000: marking 311 train positive items as -INF
+[EVAL_BATCH] User 7000: marking 430 train positive items as -INF
+[EVAL_BATCH] User 8000: marking 488 train positive items as -INF
+[EVAL_BATCH] User 9000: marking 24 train positive items as -INF
+[EVAL_BATCH] Sorting indices for top-100 recommendations
+[EVAL_BATCH] Computing metrics for k=10
+[EVAL_BATCH] User 0, k=10: 0 hits out of 2.0 possible
+[EVAL_BATCH] User 1000, k=10: 5 hits out of 10 possible
+[EVAL_BATCH] User 2000, k=10: 4 hits out of 10 possible
+[EVAL_BATCH] User 3000, k=10: 1 hits out of 7.0 possible
+[EVAL_BATCH] User 4000, k=10: 1 hits out of 10 possible
+[EVAL_BATCH] User 5000, k=10: 4 hits out of 10 possible
+[EVAL_BATCH] User 6000, k=10: 0 hits out of 10 possible
+[EVAL_BATCH] User 7000, k=10: 4 hits out of 10 possible
+[EVAL_BATCH] User 8000, k=10: 2 hits out of 10 possible
+[EVAL_BATCH] User 9000, k=10: 0 hits out of 3.0 possible
+[EVAL_BATCH] k=10 metrics - Average HR: 0.2504, Average NDCG: 0.2295, Average PSP: 0.0497
+[EVAL_BATCH] Collected 98780 recommendations for k=10
+[EVAL_BATCH] Computing metrics for k=100
+[EVAL_BATCH] User 0, k=100: 0 hits out of 2.0 possible
+[EVAL_BATCH] User 1000, k=100: 29 hits out of 68.0 possible
+[EVAL_BATCH] User 2000, k=100: 14 hits out of 18.0 possible
+[EVAL_BATCH] User 3000, k=100: 1 hits out of 7.0 possible
+[EVAL_BATCH] User 4000, k=100: 4 hits out of 11.0 possible
+[EVAL_BATCH] User 5000, k=100: 9 hits out of 22.0 possible
+[EVAL_BATCH] User 6000, k=100: 11 hits out of 39.0 possible
+[EVAL_BATCH] User 7000, k=100: 16 hits out of 54.0 possible
+[EVAL_BATCH] User 8000, k=100: 15 hits out of 61.0 possible
+[EVAL_BATCH] User 9000, k=100: 3 hits out of 3.0 possible
+[EVAL_BATCH] k=100 metrics - Average HR: 0.5648, Average NDCG: 0.3385, Average PSP: 0.1138
+[EVAL_BATCH] Collected 987800 recommendations for k=100
+[EVAL_BATCH] Batch evaluation complete, returning 637743 predictions
+[EVALUATE] Batch evaluation complete
+[EVALUATE] Accumulated 98780 recommendations for k=10
+[EVALUATE] Accumulated 987800 recommendations for k=100
+[EVALUATE] Accumulated 637743 predictions and 637743 labels
+[EVALUATE] All batches processed, computing final metrics
+[ 0.02216539  0.34871265 -0.01011083 ...  0.01286362  0.00268564
+  0.01033212]
+[EVALUATE] Computed AUC: 0.956
+[EVALUATE] HR@10: 24.9398
+[EVALUATE] HR@100: 56.845
+[EVALUATE] NDCG@10: 22.8823
+[EVALUATE] NDCG@100: 34.0031
+[EVALUATE] PSP@10: 4.9154
+[EVALUATE] PSP@100: 11.3538
+[EVALUATE] Computing GINI coefficients
+[EVALUATE] Computing GINI@10 with 698780 recommendations
+[GINI] Calculating Gini for 698780 articles using key 'category'
+[GINI] Found 304 unique category values
+[GINI] Computing Gini coefficient for 304 values
+[GINI] Computed Gini coefficient: 0.7718
+[EVALUATE] GINI@10: 0.7717616774950629
+[EVALUATE] Computing GINI@100 with 6987800 recommendations
+[GINI] Calculating Gini for 6987800 articles using key 'category'
+[GINI] Found 474 unique category values
+[GINI] Computing Gini coefficient for 474 values
+[GINI] Computed Gini coefficient: 0.7723
+[EVALUATE] GINI@100: 0.7723044793076975
+[EVALUATE] Final metrics: num_users=10000, num_interactions=1138909
+val_metrics: {'HR@10': 24.9398, 'HR@100': 56.845, 'NDCG@10': 22.8823, 'NDCG@100': 34.0031, 'PSP@10': 4.9154, 'PSP@100': 11.3538, 'GINI@10': np.float64(0.7717616774950629), 'GINI@100': np.float64(0.7723044793076975), 'AUC': 0.956, 'num_users': 10000, 'num_interactions': 1138909}
+Checking lamda: 1.0
+
+[EVALUATE] Starting evaluation with topk=[10, 100], test_set_eval=False
+[EVALUATE] Hyperparameters: num_users=69878, num_items=10677, lambda=1.0
+[EVALUATE] Train positive set size: 69878
+[EVALUATE] Prediction set size: 69878
+[EVALUATE] Processing users in batches of 20000
+Num users: 69878
+[EVALUATE] Processing batch of users 0 to 19999 (total: 20000)
+[EVALUATE] Running forward pass for batch 0 to 19999
+[EVALUATE] Forward pass complete, prediction shape: (20000, 10677)
+[EVALUATE] Evaluating batch 0 to 19999
+[EVAL_BATCH] Starting batch evaluation with 20000 users
+[EVAL_BATCH] User 0: processing 2 positive and 50 negative examples
+[EVAL_BATCH] User 1000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 2000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 3000: processing 19 positive and 50 negative examples
+[EVAL_BATCH] User 4000: processing 5 positive and 50 negative examples
+[EVAL_BATCH] User 5000: processing 4 positive and 50 negative examples
+[EVAL_BATCH] User 6000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 7000: processing 14 positive and 50 negative examples
+[EVAL_BATCH] User 8000: processing 2 positive and 50 negative examples
+[EVAL_BATCH] User 9000: processing 10 positive and 50 negative examples
+[EVAL_BATCH] User 10000: processing 5 positive and 50 negative examples
+[EVAL_BATCH] User 11000: processing 17 positive and 50 negative examples
+[EVAL_BATCH] User 12000: processing 6 positive and 50 negative examples
+[EVAL_BATCH] User 13000: processing 42 positive and 50 negative examples
+[EVAL_BATCH] User 14000: processing 9 positive and 50 negative examples
+[EVAL_BATCH] User 15000: processing 4 positive and 50 negative examples
+[EVAL_BATCH] User 16000: processing 9 positive and 50 negative examples
+[EVAL_BATCH] User 17000: processing 7 positive and 50 negative examples
+[EVAL_BATCH] User 18000: processing 32 positive and 50 negative examples
+[EVAL_BATCH] User 19000: processing 2 positive and 50 negative examples
+[EVAL_BATCH] Collected 1283147 predictions for AUC calculation
+[EVAL_BATCH] Marking train-set consumed items as negative infinity
+[EVAL_BATCH] User 0: marking 16 train positive items as -INF
+[EVAL_BATCH] User 1000: marking 23 train positive items as -INF
+[EVAL_BATCH] User 2000: marking 25 train positive items as -INF
+[EVAL_BATCH] User 3000: marking 149 train positive items as -INF
+[EVAL_BATCH] User 4000: marking 41 train positive items as -INF
+[EVAL_BATCH] User 5000: marking 31 train positive items as -INF
+[EVAL_BATCH] User 6000: marking 19 train positive items as -INF
+[EVAL_BATCH] User 7000: marking 107 train positive items as -INF
+[EVAL_BATCH] User 8000: marking 16 train positive items as -INF
+[EVAL_BATCH] User 9000: marking 79 train positive items as -INF
+[EVAL_BATCH] User 10000: marking 39 train positive items as -INF
+[EVAL_BATCH] User 11000: marking 134 train positive items as -INF
+[EVAL_BATCH] User 12000: marking 47 train positive items as -INF
+[EVAL_BATCH] User 13000: marking 331 train positive items as -INF
+[EVAL_BATCH] User 14000: marking 67 train positive items as -INF
+[EVAL_BATCH] User 15000: marking 31 train positive items as -INF
+[EVAL_BATCH] User 16000: marking 68 train positive items as -INF
+[EVAL_BATCH] User 17000: marking 56 train positive items as -INF
+[EVAL_BATCH] User 18000: marking 259 train positive items as -INF
+[EVAL_BATCH] User 19000: marking 18 train positive items as -INF
+[EVAL_BATCH] Sorting indices for top-100 recommendations
+[EVAL_BATCH] Computing metrics for k=10
+[EVAL_BATCH] User 0, k=10: 0 hits out of 2.0 possible
+[EVAL_BATCH] User 1000, k=10: 1 hits out of 3.0 possible
+[EVAL_BATCH] User 2000, k=10: 1 hits out of 3.0 possible
+[EVAL_BATCH] User 3000, k=10: 0 hits out of 10 possible
+[EVAL_BATCH] User 4000, k=10: 0 hits out of 5.0 possible
+[EVAL_BATCH] User 5000, k=10: 0 hits out of 4.0 possible
+[EVAL_BATCH] User 6000, k=10: 0 hits out of 3.0 possible
+[EVAL_BATCH] User 7000, k=10: 2 hits out of 10 possible
+[EVAL_BATCH] User 8000, k=10: 0 hits out of 2.0 possible
+[EVAL_BATCH] User 9000, k=10: 1 hits out of 10.0 possible
+[EVAL_BATCH] User 10000, k=10: 0 hits out of 5.0 possible
+[EVAL_BATCH] User 11000, k=10: 3 hits out of 10 possible
+[EVAL_BATCH] User 12000, k=10: 2 hits out of 6.0 possible
+[EVAL_BATCH] User 13000, k=10: 5 hits out of 10 possible
+[EVAL_BATCH] User 14000, k=10: 0 hits out of 9.0 possible
+[EVAL_BATCH] User 15000, k=10: 2 hits out of 4.0 possible
+[EVAL_BATCH] User 16000, k=10: 1 hits out of 9.0 possible
+[EVAL_BATCH] User 17000, k=10: 0 hits out of 7.0 possible
+[EVAL_BATCH] User 18000, k=10: 4 hits out of 10 possible
+[EVAL_BATCH] User 19000, k=10: 0 hits out of 2.0 possible
+[EVAL_BATCH] k=10 metrics - Average HR: 0.2392, Average NDCG: 0.2181, Average PSP: 0.0478
+[EVAL_BATCH] Collected 200000 recommendations for k=10
+[EVAL_BATCH] Computing metrics for k=100
+[EVAL_BATCH] User 0, k=100: 1 hits out of 2.0 possible
+[EVAL_BATCH] User 1000, k=100: 3 hits out of 3.0 possible
+[EVAL_BATCH] User 2000, k=100: 3 hits out of 3.0 possible
+[EVAL_BATCH] User 3000, k=100: 6 hits out of 19.0 possible
+[EVAL_BATCH] User 4000, k=100: 1 hits out of 5.0 possible
+[EVAL_BATCH] User 5000, k=100: 3 hits out of 4.0 possible
+[EVAL_BATCH] User 6000, k=100: 1 hits out of 3.0 possible
+[EVAL_BATCH] User 7000, k=100: 8 hits out of 14.0 possible
+[EVAL_BATCH] User 8000, k=100: 1 hits out of 2.0 possible
+[EVAL_BATCH] User 9000, k=100: 1 hits out of 10.0 possible
+[EVAL_BATCH] User 10000, k=100: 3 hits out of 5.0 possible
+[EVAL_BATCH] User 11000, k=100: 9 hits out of 17.0 possible
+[EVAL_BATCH] User 12000, k=100: 6 hits out of 6.0 possible
+[EVAL_BATCH] User 13000, k=100: 15 hits out of 42.0 possible
+[EVAL_BATCH] User 14000, k=100: 2 hits out of 9.0 possible
+[EVAL_BATCH] User 15000, k=100: 2 hits out of 4.0 possible
+[EVAL_BATCH] User 16000, k=100: 4 hits out of 9.0 possible
+[EVAL_BATCH] User 17000, k=100: 3 hits out of 7.0 possible
+[EVAL_BATCH] User 18000, k=100: 16 hits out of 32.0 possible
+[EVAL_BATCH] User 19000, k=100: 2 hits out of 2.0 possible
+[EVAL_BATCH] k=100 metrics - Average HR: 0.5697, Average NDCG: 0.3335, Average PSP: 0.1155
+[EVAL_BATCH] Collected 2000000 recommendations for k=100
+[EVAL_BATCH] Batch evaluation complete, returning 1283147 predictions
+[EVALUATE] Batch evaluation complete
+[EVALUATE] Accumulated 200000 recommendations for k=10
+[EVALUATE] Accumulated 2000000 recommendations for k=100
+[EVALUATE] Accumulated 1283147 predictions and 1283147 labels
+[EVALUATE] Processing batch of users 20000 to 39999 (total: 20000)
+[EVALUATE] Running forward pass for batch 20000 to 39999
+[EVALUATE] Forward pass complete, prediction shape: (20000, 10677)
+[EVALUATE] Evaluating batch 20000 to 39999
+[EVAL_BATCH] Starting batch evaluation with 20000 users
+[EVAL_BATCH] User 0: processing 11 positive and 50 negative examples
+[EVAL_BATCH] User 1000: processing 34 positive and 50 negative examples
+[EVAL_BATCH] User 2000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 3000: processing 20 positive and 50 negative examples
+[EVAL_BATCH] User 4000: processing 11 positive and 50 negative examples
+[EVAL_BATCH] User 5000: processing 22 positive and 50 negative examples
+[EVAL_BATCH] User 6000: processing 42 positive and 50 negative examples
+[EVAL_BATCH] User 7000: processing 10 positive and 50 negative examples
+[EVAL_BATCH] User 8000: processing 24 positive and 50 negative examples
+[EVAL_BATCH] User 9000: processing 13 positive and 50 negative examples
+[EVAL_BATCH] User 10000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 11000: processing 6 positive and 50 negative examples
+[EVAL_BATCH] User 12000: processing 9 positive and 50 negative examples
+[EVAL_BATCH] User 13000: processing 7 positive and 50 negative examples
+[EVAL_BATCH] User 14000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 15000: processing 11 positive and 50 negative examples
+[EVAL_BATCH] User 16000: processing 28 positive and 50 negative examples
+[EVAL_BATCH] User 17000: processing 6 positive and 50 negative examples
+[EVAL_BATCH] User 18000: processing 7 positive and 50 negative examples
+[EVAL_BATCH] User 19000: processing 9 positive and 50 negative examples
+[EVAL_BATCH] Collected 1288136 predictions for AUC calculation
+[EVAL_BATCH] Marking train-set consumed items as negative infinity
+[EVAL_BATCH] User 0: marking 89 train positive items as -INF
+[EVAL_BATCH] User 1000: marking 267 train positive items as -INF
+[EVAL_BATCH] User 2000: marking 25 train positive items as -INF
+[EVAL_BATCH] User 3000: marking 160 train positive items as -INF
+[EVAL_BATCH] User 4000: marking 87 train positive items as -INF
+[EVAL_BATCH] User 5000: marking 176 train positive items as -INF
+[EVAL_BATCH] User 6000: marking 338 train positive items as -INF
+[EVAL_BATCH] User 7000: marking 79 train positive items as -INF
+[EVAL_BATCH] User 8000: marking 187 train positive items as -INF
+[EVAL_BATCH] User 9000: marking 103 train positive items as -INF
+[EVAL_BATCH] User 10000: marking 23 train positive items as -INF
+[EVAL_BATCH] User 11000: marking 43 train positive items as -INF
+[EVAL_BATCH] User 12000: marking 72 train positive items as -INF
+[EVAL_BATCH] User 13000: marking 54 train positive items as -INF
+[EVAL_BATCH] User 14000: marking 27 train positive items as -INF
+[EVAL_BATCH] User 15000: marking 85 train positive items as -INF
+[EVAL_BATCH] User 16000: marking 224 train positive items as -INF
+[EVAL_BATCH] User 17000: marking 47 train positive items as -INF
+[EVAL_BATCH] User 18000: marking 51 train positive items as -INF
+[EVAL_BATCH] User 19000: marking 71 train positive items as -INF
+[EVAL_BATCH] Sorting indices for top-100 recommendations
+[EVAL_BATCH] Computing metrics for k=10
+[EVAL_BATCH] User 0, k=10: 3 hits out of 10 possible
+[EVAL_BATCH] User 1000, k=10: 6 hits out of 10 possible
+[EVAL_BATCH] User 2000, k=10: 2 hits out of 3.0 possible
+[EVAL_BATCH] User 3000, k=10: 1 hits out of 10 possible
+[EVAL_BATCH] User 4000, k=10: 1 hits out of 10 possible
+[EVAL_BATCH] User 5000, k=10: 2 hits out of 10 possible
+[EVAL_BATCH] User 6000, k=10: 3 hits out of 10 possible
+[EVAL_BATCH] User 7000, k=10: 2 hits out of 10.0 possible
+[EVAL_BATCH] User 8000, k=10: 5 hits out of 10 possible
+[EVAL_BATCH] User 9000, k=10: 1 hits out of 10 possible
+[EVAL_BATCH] User 10000, k=10: 1 hits out of 3.0 possible
+[EVAL_BATCH] User 11000, k=10: 1 hits out of 6.0 possible
+[EVAL_BATCH] User 12000, k=10: 2 hits out of 9.0 possible
+[EVAL_BATCH] User 13000, k=10: 1 hits out of 7.0 possible
+[EVAL_BATCH] User 14000, k=10: 0 hits out of 3.0 possible
+[EVAL_BATCH] User 15000, k=10: 1 hits out of 10 possible
+[EVAL_BATCH] User 16000, k=10: 2 hits out of 10 possible
+[EVAL_BATCH] User 17000, k=10: 2 hits out of 6.0 possible
+[EVAL_BATCH] User 18000, k=10: 0 hits out of 7.0 possible
+[EVAL_BATCH] User 19000, k=10: 0 hits out of 9.0 possible
+[EVAL_BATCH] k=10 metrics - Average HR: 0.2391, Average NDCG: 0.2192, Average PSP: 0.0470
+[EVAL_BATCH] Collected 200000 recommendations for k=10
+[EVAL_BATCH] Computing metrics for k=100
+[EVAL_BATCH] User 0, k=100: 9 hits out of 11.0 possible
+[EVAL_BATCH] User 1000, k=100: 20 hits out of 34.0 possible
+[EVAL_BATCH] User 2000, k=100: 3 hits out of 3.0 possible
+[EVAL_BATCH] User 3000, k=100: 9 hits out of 20.0 possible
+[EVAL_BATCH] User 4000, k=100: 6 hits out of 11.0 possible
+[EVAL_BATCH] User 5000, k=100: 10 hits out of 22.0 possible
+[EVAL_BATCH] User 6000, k=100: 11 hits out of 42.0 possible
+[EVAL_BATCH] User 7000, k=100: 10 hits out of 10.0 possible
+[EVAL_BATCH] User 8000, k=100: 13 hits out of 24.0 possible
+[EVAL_BATCH] User 9000, k=100: 3 hits out of 13.0 possible
+[EVAL_BATCH] User 10000, k=100: 2 hits out of 3.0 possible
+[EVAL_BATCH] User 11000, k=100: 4 hits out of 6.0 possible
+[EVAL_BATCH] User 12000, k=100: 7 hits out of 9.0 possible
+[EVAL_BATCH] User 13000, k=100: 4 hits out of 7.0 possible
+[EVAL_BATCH] User 14000, k=100: 2 hits out of 3.0 possible
+[EVAL_BATCH] User 15000, k=100: 7 hits out of 11.0 possible
+[EVAL_BATCH] User 16000, k=100: 14 hits out of 28.0 possible
+[EVAL_BATCH] User 17000, k=100: 5 hits out of 6.0 possible
+[EVAL_BATCH] User 18000, k=100: 2 hits out of 7.0 possible
+[EVAL_BATCH] User 19000, k=100: 4 hits out of 9.0 possible
+[EVAL_BATCH] k=100 metrics - Average HR: 0.5684, Average NDCG: 0.3336, Average PSP: 0.1138
+[EVAL_BATCH] Collected 2000000 recommendations for k=100
+[EVAL_BATCH] Batch evaluation complete, returning 1288136 predictions
+[EVALUATE] Batch evaluation complete
+[EVALUATE] Accumulated 200000 recommendations for k=10
+[EVALUATE] Accumulated 2000000 recommendations for k=100
+[EVALUATE] Accumulated 1288136 predictions and 1288136 labels
+[EVALUATE] Processing batch of users 40000 to 59999 (total: 20000)
+[EVALUATE] Running forward pass for batch 40000 to 59999
+[EVALUATE] Forward pass complete, prediction shape: (20000, 10677)
+[EVALUATE] Evaluating batch 40000 to 59999
+[EVAL_BATCH] Starting batch evaluation with 20000 users
+[EVAL_BATCH] User 0: processing 98 positive and 50 negative examples
+[EVAL_BATCH] User 1000: processing 31 positive and 50 negative examples
+[EVAL_BATCH] User 2000: processing 21 positive and 50 negative examples
+[EVAL_BATCH] User 3000: processing 23 positive and 50 negative examples
+[EVAL_BATCH] User 4000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 5000: processing 2 positive and 50 negative examples
+[EVAL_BATCH] User 6000: processing 8 positive and 50 negative examples
+[EVAL_BATCH] User 7000: processing 2 positive and 50 negative examples
+[EVAL_BATCH] User 8000: processing 7 positive and 50 negative examples
+[EVAL_BATCH] User 9000: processing 36 positive and 50 negative examples
+[EVAL_BATCH] User 10000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 11000: processing 7 positive and 50 negative examples
+[EVAL_BATCH] User 12000: processing 4 positive and 50 negative examples
+[EVAL_BATCH] User 13000: processing 2 positive and 50 negative examples
+[EVAL_BATCH] User 14000: processing 11 positive and 50 negative examples
+[EVAL_BATCH] User 15000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 16000: processing 27 positive and 50 negative examples
+[EVAL_BATCH] User 17000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 18000: processing 46 positive and 50 negative examples
+[EVAL_BATCH] User 19000: processing 2 positive and 50 negative examples
+[EVAL_BATCH] Collected 1280633 predictions for AUC calculation
+[EVAL_BATCH] Marking train-set consumed items as negative infinity
+[EVAL_BATCH] User 0: marking 781 train positive items as -INF
+[EVAL_BATCH] User 1000: marking 250 train positive items as -INF
+[EVAL_BATCH] User 2000: marking 170 train positive items as -INF
+[EVAL_BATCH] User 3000: marking 186 train positive items as -INF
+[EVAL_BATCH] User 4000: marking 21 train positive items as -INF
+[EVAL_BATCH] User 5000: marking 17 train positive items as -INF
+[EVAL_BATCH] User 6000: marking 65 train positive items as -INF
+[EVAL_BATCH] User 7000: marking 17 train positive items as -INF
+[EVAL_BATCH] User 8000: marking 58 train positive items as -INF
+[EVAL_BATCH] User 9000: marking 291 train positive items as -INF
+[EVAL_BATCH] User 10000: marking 27 train positive items as -INF
+[EVAL_BATCH] User 11000: marking 59 train positive items as -INF
+[EVAL_BATCH] User 12000: marking 31 train positive items as -INF
+[EVAL_BATCH] User 13000: marking 15 train positive items as -INF
+[EVAL_BATCH] User 14000: marking 86 train positive items as -INF
+[EVAL_BATCH] User 15000: marking 25 train positive items as -INF
+[EVAL_BATCH] User 16000: marking 214 train positive items as -INF
+[EVAL_BATCH] User 17000: marking 25 train positive items as -INF
+[EVAL_BATCH] User 18000: marking 365 train positive items as -INF
+[EVAL_BATCH] User 19000: marking 16 train positive items as -INF
+[EVAL_BATCH] Sorting indices for top-100 recommendations
+[EVAL_BATCH] Computing metrics for k=10
+[EVAL_BATCH] User 0, k=10: 5 hits out of 10 possible
+[EVAL_BATCH] User 1000, k=10: 5 hits out of 10 possible
+[EVAL_BATCH] User 2000, k=10: 3 hits out of 10 possible
+[EVAL_BATCH] User 3000, k=10: 4 hits out of 10 possible
+[EVAL_BATCH] User 4000, k=10: 0 hits out of 3.0 possible
+[EVAL_BATCH] User 5000, k=10: 2 hits out of 2.0 possible
+[EVAL_BATCH] User 6000, k=10: 3 hits out of 8.0 possible
+[EVAL_BATCH] User 7000, k=10: 0 hits out of 2.0 possible
+[EVAL_BATCH] User 8000, k=10: 0 hits out of 7.0 possible
+[EVAL_BATCH] User 9000, k=10: 4 hits out of 10 possible
+[EVAL_BATCH] User 10000, k=10: 1 hits out of 3.0 possible
+[EVAL_BATCH] User 11000, k=10: 2 hits out of 7.0 possible
+[EVAL_BATCH] User 12000, k=10: 1 hits out of 4.0 possible
+[EVAL_BATCH] User 13000, k=10: 0 hits out of 2.0 possible
+[EVAL_BATCH] User 14000, k=10: 2 hits out of 10 possible
+[EVAL_BATCH] User 15000, k=10: 0 hits out of 3.0 possible
+[EVAL_BATCH] User 16000, k=10: 1 hits out of 10 possible
+[EVAL_BATCH] User 17000, k=10: 0 hits out of 3.0 possible
+[EVAL_BATCH] User 18000, k=10: 7 hits out of 10 possible
+[EVAL_BATCH] User 19000, k=10: 0 hits out of 2.0 possible
+[EVAL_BATCH] k=10 metrics - Average HR: 0.2379, Average NDCG: 0.2176, Average PSP: 0.0468
+[EVAL_BATCH] Collected 200000 recommendations for k=10
+[EVAL_BATCH] Computing metrics for k=100
+[EVAL_BATCH] User 0, k=100: 24 hits out of 98.0 possible
+[EVAL_BATCH] User 1000, k=100: 16 hits out of 31.0 possible
+[EVAL_BATCH] User 2000, k=100: 13 hits out of 21.0 possible
+[EVAL_BATCH] User 3000, k=100: 9 hits out of 23.0 possible
+[EVAL_BATCH] User 4000, k=100: 2 hits out of 3.0 possible
+[EVAL_BATCH] User 5000, k=100: 2 hits out of 2.0 possible
+[EVAL_BATCH] User 6000, k=100: 6 hits out of 8.0 possible
+[EVAL_BATCH] User 7000, k=100: 1 hits out of 2.0 possible
+[EVAL_BATCH] User 8000, k=100: 6 hits out of 7.0 possible
+[EVAL_BATCH] User 9000, k=100: 16 hits out of 36.0 possible
+[EVAL_BATCH] User 10000, k=100: 2 hits out of 3.0 possible
+[EVAL_BATCH] User 11000, k=100: 3 hits out of 7.0 possible
+[EVAL_BATCH] User 12000, k=100: 3 hits out of 4.0 possible
+[EVAL_BATCH] User 13000, k=100: 1 hits out of 2.0 possible
+[EVAL_BATCH] User 14000, k=100: 6 hits out of 11.0 possible
+[EVAL_BATCH] User 15000, k=100: 1 hits out of 3.0 possible
+[EVAL_BATCH] User 16000, k=100: 6 hits out of 27.0 possible
+[EVAL_BATCH] User 17000, k=100: 0 hits out of 3.0 possible
+[EVAL_BATCH] User 18000, k=100: 19 hits out of 46.0 possible
+[EVAL_BATCH] User 19000, k=100: 1 hits out of 2.0 possible
+[EVAL_BATCH] k=100 metrics - Average HR: 0.5694, Average NDCG: 0.3336, Average PSP: 0.1132
+[EVAL_BATCH] Collected 2000000 recommendations for k=100
+[EVAL_BATCH] Batch evaluation complete, returning 1280633 predictions
+[EVALUATE] Batch evaluation complete
+[EVALUATE] Accumulated 200000 recommendations for k=10
+[EVALUATE] Accumulated 2000000 recommendations for k=100
+[EVALUATE] Accumulated 1280633 predictions and 1280633 labels
+[EVALUATE] Processing batch of users 60000 to 69877 (total: 9878)
+[EVALUATE] Running forward pass for batch 60000 to 69877
+[EVALUATE] Forward pass complete, prediction shape: (9878, 10677)
+[EVALUATE] Evaluating batch 60000 to 69877
+[EVAL_BATCH] Starting batch evaluation with 9878 users
+[EVAL_BATCH] User 0: processing 2 positive and 50 negative examples
+[EVAL_BATCH] User 1000: processing 68 positive and 50 negative examples
+[EVAL_BATCH] User 2000: processing 18 positive and 50 negative examples
+[EVAL_BATCH] User 3000: processing 7 positive and 50 negative examples
+[EVAL_BATCH] User 4000: processing 11 positive and 50 negative examples
+[EVAL_BATCH] User 5000: processing 22 positive and 50 negative examples
+[EVAL_BATCH] User 6000: processing 39 positive and 50 negative examples
+[EVAL_BATCH] User 7000: processing 54 positive and 50 negative examples
+[EVAL_BATCH] User 8000: processing 61 positive and 50 negative examples
+[EVAL_BATCH] User 9000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] Collected 637743 predictions for AUC calculation
+[EVAL_BATCH] Marking train-set consumed items as negative infinity
+[EVAL_BATCH] User 0: marking 18 train positive items as -INF
+[EVAL_BATCH] User 1000: marking 543 train positive items as -INF
+[EVAL_BATCH] User 2000: marking 145 train positive items as -INF
+[EVAL_BATCH] User 3000: marking 54 train positive items as -INF
+[EVAL_BATCH] User 4000: marking 85 train positive items as -INF
+[EVAL_BATCH] User 5000: marking 177 train positive items as -INF
+[EVAL_BATCH] User 6000: marking 311 train positive items as -INF
+[EVAL_BATCH] User 7000: marking 430 train positive items as -INF
+[EVAL_BATCH] User 8000: marking 488 train positive items as -INF
+[EVAL_BATCH] User 9000: marking 24 train positive items as -INF
+[EVAL_BATCH] Sorting indices for top-100 recommendations
+[EVAL_BATCH] Computing metrics for k=10
+[EVAL_BATCH] User 0, k=10: 0 hits out of 2.0 possible
+[EVAL_BATCH] User 1000, k=10: 4 hits out of 10 possible
+[EVAL_BATCH] User 2000, k=10: 3 hits out of 10 possible
+[EVAL_BATCH] User 3000, k=10: 1 hits out of 7.0 possible
+[EVAL_BATCH] User 4000, k=10: 1 hits out of 10 possible
+[EVAL_BATCH] User 5000, k=10: 3 hits out of 10 possible
+[EVAL_BATCH] User 6000, k=10: 2 hits out of 10 possible
+[EVAL_BATCH] User 7000, k=10: 4 hits out of 10 possible
+[EVAL_BATCH] User 8000, k=10: 4 hits out of 10 possible
+[EVAL_BATCH] User 9000, k=10: 0 hits out of 3.0 possible
+[EVAL_BATCH] k=10 metrics - Average HR: 0.2388, Average NDCG: 0.2190, Average PSP: 0.0473
+[EVAL_BATCH] Collected 98780 recommendations for k=10
+[EVAL_BATCH] Computing metrics for k=100
+[EVAL_BATCH] User 0, k=100: 0 hits out of 2.0 possible
+[EVAL_BATCH] User 1000, k=100: 27 hits out of 68.0 possible
+[EVAL_BATCH] User 2000, k=100: 13 hits out of 18.0 possible
+[EVAL_BATCH] User 3000, k=100: 2 hits out of 7.0 possible
+[EVAL_BATCH] User 4000, k=100: 5 hits out of 11.0 possible
+[EVAL_BATCH] User 5000, k=100: 7 hits out of 22.0 possible
+[EVAL_BATCH] User 6000, k=100: 9 hits out of 39.0 possible
+[EVAL_BATCH] User 7000, k=100: 15 hits out of 54.0 possible
+[EVAL_BATCH] User 8000, k=100: 16 hits out of 61.0 possible
+[EVAL_BATCH] User 9000, k=100: 2 hits out of 3.0 possible
+[EVAL_BATCH] k=100 metrics - Average HR: 0.5642, Average NDCG: 0.3320, Average PSP: 0.1142
+[EVAL_BATCH] Collected 987800 recommendations for k=100
+[EVAL_BATCH] Batch evaluation complete, returning 637743 predictions
+[EVALUATE] Batch evaluation complete
+[EVALUATE] Accumulated 98780 recommendations for k=10
+[EVALUATE] Accumulated 987800 recommendations for k=100
+[EVALUATE] Accumulated 637743 predictions and 637743 labels
+[EVALUATE] All batches processed, computing final metrics
+[ 0.02631429  0.12292525 -0.01453119 ...  0.00208876 -0.00178416
+  0.00032219]
+[EVALUATE] Computed AUC: 0.9563
+[EVALUATE] HR@10: 23.8743
+[EVALUATE] HR@100: 56.8457
+[EVALUATE] NDCG@10: 21.8403
+[EVALUATE] NDCG@100: 33.3341
+[EVALUATE] PSP@10: 4.7189
+[EVALUATE] PSP@100: 11.4147
+[EVALUATE] Computing GINI coefficients
+[EVALUATE] Computing GINI@10 with 698780 recommendations
+[GINI] Calculating Gini for 698780 articles using key 'category'
+[GINI] Found 329 unique category values
+[GINI] Computing Gini coefficient for 329 values
+[GINI] Computed Gini coefficient: 0.7793
+[EVALUATE] GINI@10: 0.7793010936733765
+[EVALUATE] Computing GINI@100 with 6987800 recommendations
+[GINI] Calculating Gini for 6987800 articles using key 'category'
+[GINI] Found 479 unique category values
+[GINI] Computing Gini coefficient for 479 values
+[GINI] Computed Gini coefficient: 0.7723
+[EVALUATE] GINI@100: 0.772264536683409
+[EVALUATE] Final metrics: num_users=10000, num_interactions=1138909
+val_metrics: {'HR@10': 23.8743, 'HR@100': 56.8457, 'NDCG@10': 21.8403, 'NDCG@100': 33.3341, 'PSP@10': 4.7189, 'PSP@100': 11.4147, 'GINI@10': np.float64(0.7793010936733765), 'GINI@100': np.float64(0.772264536683409), 'AUC': 0.9563, 'num_users': 10000, 'num_interactions': 1138909}
+Checking lamda: 5.0
+
+[EVALUATE] Starting evaluation with topk=[10, 100], test_set_eval=False
+[EVALUATE] Hyperparameters: num_users=69878, num_items=10677, lambda=5.0
+[EVALUATE] Train positive set size: 69878
+[EVALUATE] Prediction set size: 69878
+[EVALUATE] Processing users in batches of 20000
+Num users: 69878
+[EVALUATE] Processing batch of users 0 to 19999 (total: 20000)
+[EVALUATE] Running forward pass for batch 0 to 19999
+[EVALUATE] Forward pass complete, prediction shape: (20000, 10677)
+[EVALUATE] Evaluating batch 0 to 19999
+[EVAL_BATCH] Starting batch evaluation with 20000 users
+[EVAL_BATCH] User 0: processing 2 positive and 50 negative examples
+[EVAL_BATCH] User 1000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 2000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 3000: processing 19 positive and 50 negative examples
+[EVAL_BATCH] User 4000: processing 5 positive and 50 negative examples
+[EVAL_BATCH] User 5000: processing 4 positive and 50 negative examples
+[EVAL_BATCH] User 6000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 7000: processing 14 positive and 50 negative examples
+[EVAL_BATCH] User 8000: processing 2 positive and 50 negative examples
+[EVAL_BATCH] User 9000: processing 10 positive and 50 negative examples
+[EVAL_BATCH] User 10000: processing 5 positive and 50 negative examples
+[EVAL_BATCH] User 11000: processing 17 positive and 50 negative examples
+[EVAL_BATCH] User 12000: processing 6 positive and 50 negative examples
+[EVAL_BATCH] User 13000: processing 42 positive and 50 negative examples
+[EVAL_BATCH] User 14000: processing 9 positive and 50 negative examples
+[EVAL_BATCH] User 15000: processing 4 positive and 50 negative examples
+[EVAL_BATCH] User 16000: processing 9 positive and 50 negative examples
+[EVAL_BATCH] User 17000: processing 7 positive and 50 negative examples
+[EVAL_BATCH] User 18000: processing 32 positive and 50 negative examples
+[EVAL_BATCH] User 19000: processing 2 positive and 50 negative examples
+[EVAL_BATCH] Collected 1283147 predictions for AUC calculation
+[EVAL_BATCH] Marking train-set consumed items as negative infinity
+[EVAL_BATCH] User 0: marking 16 train positive items as -INF
+[EVAL_BATCH] User 1000: marking 23 train positive items as -INF
+[EVAL_BATCH] User 2000: marking 25 train positive items as -INF
+[EVAL_BATCH] User 3000: marking 149 train positive items as -INF
+[EVAL_BATCH] User 4000: marking 41 train positive items as -INF
+[EVAL_BATCH] User 5000: marking 31 train positive items as -INF
+[EVAL_BATCH] User 6000: marking 19 train positive items as -INF
+[EVAL_BATCH] User 7000: marking 107 train positive items as -INF
+[EVAL_BATCH] User 8000: marking 16 train positive items as -INF
+[EVAL_BATCH] User 9000: marking 79 train positive items as -INF
+[EVAL_BATCH] User 10000: marking 39 train positive items as -INF
+[EVAL_BATCH] User 11000: marking 134 train positive items as -INF
+[EVAL_BATCH] User 12000: marking 47 train positive items as -INF
+[EVAL_BATCH] User 13000: marking 331 train positive items as -INF
+[EVAL_BATCH] User 14000: marking 67 train positive items as -INF
+[EVAL_BATCH] User 15000: marking 31 train positive items as -INF
+[EVAL_BATCH] User 16000: marking 68 train positive items as -INF
+[EVAL_BATCH] User 17000: marking 56 train positive items as -INF
+[EVAL_BATCH] User 18000: marking 259 train positive items as -INF
+[EVAL_BATCH] User 19000: marking 18 train positive items as -INF
+[EVAL_BATCH] Sorting indices for top-100 recommendations
+[EVAL_BATCH] Computing metrics for k=10
+[EVAL_BATCH] User 0, k=10: 1 hits out of 2.0 possible
+[EVAL_BATCH] User 1000, k=10: 2 hits out of 3.0 possible
+[EVAL_BATCH] User 2000, k=10: 2 hits out of 3.0 possible
+[EVAL_BATCH] User 3000, k=10: 0 hits out of 10 possible
+[EVAL_BATCH] User 4000, k=10: 0 hits out of 5.0 possible
+[EVAL_BATCH] User 5000, k=10: 0 hits out of 4.0 possible
+[EVAL_BATCH] User 6000, k=10: 1 hits out of 3.0 possible
+[EVAL_BATCH] User 7000, k=10: 2 hits out of 10 possible
+[EVAL_BATCH] User 8000, k=10: 0 hits out of 2.0 possible
+[EVAL_BATCH] User 9000, k=10: 1 hits out of 10.0 possible
+[EVAL_BATCH] User 10000, k=10: 1 hits out of 5.0 possible
+[EVAL_BATCH] User 11000, k=10: 4 hits out of 10 possible
+[EVAL_BATCH] User 12000, k=10: 4 hits out of 6.0 possible
+[EVAL_BATCH] User 13000, k=10: 4 hits out of 10 possible
+[EVAL_BATCH] User 14000, k=10: 0 hits out of 9.0 possible
+[EVAL_BATCH] User 15000, k=10: 2 hits out of 4.0 possible
+[EVAL_BATCH] User 16000, k=10: 3 hits out of 9.0 possible
+[EVAL_BATCH] User 17000, k=10: 0 hits out of 7.0 possible
+[EVAL_BATCH] User 18000, k=10: 4 hits out of 10 possible
+[EVAL_BATCH] User 19000, k=10: 0 hits out of 2.0 possible
+[EVAL_BATCH] k=10 metrics - Average HR: 0.2837, Average NDCG: 0.2554, Average PSP: 0.0582
+[EVAL_BATCH] Collected 200000 recommendations for k=10
+[EVAL_BATCH] Computing metrics for k=100
+[EVAL_BATCH] User 0, k=100: 1 hits out of 2.0 possible
+[EVAL_BATCH] User 1000, k=100: 3 hits out of 3.0 possible
+[EVAL_BATCH] User 2000, k=100: 3 hits out of 3.0 possible
+[EVAL_BATCH] User 3000, k=100: 6 hits out of 19.0 possible
+[EVAL_BATCH] User 4000, k=100: 1 hits out of 5.0 possible
+[EVAL_BATCH] User 5000, k=100: 3 hits out of 4.0 possible
+[EVAL_BATCH] User 6000, k=100: 2 hits out of 3.0 possible
+[EVAL_BATCH] User 7000, k=100: 10 hits out of 14.0 possible
+[EVAL_BATCH] User 8000, k=100: 1 hits out of 2.0 possible
+[EVAL_BATCH] User 9000, k=100: 2 hits out of 10.0 possible
+[EVAL_BATCH] User 10000, k=100: 3 hits out of 5.0 possible
+[EVAL_BATCH] User 11000, k=100: 12 hits out of 17.0 possible
+[EVAL_BATCH] User 12000, k=100: 6 hits out of 6.0 possible
+[EVAL_BATCH] User 13000, k=100: 16 hits out of 42.0 possible
+[EVAL_BATCH] User 14000, k=100: 4 hits out of 9.0 possible
+[EVAL_BATCH] User 15000, k=100: 4 hits out of 4.0 possible
+[EVAL_BATCH] User 16000, k=100: 4 hits out of 9.0 possible
+[EVAL_BATCH] User 17000, k=100: 2 hits out of 7.0 possible
+[EVAL_BATCH] User 18000, k=100: 16 hits out of 32.0 possible
+[EVAL_BATCH] User 19000, k=100: 2 hits out of 2.0 possible
+[EVAL_BATCH] k=100 metrics - Average HR: 0.6242, Average NDCG: 0.3760, Average PSP: 0.1276
+[EVAL_BATCH] Collected 2000000 recommendations for k=100
+[EVAL_BATCH] Batch evaluation complete, returning 1283147 predictions
+[EVALUATE] Batch evaluation complete
+[EVALUATE] Accumulated 200000 recommendations for k=10
+[EVALUATE] Accumulated 2000000 recommendations for k=100
+[EVALUATE] Accumulated 1283147 predictions and 1283147 labels
+[EVALUATE] Processing batch of users 20000 to 39999 (total: 20000)
+[EVALUATE] Running forward pass for batch 20000 to 39999
+[EVALUATE] Forward pass complete, prediction shape: (20000, 10677)
+[EVALUATE] Evaluating batch 20000 to 39999
+[EVAL_BATCH] Starting batch evaluation with 20000 users
+[EVAL_BATCH] User 0: processing 11 positive and 50 negative examples
+[EVAL_BATCH] User 1000: processing 34 positive and 50 negative examples
+[EVAL_BATCH] User 2000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 3000: processing 20 positive and 50 negative examples
+[EVAL_BATCH] User 4000: processing 11 positive and 50 negative examples
+[EVAL_BATCH] User 5000: processing 22 positive and 50 negative examples
+[EVAL_BATCH] User 6000: processing 42 positive and 50 negative examples
+[EVAL_BATCH] User 7000: processing 10 positive and 50 negative examples
+[EVAL_BATCH] User 8000: processing 24 positive and 50 negative examples
+[EVAL_BATCH] User 9000: processing 13 positive and 50 negative examples
+[EVAL_BATCH] User 10000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 11000: processing 6 positive and 50 negative examples
+[EVAL_BATCH] User 12000: processing 9 positive and 50 negative examples
+[EVAL_BATCH] User 13000: processing 7 positive and 50 negative examples
+[EVAL_BATCH] User 14000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 15000: processing 11 positive and 50 negative examples
+[EVAL_BATCH] User 16000: processing 28 positive and 50 negative examples
+[EVAL_BATCH] User 17000: processing 6 positive and 50 negative examples
+[EVAL_BATCH] User 18000: processing 7 positive and 50 negative examples
+[EVAL_BATCH] User 19000: processing 9 positive and 50 negative examples
+[EVAL_BATCH] Collected 1288136 predictions for AUC calculation
+[EVAL_BATCH] Marking train-set consumed items as negative infinity
+[EVAL_BATCH] User 0: marking 89 train positive items as -INF
+[EVAL_BATCH] User 1000: marking 267 train positive items as -INF
+[EVAL_BATCH] User 2000: marking 25 train positive items as -INF
+[EVAL_BATCH] User 3000: marking 160 train positive items as -INF
+[EVAL_BATCH] User 4000: marking 87 train positive items as -INF
+[EVAL_BATCH] User 5000: marking 176 train positive items as -INF
+[EVAL_BATCH] User 6000: marking 338 train positive items as -INF
+[EVAL_BATCH] User 7000: marking 79 train positive items as -INF
+[EVAL_BATCH] User 8000: marking 187 train positive items as -INF
+[EVAL_BATCH] User 9000: marking 103 train positive items as -INF
+[EVAL_BATCH] User 10000: marking 23 train positive items as -INF
+[EVAL_BATCH] User 11000: marking 43 train positive items as -INF
+[EVAL_BATCH] User 12000: marking 72 train positive items as -INF
+[EVAL_BATCH] User 13000: marking 54 train positive items as -INF
+[EVAL_BATCH] User 14000: marking 27 train positive items as -INF
+[EVAL_BATCH] User 15000: marking 85 train positive items as -INF
+[EVAL_BATCH] User 16000: marking 224 train positive items as -INF
+[EVAL_BATCH] User 17000: marking 47 train positive items as -INF
+[EVAL_BATCH] User 18000: marking 51 train positive items as -INF
+[EVAL_BATCH] User 19000: marking 71 train positive items as -INF
+[EVAL_BATCH] Sorting indices for top-100 recommendations
+[EVAL_BATCH] Computing metrics for k=10
+[EVAL_BATCH] User 0, k=10: 5 hits out of 10 possible
+[EVAL_BATCH] User 1000, k=10: 5 hits out of 10 possible
+[EVAL_BATCH] User 2000, k=10: 2 hits out of 3.0 possible
+[EVAL_BATCH] User 3000, k=10: 2 hits out of 10 possible
+[EVAL_BATCH] User 4000, k=10: 1 hits out of 10 possible
+[EVAL_BATCH] User 5000, k=10: 3 hits out of 10 possible
+[EVAL_BATCH] User 6000, k=10: 3 hits out of 10 possible
+[EVAL_BATCH] User 7000, k=10: 4 hits out of 10.0 possible
+[EVAL_BATCH] User 8000, k=10: 6 hits out of 10 possible
+[EVAL_BATCH] User 9000, k=10: 2 hits out of 10 possible
+[EVAL_BATCH] User 10000, k=10: 2 hits out of 3.0 possible
+[EVAL_BATCH] User 11000, k=10: 0 hits out of 6.0 possible
+[EVAL_BATCH] User 12000, k=10: 2 hits out of 9.0 possible
+[EVAL_BATCH] User 13000, k=10: 1 hits out of 7.0 possible
+[EVAL_BATCH] User 14000, k=10: 0 hits out of 3.0 possible
+[EVAL_BATCH] User 15000, k=10: 1 hits out of 10 possible
+[EVAL_BATCH] User 16000, k=10: 4 hits out of 10 possible
+[EVAL_BATCH] User 17000, k=10: 3 hits out of 6.0 possible
+[EVAL_BATCH] User 18000, k=10: 0 hits out of 7.0 possible
+[EVAL_BATCH] User 19000, k=10: 0 hits out of 9.0 possible
+[EVAL_BATCH] k=10 metrics - Average HR: 0.2843, Average NDCG: 0.2579, Average PSP: 0.0579
+[EVAL_BATCH] Collected 200000 recommendations for k=10
+[EVAL_BATCH] Computing metrics for k=100
+[EVAL_BATCH] User 0, k=100: 10 hits out of 11.0 possible
+[EVAL_BATCH] User 1000, k=100: 20 hits out of 34.0 possible
+[EVAL_BATCH] User 2000, k=100: 3 hits out of 3.0 possible
+[EVAL_BATCH] User 3000, k=100: 10 hits out of 20.0 possible
+[EVAL_BATCH] User 4000, k=100: 5 hits out of 11.0 possible
+[EVAL_BATCH] User 5000, k=100: 10 hits out of 22.0 possible
+[EVAL_BATCH] User 6000, k=100: 12 hits out of 42.0 possible
+[EVAL_BATCH] User 7000, k=100: 10 hits out of 10.0 possible
+[EVAL_BATCH] User 8000, k=100: 15 hits out of 24.0 possible
+[EVAL_BATCH] User 9000, k=100: 6 hits out of 13.0 possible
+[EVAL_BATCH] User 10000, k=100: 3 hits out of 3.0 possible
+[EVAL_BATCH] User 11000, k=100: 6 hits out of 6.0 possible
+[EVAL_BATCH] User 12000, k=100: 6 hits out of 9.0 possible
+[EVAL_BATCH] User 13000, k=100: 3 hits out of 7.0 possible
+[EVAL_BATCH] User 14000, k=100: 2 hits out of 3.0 possible
+[EVAL_BATCH] User 15000, k=100: 8 hits out of 11.0 possible
+[EVAL_BATCH] User 16000, k=100: 14 hits out of 28.0 possible
+[EVAL_BATCH] User 17000, k=100: 6 hits out of 6.0 possible
+[EVAL_BATCH] User 18000, k=100: 2 hits out of 7.0 possible
+[EVAL_BATCH] User 19000, k=100: 6 hits out of 9.0 possible
+[EVAL_BATCH] k=100 metrics - Average HR: 0.6236, Average NDCG: 0.3783, Average PSP: 0.1254
+[EVAL_BATCH] Collected 2000000 recommendations for k=100
+[EVAL_BATCH] Batch evaluation complete, returning 1288136 predictions
+[EVALUATE] Batch evaluation complete
+[EVALUATE] Accumulated 200000 recommendations for k=10
+[EVALUATE] Accumulated 2000000 recommendations for k=100
+[EVALUATE] Accumulated 1288136 predictions and 1288136 labels
+[EVALUATE] Processing batch of users 40000 to 59999 (total: 20000)
+[EVALUATE] Running forward pass for batch 40000 to 59999
+[EVALUATE] Forward pass complete, prediction shape: (20000, 10677)
+[EVALUATE] Evaluating batch 40000 to 59999
+[EVAL_BATCH] Starting batch evaluation with 20000 users
+[EVAL_BATCH] User 0: processing 98 positive and 50 negative examples
+[EVAL_BATCH] User 1000: processing 31 positive and 50 negative examples
+[EVAL_BATCH] User 2000: processing 21 positive and 50 negative examples
+[EVAL_BATCH] User 3000: processing 23 positive and 50 negative examples
+[EVAL_BATCH] User 4000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 5000: processing 2 positive and 50 negative examples
+[EVAL_BATCH] User 6000: processing 8 positive and 50 negative examples
+[EVAL_BATCH] User 7000: processing 2 positive and 50 negative examples
+[EVAL_BATCH] User 8000: processing 7 positive and 50 negative examples
+[EVAL_BATCH] User 9000: processing 36 positive and 50 negative examples
+[EVAL_BATCH] User 10000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 11000: processing 7 positive and 50 negative examples
+[EVAL_BATCH] User 12000: processing 4 positive and 50 negative examples
+[EVAL_BATCH] User 13000: processing 2 positive and 50 negative examples
+[EVAL_BATCH] User 14000: processing 11 positive and 50 negative examples
+[EVAL_BATCH] User 15000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 16000: processing 27 positive and 50 negative examples
+[EVAL_BATCH] User 17000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 18000: processing 46 positive and 50 negative examples
+[EVAL_BATCH] User 19000: processing 2 positive and 50 negative examples
+[EVAL_BATCH] Collected 1280633 predictions for AUC calculation
+[EVAL_BATCH] Marking train-set consumed items as negative infinity
+[EVAL_BATCH] User 0: marking 781 train positive items as -INF
+[EVAL_BATCH] User 1000: marking 250 train positive items as -INF
+[EVAL_BATCH] User 2000: marking 170 train positive items as -INF
+[EVAL_BATCH] User 3000: marking 186 train positive items as -INF
+[EVAL_BATCH] User 4000: marking 21 train positive items as -INF
+[EVAL_BATCH] User 5000: marking 17 train positive items as -INF
+[EVAL_BATCH] User 6000: marking 65 train positive items as -INF
+[EVAL_BATCH] User 7000: marking 17 train positive items as -INF
+[EVAL_BATCH] User 8000: marking 58 train positive items as -INF
+[EVAL_BATCH] User 9000: marking 291 train positive items as -INF
+[EVAL_BATCH] User 10000: marking 27 train positive items as -INF
+[EVAL_BATCH] User 11000: marking 59 train positive items as -INF
+[EVAL_BATCH] User 12000: marking 31 train positive items as -INF
+[EVAL_BATCH] User 13000: marking 15 train positive items as -INF
+[EVAL_BATCH] User 14000: marking 86 train positive items as -INF
+[EVAL_BATCH] User 15000: marking 25 train positive items as -INF
+[EVAL_BATCH] User 16000: marking 214 train positive items as -INF
+[EVAL_BATCH] User 17000: marking 25 train positive items as -INF
+[EVAL_BATCH] User 18000: marking 365 train positive items as -INF
+[EVAL_BATCH] User 19000: marking 16 train positive items as -INF
+[EVAL_BATCH] Sorting indices for top-100 recommendations
+[EVAL_BATCH] Computing metrics for k=10
+[EVAL_BATCH] User 0, k=10: 4 hits out of 10 possible
+[EVAL_BATCH] User 1000, k=10: 3 hits out of 10 possible
+[EVAL_BATCH] User 2000, k=10: 4 hits out of 10 possible
+[EVAL_BATCH] User 3000, k=10: 3 hits out of 10 possible
+[EVAL_BATCH] User 4000, k=10: 0 hits out of 3.0 possible
+[EVAL_BATCH] User 5000, k=10: 2 hits out of 2.0 possible
+[EVAL_BATCH] User 6000, k=10: 3 hits out of 8.0 possible
+[EVAL_BATCH] User 7000, k=10: 0 hits out of 2.0 possible
+[EVAL_BATCH] User 8000, k=10: 1 hits out of 7.0 possible
+[EVAL_BATCH] User 9000, k=10: 2 hits out of 10 possible
+[EVAL_BATCH] User 10000, k=10: 1 hits out of 3.0 possible
+[EVAL_BATCH] User 11000, k=10: 2 hits out of 7.0 possible
+[EVAL_BATCH] User 12000, k=10: 3 hits out of 4.0 possible
+[EVAL_BATCH] User 13000, k=10: 0 hits out of 2.0 possible
+[EVAL_BATCH] User 14000, k=10: 2 hits out of 10 possible
+[EVAL_BATCH] User 15000, k=10: 1 hits out of 3.0 possible
+[EVAL_BATCH] User 16000, k=10: 1 hits out of 10 possible
+[EVAL_BATCH] User 17000, k=10: 0 hits out of 3.0 possible
+[EVAL_BATCH] User 18000, k=10: 5 hits out of 10 possible
+[EVAL_BATCH] User 19000, k=10: 1 hits out of 2.0 possible
+[EVAL_BATCH] k=10 metrics - Average HR: 0.2826, Average NDCG: 0.2554, Average PSP: 0.0571
+[EVAL_BATCH] Collected 200000 recommendations for k=10
+[EVAL_BATCH] Computing metrics for k=100
+[EVAL_BATCH] User 0, k=100: 26 hits out of 98.0 possible
+[EVAL_BATCH] User 1000, k=100: 18 hits out of 31.0 possible
+[EVAL_BATCH] User 2000, k=100: 13 hits out of 21.0 possible
+[EVAL_BATCH] User 3000, k=100: 11 hits out of 23.0 possible
+[EVAL_BATCH] User 4000, k=100: 3 hits out of 3.0 possible
+[EVAL_BATCH] User 5000, k=100: 2 hits out of 2.0 possible
+[EVAL_BATCH] User 6000, k=100: 6 hits out of 8.0 possible
+[EVAL_BATCH] User 7000, k=100: 1 hits out of 2.0 possible
+[EVAL_BATCH] User 8000, k=100: 6 hits out of 7.0 possible
+[EVAL_BATCH] User 9000, k=100: 20 hits out of 36.0 possible
+[EVAL_BATCH] User 10000, k=100: 2 hits out of 3.0 possible
+[EVAL_BATCH] User 11000, k=100: 3 hits out of 7.0 possible
+[EVAL_BATCH] User 12000, k=100: 3 hits out of 4.0 possible
+[EVAL_BATCH] User 13000, k=100: 2 hits out of 2.0 possible
+[EVAL_BATCH] User 14000, k=100: 7 hits out of 11.0 possible
+[EVAL_BATCH] User 15000, k=100: 2 hits out of 3.0 possible
+[EVAL_BATCH] User 16000, k=100: 10 hits out of 27.0 possible
+[EVAL_BATCH] User 17000, k=100: 0 hits out of 3.0 possible
+[EVAL_BATCH] User 18000, k=100: 18 hits out of 46.0 possible
+[EVAL_BATCH] User 19000, k=100: 1 hits out of 2.0 possible
+[EVAL_BATCH] k=100 metrics - Average HR: 0.6234, Average NDCG: 0.3768, Average PSP: 0.1250
+[EVAL_BATCH] Collected 2000000 recommendations for k=100
+[EVAL_BATCH] Batch evaluation complete, returning 1280633 predictions
+[EVALUATE] Batch evaluation complete
+[EVALUATE] Accumulated 200000 recommendations for k=10
+[EVALUATE] Accumulated 2000000 recommendations for k=100
+[EVALUATE] Accumulated 1280633 predictions and 1280633 labels
+[EVALUATE] Processing batch of users 60000 to 69877 (total: 9878)
+[EVALUATE] Running forward pass for batch 60000 to 69877
+[EVALUATE] Forward pass complete, prediction shape: (9878, 10677)
+[EVALUATE] Evaluating batch 60000 to 69877
+[EVAL_BATCH] Starting batch evaluation with 9878 users
+[EVAL_BATCH] User 0: processing 2 positive and 50 negative examples
+[EVAL_BATCH] User 1000: processing 68 positive and 50 negative examples
+[EVAL_BATCH] User 2000: processing 18 positive and 50 negative examples
+[EVAL_BATCH] User 3000: processing 7 positive and 50 negative examples
+[EVAL_BATCH] User 4000: processing 11 positive and 50 negative examples
+[EVAL_BATCH] User 5000: processing 22 positive and 50 negative examples
+[EVAL_BATCH] User 6000: processing 39 positive and 50 negative examples
+[EVAL_BATCH] User 7000: processing 54 positive and 50 negative examples
+[EVAL_BATCH] User 8000: processing 61 positive and 50 negative examples
+[EVAL_BATCH] User 9000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] Collected 637743 predictions for AUC calculation
+[EVAL_BATCH] Marking train-set consumed items as negative infinity
+[EVAL_BATCH] User 0: marking 18 train positive items as -INF
+[EVAL_BATCH] User 1000: marking 543 train positive items as -INF
+[EVAL_BATCH] User 2000: marking 145 train positive items as -INF
+[EVAL_BATCH] User 3000: marking 54 train positive items as -INF
+[EVAL_BATCH] User 4000: marking 85 train positive items as -INF
+[EVAL_BATCH] User 5000: marking 177 train positive items as -INF
+[EVAL_BATCH] User 6000: marking 311 train positive items as -INF
+[EVAL_BATCH] User 7000: marking 430 train positive items as -INF
+[EVAL_BATCH] User 8000: marking 488 train positive items as -INF
+[EVAL_BATCH] User 9000: marking 24 train positive items as -INF
+[EVAL_BATCH] Sorting indices for top-100 recommendations
+[EVAL_BATCH] Computing metrics for k=10
+[EVAL_BATCH] User 0, k=10: 0 hits out of 2.0 possible
+[EVAL_BATCH] User 1000, k=10: 3 hits out of 10 possible
+[EVAL_BATCH] User 2000, k=10: 3 hits out of 10 possible
+[EVAL_BATCH] User 3000, k=10: 1 hits out of 7.0 possible
+[EVAL_BATCH] User 4000, k=10: 2 hits out of 10 possible
+[EVAL_BATCH] User 5000, k=10: 5 hits out of 10 possible
+[EVAL_BATCH] User 6000, k=10: 4 hits out of 10 possible
+[EVAL_BATCH] User 7000, k=10: 2 hits out of 10 possible
+[EVAL_BATCH] User 8000, k=10: 3 hits out of 10 possible
+[EVAL_BATCH] User 9000, k=10: 2 hits out of 3.0 possible
+[EVAL_BATCH] k=10 metrics - Average HR: 0.2847, Average NDCG: 0.2568, Average PSP: 0.0583
+[EVAL_BATCH] Collected 98780 recommendations for k=10
+[EVAL_BATCH] Computing metrics for k=100
+[EVAL_BATCH] User 0, k=100: 1 hits out of 2.0 possible
+[EVAL_BATCH] User 1000, k=100: 30 hits out of 68.0 possible
+[EVAL_BATCH] User 2000, k=100: 12 hits out of 18.0 possible
+[EVAL_BATCH] User 3000, k=100: 2 hits out of 7.0 possible
+[EVAL_BATCH] User 4000, k=100: 4 hits out of 11.0 possible
+[EVAL_BATCH] User 5000, k=100: 9 hits out of 22.0 possible
+[EVAL_BATCH] User 6000, k=100: 14 hits out of 39.0 possible
+[EVAL_BATCH] User 7000, k=100: 20 hits out of 54.0 possible
+[EVAL_BATCH] User 8000, k=100: 17 hits out of 61.0 possible
+[EVAL_BATCH] User 9000, k=100: 3 hits out of 3.0 possible
+[EVAL_BATCH] k=100 metrics - Average HR: 0.6204, Average NDCG: 0.3752, Average PSP: 0.1265
+[EVAL_BATCH] Collected 987800 recommendations for k=100
+[EVAL_BATCH] Batch evaluation complete, returning 637743 predictions
+[EVALUATE] Batch evaluation complete
+[EVALUATE] Accumulated 98780 recommendations for k=10
+[EVALUATE] Accumulated 987800 recommendations for k=100
+[EVALUATE] Accumulated 637743 predictions and 637743 labels
+[EVALUATE] All batches processed, computing final metrics
+[ 0.0229906   0.12301329 -0.01283857 ...  0.00346862 -0.00067851
+ -0.00964715]
+[EVALUATE] Computed AUC: 0.9724
+[EVALUATE] HR@10: 28.3702
+[EVALUATE] HR@100: 62.3269
+[EVALUATE] NDCG@10: 25.632
+[EVALUATE] NDCG@100: 37.6789
+[EVALUATE] PSP@10: 5.7831
+[EVALUATE] PSP@100: 12.6052
+[EVALUATE] Computing GINI coefficients
+[EVALUATE] Computing GINI@10 with 698780 recommendations
+[GINI] Calculating Gini for 698780 articles using key 'category'
+[GINI] Found 369 unique category values
+[GINI] Computing Gini coefficient for 369 values
+[GINI] Computed Gini coefficient: 0.7916
+[EVALUATE] GINI@10: 0.7916483478638844
+[EVALUATE] Computing GINI@100 with 6987800 recommendations
+[GINI] Calculating Gini for 6987800 articles using key 'category'
+[GINI] Found 495 unique category values
+[GINI] Computing Gini coefficient for 495 values
+[GINI] Computed Gini coefficient: 0.7822
+[EVALUATE] GINI@100: 0.7821823125499247
+[EVALUATE] Final metrics: num_users=10000, num_interactions=1138909
+val_metrics: {'HR@10': 28.3702, 'HR@100': 62.3269, 'NDCG@10': 25.632, 'NDCG@100': 37.6789, 'PSP@10': 5.7831, 'PSP@100': 12.6052, 'GINI@10': np.float64(0.7916483478638844), 'GINI@100': np.float64(0.7821823125499247), 'AUC': 0.9724, 'num_users': 10000, 'num_interactions': 1138909}
+Checking lamda: 20.0
+
+[EVALUATE] Starting evaluation with topk=[10, 100], test_set_eval=False
+[EVALUATE] Hyperparameters: num_users=69878, num_items=10677, lambda=20.0
+[EVALUATE] Train positive set size: 69878
+[EVALUATE] Prediction set size: 69878
+[EVALUATE] Processing users in batches of 20000
+Num users: 69878
+[EVALUATE] Processing batch of users 0 to 19999 (total: 20000)
+[EVALUATE] Running forward pass for batch 0 to 19999
+[EVALUATE] Forward pass complete, prediction shape: (20000, 10677)
+[EVALUATE] Evaluating batch 0 to 19999
+[EVAL_BATCH] Starting batch evaluation with 20000 users
+[EVAL_BATCH] User 0: processing 2 positive and 50 negative examples
+[EVAL_BATCH] User 1000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 2000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 3000: processing 19 positive and 50 negative examples
+[EVAL_BATCH] User 4000: processing 5 positive and 50 negative examples
+[EVAL_BATCH] User 5000: processing 4 positive and 50 negative examples
+[EVAL_BATCH] User 6000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 7000: processing 14 positive and 50 negative examples
+[EVAL_BATCH] User 8000: processing 2 positive and 50 negative examples
+[EVAL_BATCH] User 9000: processing 10 positive and 50 negative examples
+[EVAL_BATCH] User 10000: processing 5 positive and 50 negative examples
+[EVAL_BATCH] User 11000: processing 17 positive and 50 negative examples
+[EVAL_BATCH] User 12000: processing 6 positive and 50 negative examples
+[EVAL_BATCH] User 13000: processing 42 positive and 50 negative examples
+[EVAL_BATCH] User 14000: processing 9 positive and 50 negative examples
+[EVAL_BATCH] User 15000: processing 4 positive and 50 negative examples
+[EVAL_BATCH] User 16000: processing 9 positive and 50 negative examples
+[EVAL_BATCH] User 17000: processing 7 positive and 50 negative examples
+[EVAL_BATCH] User 18000: processing 32 positive and 50 negative examples
+[EVAL_BATCH] User 19000: processing 2 positive and 50 negative examples
+[EVAL_BATCH] Collected 1283147 predictions for AUC calculation
+[EVAL_BATCH] Marking train-set consumed items as negative infinity
+[EVAL_BATCH] User 0: marking 16 train positive items as -INF
+[EVAL_BATCH] User 1000: marking 23 train positive items as -INF
+[EVAL_BATCH] User 2000: marking 25 train positive items as -INF
+[EVAL_BATCH] User 3000: marking 149 train positive items as -INF
+[EVAL_BATCH] User 4000: marking 41 train positive items as -INF
+[EVAL_BATCH] User 5000: marking 31 train positive items as -INF
+[EVAL_BATCH] User 6000: marking 19 train positive items as -INF
+[EVAL_BATCH] User 7000: marking 107 train positive items as -INF
+[EVAL_BATCH] User 8000: marking 16 train positive items as -INF
+[EVAL_BATCH] User 9000: marking 79 train positive items as -INF
+[EVAL_BATCH] User 10000: marking 39 train positive items as -INF
+[EVAL_BATCH] User 11000: marking 134 train positive items as -INF
+[EVAL_BATCH] User 12000: marking 47 train positive items as -INF
+[EVAL_BATCH] User 13000: marking 331 train positive items as -INF
+[EVAL_BATCH] User 14000: marking 67 train positive items as -INF
+[EVAL_BATCH] User 15000: marking 31 train positive items as -INF
+[EVAL_BATCH] User 16000: marking 68 train positive items as -INF
+[EVAL_BATCH] User 17000: marking 56 train positive items as -INF
+[EVAL_BATCH] User 18000: marking 259 train positive items as -INF
+[EVAL_BATCH] User 19000: marking 18 train positive items as -INF
+[EVAL_BATCH] Sorting indices for top-100 recommendations
+[EVAL_BATCH] Computing metrics for k=10
+[EVAL_BATCH] User 0, k=10: 1 hits out of 2.0 possible
+[EVAL_BATCH] User 1000, k=10: 1 hits out of 3.0 possible
+[EVAL_BATCH] User 2000, k=10: 2 hits out of 3.0 possible
+[EVAL_BATCH] User 3000, k=10: 1 hits out of 10 possible
+[EVAL_BATCH] User 4000, k=10: 0 hits out of 5.0 possible
+[EVAL_BATCH] User 5000, k=10: 0 hits out of 4.0 possible
+[EVAL_BATCH] User 6000, k=10: 2 hits out of 3.0 possible
+[EVAL_BATCH] User 7000, k=10: 1 hits out of 10 possible
+[EVAL_BATCH] User 8000, k=10: 0 hits out of 2.0 possible
+[EVAL_BATCH] User 9000, k=10: 0 hits out of 10.0 possible
+[EVAL_BATCH] User 10000, k=10: 2 hits out of 5.0 possible
+[EVAL_BATCH] User 11000, k=10: 4 hits out of 10 possible
+[EVAL_BATCH] User 12000, k=10: 4 hits out of 6.0 possible
+[EVAL_BATCH] User 13000, k=10: 5 hits out of 10 possible
+[EVAL_BATCH] User 14000, k=10: 0 hits out of 9.0 possible
+[EVAL_BATCH] User 15000, k=10: 2 hits out of 4.0 possible
+[EVAL_BATCH] User 16000, k=10: 2 hits out of 9.0 possible
+[EVAL_BATCH] User 17000, k=10: 0 hits out of 7.0 possible
+[EVAL_BATCH] User 18000, k=10: 3 hits out of 10 possible
+[EVAL_BATCH] User 19000, k=10: 0 hits out of 2.0 possible
+[EVAL_BATCH] k=10 metrics - Average HR: 0.2600, Average NDCG: 0.2388, Average PSP: 0.0513
+[EVAL_BATCH] Collected 200000 recommendations for k=10
+[EVAL_BATCH] Computing metrics for k=100
+[EVAL_BATCH] User 0, k=100: 1 hits out of 2.0 possible
+[EVAL_BATCH] User 1000, k=100: 3 hits out of 3.0 possible
+[EVAL_BATCH] User 2000, k=100: 3 hits out of 3.0 possible
+[EVAL_BATCH] User 3000, k=100: 7 hits out of 19.0 possible
+[EVAL_BATCH] User 4000, k=100: 0 hits out of 5.0 possible
+[EVAL_BATCH] User 5000, k=100: 3 hits out of 4.0 possible
+[EVAL_BATCH] User 6000, k=100: 2 hits out of 3.0 possible
+[EVAL_BATCH] User 7000, k=100: 8 hits out of 14.0 possible
+[EVAL_BATCH] User 8000, k=100: 1 hits out of 2.0 possible
+[EVAL_BATCH] User 9000, k=100: 1 hits out of 10.0 possible
+[EVAL_BATCH] User 10000, k=100: 3 hits out of 5.0 possible
+[EVAL_BATCH] User 11000, k=100: 12 hits out of 17.0 possible
+[EVAL_BATCH] User 12000, k=100: 6 hits out of 6.0 possible
+[EVAL_BATCH] User 13000, k=100: 18 hits out of 42.0 possible
+[EVAL_BATCH] User 14000, k=100: 4 hits out of 9.0 possible
+[EVAL_BATCH] User 15000, k=100: 4 hits out of 4.0 possible
+[EVAL_BATCH] User 16000, k=100: 5 hits out of 9.0 possible
+[EVAL_BATCH] User 17000, k=100: 2 hits out of 7.0 possible
+[EVAL_BATCH] User 18000, k=100: 13 hits out of 32.0 possible
+[EVAL_BATCH] User 19000, k=100: 1 hits out of 2.0 possible
+[EVAL_BATCH] k=100 metrics - Average HR: 0.5806, Average NDCG: 0.3484, Average PSP: 0.1181
+[EVAL_BATCH] Collected 2000000 recommendations for k=100
+[EVAL_BATCH] Batch evaluation complete, returning 1283147 predictions
+[EVALUATE] Batch evaluation complete
+[EVALUATE] Accumulated 200000 recommendations for k=10
+[EVALUATE] Accumulated 2000000 recommendations for k=100
+[EVALUATE] Accumulated 1283147 predictions and 1283147 labels
+[EVALUATE] Processing batch of users 20000 to 39999 (total: 20000)
+[EVALUATE] Running forward pass for batch 20000 to 39999
+[EVALUATE] Forward pass complete, prediction shape: (20000, 10677)
+[EVALUATE] Evaluating batch 20000 to 39999
+[EVAL_BATCH] Starting batch evaluation with 20000 users
+[EVAL_BATCH] User 0: processing 11 positive and 50 negative examples
+[EVAL_BATCH] User 1000: processing 34 positive and 50 negative examples
+[EVAL_BATCH] User 2000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 3000: processing 20 positive and 50 negative examples
+[EVAL_BATCH] User 4000: processing 11 positive and 50 negative examples
+[EVAL_BATCH] User 5000: processing 22 positive and 50 negative examples
+[EVAL_BATCH] User 6000: processing 42 positive and 50 negative examples
+[EVAL_BATCH] User 7000: processing 10 positive and 50 negative examples
+[EVAL_BATCH] User 8000: processing 24 positive and 50 negative examples
+[EVAL_BATCH] User 9000: processing 13 positive and 50 negative examples
+[EVAL_BATCH] User 10000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 11000: processing 6 positive and 50 negative examples
+[EVAL_BATCH] User 12000: processing 9 positive and 50 negative examples
+[EVAL_BATCH] User 13000: processing 7 positive and 50 negative examples
+[EVAL_BATCH] User 14000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 15000: processing 11 positive and 50 negative examples
+[EVAL_BATCH] User 16000: processing 28 positive and 50 negative examples
+[EVAL_BATCH] User 17000: processing 6 positive and 50 negative examples
+[EVAL_BATCH] User 18000: processing 7 positive and 50 negative examples
+[EVAL_BATCH] User 19000: processing 9 positive and 50 negative examples
+[EVAL_BATCH] Collected 1288136 predictions for AUC calculation
+[EVAL_BATCH] Marking train-set consumed items as negative infinity
+[EVAL_BATCH] User 0: marking 89 train positive items as -INF
+[EVAL_BATCH] User 1000: marking 267 train positive items as -INF
+[EVAL_BATCH] User 2000: marking 25 train positive items as -INF
+[EVAL_BATCH] User 3000: marking 160 train positive items as -INF
+[EVAL_BATCH] User 4000: marking 87 train positive items as -INF
+[EVAL_BATCH] User 5000: marking 176 train positive items as -INF
+[EVAL_BATCH] User 6000: marking 338 train positive items as -INF
+[EVAL_BATCH] User 7000: marking 79 train positive items as -INF
+[EVAL_BATCH] User 8000: marking 187 train positive items as -INF
+[EVAL_BATCH] User 9000: marking 103 train positive items as -INF
+[EVAL_BATCH] User 10000: marking 23 train positive items as -INF
+[EVAL_BATCH] User 11000: marking 43 train positive items as -INF
+[EVAL_BATCH] User 12000: marking 72 train positive items as -INF
+[EVAL_BATCH] User 13000: marking 54 train positive items as -INF
+[EVAL_BATCH] User 14000: marking 27 train positive items as -INF
+[EVAL_BATCH] User 15000: marking 85 train positive items as -INF
+[EVAL_BATCH] User 16000: marking 224 train positive items as -INF
+[EVAL_BATCH] User 17000: marking 47 train positive items as -INF
+[EVAL_BATCH] User 18000: marking 51 train positive items as -INF
+[EVAL_BATCH] User 19000: marking 71 train positive items as -INF
+[EVAL_BATCH] Sorting indices for top-100 recommendations
+[EVAL_BATCH] Computing metrics for k=10
+[EVAL_BATCH] User 0, k=10: 4 hits out of 10 possible
+[EVAL_BATCH] User 1000, k=10: 6 hits out of 10 possible
+[EVAL_BATCH] User 2000, k=10: 1 hits out of 3.0 possible
+[EVAL_BATCH] User 3000, k=10: 2 hits out of 10 possible
+[EVAL_BATCH] User 4000, k=10: 1 hits out of 10 possible
+[EVAL_BATCH] User 5000, k=10: 2 hits out of 10 possible
+[EVAL_BATCH] User 6000, k=10: 3 hits out of 10 possible
+[EVAL_BATCH] User 7000, k=10: 5 hits out of 10.0 possible
+[EVAL_BATCH] User 8000, k=10: 5 hits out of 10 possible
+[EVAL_BATCH] User 9000, k=10: 2 hits out of 10 possible
+[EVAL_BATCH] User 10000, k=10: 2 hits out of 3.0 possible
+[EVAL_BATCH] User 11000, k=10: 0 hits out of 6.0 possible
+[EVAL_BATCH] User 12000, k=10: 1 hits out of 9.0 possible
+[EVAL_BATCH] User 13000, k=10: 1 hits out of 7.0 possible
+[EVAL_BATCH] User 14000, k=10: 0 hits out of 3.0 possible
+[EVAL_BATCH] User 15000, k=10: 2 hits out of 10 possible
+[EVAL_BATCH] User 16000, k=10: 2 hits out of 10 possible
+[EVAL_BATCH] User 17000, k=10: 4 hits out of 6.0 possible
+[EVAL_BATCH] User 18000, k=10: 0 hits out of 7.0 possible
+[EVAL_BATCH] User 19000, k=10: 4 hits out of 9.0 possible
+[EVAL_BATCH] k=10 metrics - Average HR: 0.2629, Average NDCG: 0.2419, Average PSP: 0.0511
+[EVAL_BATCH] Collected 200000 recommendations for k=10
+[EVAL_BATCH] Computing metrics for k=100
+[EVAL_BATCH] User 0, k=100: 8 hits out of 11.0 possible
+[EVAL_BATCH] User 1000, k=100: 20 hits out of 34.0 possible
+[EVAL_BATCH] User 2000, k=100: 3 hits out of 3.0 possible
+[EVAL_BATCH] User 3000, k=100: 11 hits out of 20.0 possible
+[EVAL_BATCH] User 4000, k=100: 6 hits out of 11.0 possible
+[EVAL_BATCH] User 5000, k=100: 12 hits out of 22.0 possible
+[EVAL_BATCH] User 6000, k=100: 12 hits out of 42.0 possible
+[EVAL_BATCH] User 7000, k=100: 10 hits out of 10.0 possible
+[EVAL_BATCH] User 8000, k=100: 16 hits out of 24.0 possible
+[EVAL_BATCH] User 9000, k=100: 6 hits out of 13.0 possible
+[EVAL_BATCH] User 10000, k=100: 3 hits out of 3.0 possible
+[EVAL_BATCH] User 11000, k=100: 6 hits out of 6.0 possible
+[EVAL_BATCH] User 12000, k=100: 5 hits out of 9.0 possible
+[EVAL_BATCH] User 13000, k=100: 4 hits out of 7.0 possible
+[EVAL_BATCH] User 14000, k=100: 3 hits out of 3.0 possible
+[EVAL_BATCH] User 15000, k=100: 8 hits out of 11.0 possible
+[EVAL_BATCH] User 16000, k=100: 12 hits out of 28.0 possible
+[EVAL_BATCH] User 17000, k=100: 6 hits out of 6.0 possible
+[EVAL_BATCH] User 18000, k=100: 2 hits out of 7.0 possible
+[EVAL_BATCH] User 19000, k=100: 6 hits out of 9.0 possible
+[EVAL_BATCH] k=100 metrics - Average HR: 0.5813, Average NDCG: 0.3508, Average PSP: 0.1160
+[EVAL_BATCH] Collected 2000000 recommendations for k=100
+[EVAL_BATCH] Batch evaluation complete, returning 1288136 predictions
+[EVALUATE] Batch evaluation complete
+[EVALUATE] Accumulated 200000 recommendations for k=10
+[EVALUATE] Accumulated 2000000 recommendations for k=100
+[EVALUATE] Accumulated 1288136 predictions and 1288136 labels
+[EVALUATE] Processing batch of users 40000 to 59999 (total: 20000)
+[EVALUATE] Running forward pass for batch 40000 to 59999
+[EVALUATE] Forward pass complete, prediction shape: (20000, 10677)
+[EVALUATE] Evaluating batch 40000 to 59999
+[EVAL_BATCH] Starting batch evaluation with 20000 users
+[EVAL_BATCH] User 0: processing 98 positive and 50 negative examples
+[EVAL_BATCH] User 1000: processing 31 positive and 50 negative examples
+[EVAL_BATCH] User 2000: processing 21 positive and 50 negative examples
+[EVAL_BATCH] User 3000: processing 23 positive and 50 negative examples
+[EVAL_BATCH] User 4000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 5000: processing 2 positive and 50 negative examples
+[EVAL_BATCH] User 6000: processing 8 positive and 50 negative examples
+[EVAL_BATCH] User 7000: processing 2 positive and 50 negative examples
+[EVAL_BATCH] User 8000: processing 7 positive and 50 negative examples
+[EVAL_BATCH] User 9000: processing 36 positive and 50 negative examples
+[EVAL_BATCH] User 10000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 11000: processing 7 positive and 50 negative examples
+[EVAL_BATCH] User 12000: processing 4 positive and 50 negative examples
+[EVAL_BATCH] User 13000: processing 2 positive and 50 negative examples
+[EVAL_BATCH] User 14000: processing 11 positive and 50 negative examples
+[EVAL_BATCH] User 15000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 16000: processing 27 positive and 50 negative examples
+[EVAL_BATCH] User 17000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 18000: processing 46 positive and 50 negative examples
+[EVAL_BATCH] User 19000: processing 2 positive and 50 negative examples
+[EVAL_BATCH] Collected 1280633 predictions for AUC calculation
+[EVAL_BATCH] Marking train-set consumed items as negative infinity
+[EVAL_BATCH] User 0: marking 781 train positive items as -INF
+[EVAL_BATCH] User 1000: marking 250 train positive items as -INF
+[EVAL_BATCH] User 2000: marking 170 train positive items as -INF
+[EVAL_BATCH] User 3000: marking 186 train positive items as -INF
+[EVAL_BATCH] User 4000: marking 21 train positive items as -INF
+[EVAL_BATCH] User 5000: marking 17 train positive items as -INF
+[EVAL_BATCH] User 6000: marking 65 train positive items as -INF
+[EVAL_BATCH] User 7000: marking 17 train positive items as -INF
+[EVAL_BATCH] User 8000: marking 58 train positive items as -INF
+[EVAL_BATCH] User 9000: marking 291 train positive items as -INF
+[EVAL_BATCH] User 10000: marking 27 train positive items as -INF
+[EVAL_BATCH] User 11000: marking 59 train positive items as -INF
+[EVAL_BATCH] User 12000: marking 31 train positive items as -INF
+[EVAL_BATCH] User 13000: marking 15 train positive items as -INF
+[EVAL_BATCH] User 14000: marking 86 train positive items as -INF
+[EVAL_BATCH] User 15000: marking 25 train positive items as -INF
+[EVAL_BATCH] User 16000: marking 214 train positive items as -INF
+[EVAL_BATCH] User 17000: marking 25 train positive items as -INF
+[EVAL_BATCH] User 18000: marking 365 train positive items as -INF
+[EVAL_BATCH] User 19000: marking 16 train positive items as -INF
+[EVAL_BATCH] Sorting indices for top-100 recommendations
+[EVAL_BATCH] Computing metrics for k=10
+[EVAL_BATCH] User 0, k=10: 5 hits out of 10 possible
+[EVAL_BATCH] User 1000, k=10: 5 hits out of 10 possible
+[EVAL_BATCH] User 2000, k=10: 5 hits out of 10 possible
+[EVAL_BATCH] User 3000, k=10: 2 hits out of 10 possible
+[EVAL_BATCH] User 4000, k=10: 1 hits out of 3.0 possible
+[EVAL_BATCH] User 5000, k=10: 2 hits out of 2.0 possible
+[EVAL_BATCH] User 6000, k=10: 2 hits out of 8.0 possible
+[EVAL_BATCH] User 7000, k=10: 0 hits out of 2.0 possible
+[EVAL_BATCH] User 8000, k=10: 1 hits out of 7.0 possible
+[EVAL_BATCH] User 9000, k=10: 5 hits out of 10 possible
+[EVAL_BATCH] User 10000, k=10: 1 hits out of 3.0 possible
+[EVAL_BATCH] User 11000, k=10: 2 hits out of 7.0 possible
+[EVAL_BATCH] User 12000, k=10: 1 hits out of 4.0 possible
+[EVAL_BATCH] User 13000, k=10: 0 hits out of 2.0 possible
+[EVAL_BATCH] User 14000, k=10: 3 hits out of 10 possible
+[EVAL_BATCH] User 15000, k=10: 1 hits out of 3.0 possible
+[EVAL_BATCH] User 16000, k=10: 1 hits out of 10 possible
+[EVAL_BATCH] User 17000, k=10: 0 hits out of 3.0 possible
+[EVAL_BATCH] User 18000, k=10: 5 hits out of 10 possible
+[EVAL_BATCH] User 19000, k=10: 1 hits out of 2.0 possible
+[EVAL_BATCH] k=10 metrics - Average HR: 0.2601, Average NDCG: 0.2399, Average PSP: 0.0505
+[EVAL_BATCH] Collected 200000 recommendations for k=10
+[EVAL_BATCH] Computing metrics for k=100
+[EVAL_BATCH] User 0, k=100: 27 hits out of 98.0 possible
+[EVAL_BATCH] User 1000, k=100: 15 hits out of 31.0 possible
+[EVAL_BATCH] User 2000, k=100: 12 hits out of 21.0 possible
+[EVAL_BATCH] User 3000, k=100: 12 hits out of 23.0 possible
+[EVAL_BATCH] User 4000, k=100: 3 hits out of 3.0 possible
+[EVAL_BATCH] User 5000, k=100: 2 hits out of 2.0 possible
+[EVAL_BATCH] User 6000, k=100: 6 hits out of 8.0 possible
+[EVAL_BATCH] User 7000, k=100: 1 hits out of 2.0 possible
+[EVAL_BATCH] User 8000, k=100: 6 hits out of 7.0 possible
+[EVAL_BATCH] User 9000, k=100: 18 hits out of 36.0 possible
+[EVAL_BATCH] User 10000, k=100: 2 hits out of 3.0 possible
+[EVAL_BATCH] User 11000, k=100: 3 hits out of 7.0 possible
+[EVAL_BATCH] User 12000, k=100: 3 hits out of 4.0 possible
+[EVAL_BATCH] User 13000, k=100: 1 hits out of 2.0 possible
+[EVAL_BATCH] User 14000, k=100: 6 hits out of 11.0 possible
+[EVAL_BATCH] User 15000, k=100: 2 hits out of 3.0 possible
+[EVAL_BATCH] User 16000, k=100: 11 hits out of 27.0 possible
+[EVAL_BATCH] User 17000, k=100: 0 hits out of 3.0 possible
+[EVAL_BATCH] User 18000, k=100: 19 hits out of 46.0 possible
+[EVAL_BATCH] User 19000, k=100: 1 hits out of 2.0 possible
+[EVAL_BATCH] k=100 metrics - Average HR: 0.5830, Average NDCG: 0.3506, Average PSP: 0.1165
+[EVAL_BATCH] Collected 2000000 recommendations for k=100
+[EVAL_BATCH] Batch evaluation complete, returning 1280633 predictions
+[EVALUATE] Batch evaluation complete
+[EVALUATE] Accumulated 200000 recommendations for k=10
+[EVALUATE] Accumulated 2000000 recommendations for k=100
+[EVALUATE] Accumulated 1280633 predictions and 1280633 labels
+[EVALUATE] Processing batch of users 60000 to 69877 (total: 9878)
+[EVALUATE] Running forward pass for batch 60000 to 69877
+[EVALUATE] Forward pass complete, prediction shape: (9878, 10677)
+[EVALUATE] Evaluating batch 60000 to 69877
+[EVAL_BATCH] Starting batch evaluation with 9878 users
+[EVAL_BATCH] User 0: processing 2 positive and 50 negative examples
+[EVAL_BATCH] User 1000: processing 68 positive and 50 negative examples
+[EVAL_BATCH] User 2000: processing 18 positive and 50 negative examples
+[EVAL_BATCH] User 3000: processing 7 positive and 50 negative examples
+[EVAL_BATCH] User 4000: processing 11 positive and 50 negative examples
+[EVAL_BATCH] User 5000: processing 22 positive and 50 negative examples
+[EVAL_BATCH] User 6000: processing 39 positive and 50 negative examples
+[EVAL_BATCH] User 7000: processing 54 positive and 50 negative examples
+[EVAL_BATCH] User 8000: processing 61 positive and 50 negative examples
+[EVAL_BATCH] User 9000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] Collected 637743 predictions for AUC calculation
+[EVAL_BATCH] Marking train-set consumed items as negative infinity
+[EVAL_BATCH] User 0: marking 18 train positive items as -INF
+[EVAL_BATCH] User 1000: marking 543 train positive items as -INF
+[EVAL_BATCH] User 2000: marking 145 train positive items as -INF
+[EVAL_BATCH] User 3000: marking 54 train positive items as -INF
+[EVAL_BATCH] User 4000: marking 85 train positive items as -INF
+[EVAL_BATCH] User 5000: marking 177 train positive items as -INF
+[EVAL_BATCH] User 6000: marking 311 train positive items as -INF
+[EVAL_BATCH] User 7000: marking 430 train positive items as -INF
+[EVAL_BATCH] User 8000: marking 488 train positive items as -INF
+[EVAL_BATCH] User 9000: marking 24 train positive items as -INF
+[EVAL_BATCH] Sorting indices for top-100 recommendations
+[EVAL_BATCH] Computing metrics for k=10
+[EVAL_BATCH] User 0, k=10: 0 hits out of 2.0 possible
+[EVAL_BATCH] User 1000, k=10: 5 hits out of 10 possible
+[EVAL_BATCH] User 2000, k=10: 5 hits out of 10 possible
+[EVAL_BATCH] User 3000, k=10: 0 hits out of 7.0 possible
+[EVAL_BATCH] User 4000, k=10: 1 hits out of 10 possible
+[EVAL_BATCH] User 5000, k=10: 5 hits out of 10 possible
+[EVAL_BATCH] User 6000, k=10: 3 hits out of 10 possible
+[EVAL_BATCH] User 7000, k=10: 2 hits out of 10 possible
+[EVAL_BATCH] User 8000, k=10: 4 hits out of 10 possible
+[EVAL_BATCH] User 9000, k=10: 3 hits out of 3.0 possible
+[EVAL_BATCH] k=10 metrics - Average HR: 0.2629, Average NDCG: 0.2424, Average PSP: 0.0519
+[EVAL_BATCH] Collected 98780 recommendations for k=10
+[EVAL_BATCH] Computing metrics for k=100
+[EVAL_BATCH] User 0, k=100: 0 hits out of 2.0 possible
+[EVAL_BATCH] User 1000, k=100: 30 hits out of 68.0 possible
+[EVAL_BATCH] User 2000, k=100: 14 hits out of 18.0 possible
+[EVAL_BATCH] User 3000, k=100: 2 hits out of 7.0 possible
+[EVAL_BATCH] User 4000, k=100: 4 hits out of 11.0 possible
+[EVAL_BATCH] User 5000, k=100: 9 hits out of 22.0 possible
+[EVAL_BATCH] User 6000, k=100: 12 hits out of 39.0 possible
+[EVAL_BATCH] User 7000, k=100: 16 hits out of 54.0 possible
+[EVAL_BATCH] User 8000, k=100: 14 hits out of 61.0 possible
+[EVAL_BATCH] User 9000, k=100: 3 hits out of 3.0 possible
+[EVAL_BATCH] k=100 metrics - Average HR: 0.5778, Average NDCG: 0.3494, Average PSP: 0.1171
+[EVAL_BATCH] Collected 987800 recommendations for k=100
+[EVAL_BATCH] Batch evaluation complete, returning 637743 predictions
+[EVALUATE] Batch evaluation complete
+[EVALUATE] Accumulated 98780 recommendations for k=10
+[EVALUATE] Accumulated 987800 recommendations for k=100
+[EVALUATE] Accumulated 637743 predictions and 637743 labels
+[EVALUATE] All batches processed, computing final metrics
+[ 0.02061643  0.16852887 -0.00748962 ...  0.00195239 -0.00062095
+ -0.00685084]
+[EVALUATE] Computed AUC: 0.9764
+[EVALUATE] HR@10: 26.1265
+[EVALUATE] HR@100: 58.111
+[EVALUATE] NDCG@10: 24.051
+[EVALUATE] NDCG@100: 34.9849
+[EVALUATE] PSP@10: 5.1105
+[EVALUATE] PSP@100: 11.6903
+[EVALUATE] Computing GINI coefficients
+[EVALUATE] Computing GINI@10 with 698780 recommendations
+[GINI] Calculating Gini for 698780 articles using key 'category'
+[GINI] Found 257 unique category values
+[GINI] Computing Gini coefficient for 257 values
+[GINI] Computed Gini coefficient: 0.8238
+[EVALUATE] GINI@10: 0.8238281995201643
+[EVALUATE] Computing GINI@100 with 6987800 recommendations
+[GINI] Calculating Gini for 6987800 articles using key 'category'
+[GINI] Found 397 unique category values
+[GINI] Computing Gini coefficient for 397 values
+[GINI] Computed Gini coefficient: 0.7744
+[EVALUATE] GINI@100: 0.774400018369547
+[EVALUATE] Final metrics: num_users=10000, num_interactions=1138909
+val_metrics: {'HR@10': 26.1265, 'HR@100': 58.111, 'NDCG@10': 24.051, 'NDCG@100': 34.9849, 'PSP@10': 5.1105, 'PSP@100': 11.6903, 'GINI@10': np.float64(0.8238281995201643), 'GINI@100': np.float64(0.774400018369547), 'AUC': 0.9764, 'num_users': 10000, 'num_interactions': 1138909}
+Checking lamda: 50.0
+
+[EVALUATE] Starting evaluation with topk=[10, 100], test_set_eval=False
+[EVALUATE] Hyperparameters: num_users=69878, num_items=10677, lambda=50.0
+[EVALUATE] Train positive set size: 69878
+[EVALUATE] Prediction set size: 69878
+[EVALUATE] Processing users in batches of 20000
+Num users: 69878
+[EVALUATE] Processing batch of users 0 to 19999 (total: 20000)
+[EVALUATE] Running forward pass for batch 0 to 19999
+[EVALUATE] Forward pass complete, prediction shape: (20000, 10677)
+[EVALUATE] Evaluating batch 0 to 19999
+[EVAL_BATCH] Starting batch evaluation with 20000 users
+[EVAL_BATCH] User 0: processing 2 positive and 50 negative examples
+[EVAL_BATCH] User 1000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 2000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 3000: processing 19 positive and 50 negative examples
+[EVAL_BATCH] User 4000: processing 5 positive and 50 negative examples
+[EVAL_BATCH] User 5000: processing 4 positive and 50 negative examples
+[EVAL_BATCH] User 6000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 7000: processing 14 positive and 50 negative examples
+[EVAL_BATCH] User 8000: processing 2 positive and 50 negative examples
+[EVAL_BATCH] User 9000: processing 10 positive and 50 negative examples
+[EVAL_BATCH] User 10000: processing 5 positive and 50 negative examples
+[EVAL_BATCH] User 11000: processing 17 positive and 50 negative examples
+[EVAL_BATCH] User 12000: processing 6 positive and 50 negative examples
+[EVAL_BATCH] User 13000: processing 42 positive and 50 negative examples
+[EVAL_BATCH] User 14000: processing 9 positive and 50 negative examples
+[EVAL_BATCH] User 15000: processing 4 positive and 50 negative examples
+[EVAL_BATCH] User 16000: processing 9 positive and 50 negative examples
+[EVAL_BATCH] User 17000: processing 7 positive and 50 negative examples
+[EVAL_BATCH] User 18000: processing 32 positive and 50 negative examples
+[EVAL_BATCH] User 19000: processing 2 positive and 50 negative examples
+[EVAL_BATCH] Collected 1283147 predictions for AUC calculation
+[EVAL_BATCH] Marking train-set consumed items as negative infinity
+[EVAL_BATCH] User 0: marking 16 train positive items as -INF
+[EVAL_BATCH] User 1000: marking 23 train positive items as -INF
+[EVAL_BATCH] User 2000: marking 25 train positive items as -INF
+[EVAL_BATCH] User 3000: marking 149 train positive items as -INF
+[EVAL_BATCH] User 4000: marking 41 train positive items as -INF
+[EVAL_BATCH] User 5000: marking 31 train positive items as -INF
+[EVAL_BATCH] User 6000: marking 19 train positive items as -INF
+[EVAL_BATCH] User 7000: marking 107 train positive items as -INF
+[EVAL_BATCH] User 8000: marking 16 train positive items as -INF
+[EVAL_BATCH] User 9000: marking 79 train positive items as -INF
+[EVAL_BATCH] User 10000: marking 39 train positive items as -INF
+[EVAL_BATCH] User 11000: marking 134 train positive items as -INF
+[EVAL_BATCH] User 12000: marking 47 train positive items as -INF
+[EVAL_BATCH] User 13000: marking 331 train positive items as -INF
+[EVAL_BATCH] User 14000: marking 67 train positive items as -INF
+[EVAL_BATCH] User 15000: marking 31 train positive items as -INF
+[EVAL_BATCH] User 16000: marking 68 train positive items as -INF
+[EVAL_BATCH] User 17000: marking 56 train positive items as -INF
+[EVAL_BATCH] User 18000: marking 259 train positive items as -INF
+[EVAL_BATCH] User 19000: marking 18 train positive items as -INF
+[EVAL_BATCH] Sorting indices for top-100 recommendations
+[EVAL_BATCH] Computing metrics for k=10
+[EVAL_BATCH] User 0, k=10: 0 hits out of 2.0 possible
+[EVAL_BATCH] User 1000, k=10: 1 hits out of 3.0 possible
+[EVAL_BATCH] User 2000, k=10: 3 hits out of 3.0 possible
+[EVAL_BATCH] User 3000, k=10: 1 hits out of 10 possible
+[EVAL_BATCH] User 4000, k=10: 0 hits out of 5.0 possible
+[EVAL_BATCH] User 5000, k=10: 0 hits out of 4.0 possible
+[EVAL_BATCH] User 6000, k=10: 2 hits out of 3.0 possible
+[EVAL_BATCH] User 7000, k=10: 1 hits out of 10 possible
+[EVAL_BATCH] User 8000, k=10: 0 hits out of 2.0 possible
+[EVAL_BATCH] User 9000, k=10: 0 hits out of 10.0 possible
+[EVAL_BATCH] User 10000, k=10: 2 hits out of 5.0 possible
+[EVAL_BATCH] User 11000, k=10: 4 hits out of 10 possible
+[EVAL_BATCH] User 12000, k=10: 4 hits out of 6.0 possible
+[EVAL_BATCH] User 13000, k=10: 5 hits out of 10 possible
+[EVAL_BATCH] User 14000, k=10: 0 hits out of 9.0 possible
+[EVAL_BATCH] User 15000, k=10: 3 hits out of 4.0 possible
+[EVAL_BATCH] User 16000, k=10: 1 hits out of 9.0 possible
+[EVAL_BATCH] User 17000, k=10: 0 hits out of 7.0 possible
+[EVAL_BATCH] User 18000, k=10: 2 hits out of 10 possible
+[EVAL_BATCH] User 19000, k=10: 0 hits out of 2.0 possible
+[EVAL_BATCH] k=10 metrics - Average HR: 0.2296, Average NDCG: 0.2110, Average PSP: 0.0450
+[EVAL_BATCH] Collected 200000 recommendations for k=10
+[EVAL_BATCH] Computing metrics for k=100
+[EVAL_BATCH] User 0, k=100: 1 hits out of 2.0 possible
+[EVAL_BATCH] User 1000, k=100: 3 hits out of 3.0 possible
+[EVAL_BATCH] User 2000, k=100: 3 hits out of 3.0 possible
+[EVAL_BATCH] User 3000, k=100: 7 hits out of 19.0 possible
+[EVAL_BATCH] User 4000, k=100: 0 hits out of 5.0 possible
+[EVAL_BATCH] User 5000, k=100: 3 hits out of 4.0 possible
+[EVAL_BATCH] User 6000, k=100: 2 hits out of 3.0 possible
+[EVAL_BATCH] User 7000, k=100: 8 hits out of 14.0 possible
+[EVAL_BATCH] User 8000, k=100: 1 hits out of 2.0 possible
+[EVAL_BATCH] User 9000, k=100: 2 hits out of 10.0 possible
+[EVAL_BATCH] User 10000, k=100: 3 hits out of 5.0 possible
+[EVAL_BATCH] User 11000, k=100: 12 hits out of 17.0 possible
+[EVAL_BATCH] User 12000, k=100: 5 hits out of 6.0 possible
+[EVAL_BATCH] User 13000, k=100: 18 hits out of 42.0 possible
+[EVAL_BATCH] User 14000, k=100: 4 hits out of 9.0 possible
+[EVAL_BATCH] User 15000, k=100: 4 hits out of 4.0 possible
+[EVAL_BATCH] User 16000, k=100: 4 hits out of 9.0 possible
+[EVAL_BATCH] User 17000, k=100: 2 hits out of 7.0 possible
+[EVAL_BATCH] User 18000, k=100: 12 hits out of 32.0 possible
+[EVAL_BATCH] User 19000, k=100: 0 hits out of 2.0 possible
+[EVAL_BATCH] k=100 metrics - Average HR: 0.5262, Average NDCG: 0.3113, Average PSP: 0.1056
+[EVAL_BATCH] Collected 2000000 recommendations for k=100
+[EVAL_BATCH] Batch evaluation complete, returning 1283147 predictions
+[EVALUATE] Batch evaluation complete
+[EVALUATE] Accumulated 200000 recommendations for k=10
+[EVALUATE] Accumulated 2000000 recommendations for k=100
+[EVALUATE] Accumulated 1283147 predictions and 1283147 labels
+[EVALUATE] Processing batch of users 20000 to 39999 (total: 20000)
+[EVALUATE] Running forward pass for batch 20000 to 39999
+[EVALUATE] Forward pass complete, prediction shape: (20000, 10677)
+[EVALUATE] Evaluating batch 20000 to 39999
+[EVAL_BATCH] Starting batch evaluation with 20000 users
+[EVAL_BATCH] User 0: processing 11 positive and 50 negative examples
+[EVAL_BATCH] User 1000: processing 34 positive and 50 negative examples
+[EVAL_BATCH] User 2000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 3000: processing 20 positive and 50 negative examples
+[EVAL_BATCH] User 4000: processing 11 positive and 50 negative examples
+[EVAL_BATCH] User 5000: processing 22 positive and 50 negative examples
+[EVAL_BATCH] User 6000: processing 42 positive and 50 negative examples
+[EVAL_BATCH] User 7000: processing 10 positive and 50 negative examples
+[EVAL_BATCH] User 8000: processing 24 positive and 50 negative examples
+[EVAL_BATCH] User 9000: processing 13 positive and 50 negative examples
+[EVAL_BATCH] User 10000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 11000: processing 6 positive and 50 negative examples
+[EVAL_BATCH] User 12000: processing 9 positive and 50 negative examples
+[EVAL_BATCH] User 13000: processing 7 positive and 50 negative examples
+[EVAL_BATCH] User 14000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 15000: processing 11 positive and 50 negative examples
+[EVAL_BATCH] User 16000: processing 28 positive and 50 negative examples
+[EVAL_BATCH] User 17000: processing 6 positive and 50 negative examples
+[EVAL_BATCH] User 18000: processing 7 positive and 50 negative examples
+[EVAL_BATCH] User 19000: processing 9 positive and 50 negative examples
+[EVAL_BATCH] Collected 1288136 predictions for AUC calculation
+[EVAL_BATCH] Marking train-set consumed items as negative infinity
+[EVAL_BATCH] User 0: marking 89 train positive items as -INF
+[EVAL_BATCH] User 1000: marking 267 train positive items as -INF
+[EVAL_BATCH] User 2000: marking 25 train positive items as -INF
+[EVAL_BATCH] User 3000: marking 160 train positive items as -INF
+[EVAL_BATCH] User 4000: marking 87 train positive items as -INF
+[EVAL_BATCH] User 5000: marking 176 train positive items as -INF
+[EVAL_BATCH] User 6000: marking 338 train positive items as -INF
+[EVAL_BATCH] User 7000: marking 79 train positive items as -INF
+[EVAL_BATCH] User 8000: marking 187 train positive items as -INF
+[EVAL_BATCH] User 9000: marking 103 train positive items as -INF
+[EVAL_BATCH] User 10000: marking 23 train positive items as -INF
+[EVAL_BATCH] User 11000: marking 43 train positive items as -INF
+[EVAL_BATCH] User 12000: marking 72 train positive items as -INF
+[EVAL_BATCH] User 13000: marking 54 train positive items as -INF
+[EVAL_BATCH] User 14000: marking 27 train positive items as -INF
+[EVAL_BATCH] User 15000: marking 85 train positive items as -INF
+[EVAL_BATCH] User 16000: marking 224 train positive items as -INF
+[EVAL_BATCH] User 17000: marking 47 train positive items as -INF
+[EVAL_BATCH] User 18000: marking 51 train positive items as -INF
+[EVAL_BATCH] User 19000: marking 71 train positive items as -INF
+[EVAL_BATCH] Sorting indices for top-100 recommendations
+[EVAL_BATCH] Computing metrics for k=10
+[EVAL_BATCH] User 0, k=10: 3 hits out of 10 possible
+[EVAL_BATCH] User 1000, k=10: 5 hits out of 10 possible
+[EVAL_BATCH] User 2000, k=10: 1 hits out of 3.0 possible
+[EVAL_BATCH] User 3000, k=10: 3 hits out of 10 possible
+[EVAL_BATCH] User 4000, k=10: 1 hits out of 10 possible
+[EVAL_BATCH] User 5000, k=10: 1 hits out of 10 possible
+[EVAL_BATCH] User 6000, k=10: 3 hits out of 10 possible
+[EVAL_BATCH] User 7000, k=10: 5 hits out of 10.0 possible
+[EVAL_BATCH] User 8000, k=10: 5 hits out of 10 possible
+[EVAL_BATCH] User 9000, k=10: 1 hits out of 10 possible
+[EVAL_BATCH] User 10000, k=10: 1 hits out of 3.0 possible
+[EVAL_BATCH] User 11000, k=10: 1 hits out of 6.0 possible
+[EVAL_BATCH] User 12000, k=10: 1 hits out of 9.0 possible
+[EVAL_BATCH] User 13000, k=10: 0 hits out of 7.0 possible
+[EVAL_BATCH] User 14000, k=10: 0 hits out of 3.0 possible
+[EVAL_BATCH] User 15000, k=10: 2 hits out of 10 possible
+[EVAL_BATCH] User 16000, k=10: 3 hits out of 10 possible
+[EVAL_BATCH] User 17000, k=10: 4 hits out of 6.0 possible
+[EVAL_BATCH] User 18000, k=10: 0 hits out of 7.0 possible
+[EVAL_BATCH] User 19000, k=10: 2 hits out of 9.0 possible
+[EVAL_BATCH] k=10 metrics - Average HR: 0.2322, Average NDCG: 0.2148, Average PSP: 0.0444
+[EVAL_BATCH] Collected 200000 recommendations for k=10
+[EVAL_BATCH] Computing metrics for k=100
+[EVAL_BATCH] User 0, k=100: 7 hits out of 11.0 possible
+[EVAL_BATCH] User 1000, k=100: 18 hits out of 34.0 possible
+[EVAL_BATCH] User 2000, k=100: 3 hits out of 3.0 possible
+[EVAL_BATCH] User 3000, k=100: 9 hits out of 20.0 possible
+[EVAL_BATCH] User 4000, k=100: 7 hits out of 11.0 possible
+[EVAL_BATCH] User 5000, k=100: 11 hits out of 22.0 possible
+[EVAL_BATCH] User 6000, k=100: 12 hits out of 42.0 possible
+[EVAL_BATCH] User 7000, k=100: 10 hits out of 10.0 possible
+[EVAL_BATCH] User 8000, k=100: 16 hits out of 24.0 possible
+[EVAL_BATCH] User 9000, k=100: 6 hits out of 13.0 possible
+[EVAL_BATCH] User 10000, k=100: 3 hits out of 3.0 possible
+[EVAL_BATCH] User 11000, k=100: 6 hits out of 6.0 possible
+[EVAL_BATCH] User 12000, k=100: 4 hits out of 9.0 possible
+[EVAL_BATCH] User 13000, k=100: 2 hits out of 7.0 possible
+[EVAL_BATCH] User 14000, k=100: 2 hits out of 3.0 possible
+[EVAL_BATCH] User 15000, k=100: 8 hits out of 11.0 possible
+[EVAL_BATCH] User 16000, k=100: 12 hits out of 28.0 possible
+[EVAL_BATCH] User 17000, k=100: 6 hits out of 6.0 possible
+[EVAL_BATCH] User 18000, k=100: 0 hits out of 7.0 possible
+[EVAL_BATCH] User 19000, k=100: 6 hits out of 9.0 possible
+[EVAL_BATCH] k=100 metrics - Average HR: 0.5275, Average NDCG: 0.3150, Average PSP: 0.1038
+[EVAL_BATCH] Collected 2000000 recommendations for k=100
+[EVAL_BATCH] Batch evaluation complete, returning 1288136 predictions
+[EVALUATE] Batch evaluation complete
+[EVALUATE] Accumulated 200000 recommendations for k=10
+[EVALUATE] Accumulated 2000000 recommendations for k=100
+[EVALUATE] Accumulated 1288136 predictions and 1288136 labels
+[EVALUATE] Processing batch of users 40000 to 59999 (total: 20000)
+[EVALUATE] Running forward pass for batch 40000 to 59999
+[EVALUATE] Forward pass complete, prediction shape: (20000, 10677)
+[EVALUATE] Evaluating batch 40000 to 59999
+[EVAL_BATCH] Starting batch evaluation with 20000 users
+[EVAL_BATCH] User 0: processing 98 positive and 50 negative examples
+[EVAL_BATCH] User 1000: processing 31 positive and 50 negative examples
+[EVAL_BATCH] User 2000: processing 21 positive and 50 negative examples
+[EVAL_BATCH] User 3000: processing 23 positive and 50 negative examples
+[EVAL_BATCH] User 4000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 5000: processing 2 positive and 50 negative examples
+[EVAL_BATCH] User 6000: processing 8 positive and 50 negative examples
+[EVAL_BATCH] User 7000: processing 2 positive and 50 negative examples
+[EVAL_BATCH] User 8000: processing 7 positive and 50 negative examples
+[EVAL_BATCH] User 9000: processing 36 positive and 50 negative examples
+[EVAL_BATCH] User 10000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 11000: processing 7 positive and 50 negative examples
+[EVAL_BATCH] User 12000: processing 4 positive and 50 negative examples
+[EVAL_BATCH] User 13000: processing 2 positive and 50 negative examples
+[EVAL_BATCH] User 14000: processing 11 positive and 50 negative examples
+[EVAL_BATCH] User 15000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 16000: processing 27 positive and 50 negative examples
+[EVAL_BATCH] User 17000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 18000: processing 46 positive and 50 negative examples
+[EVAL_BATCH] User 19000: processing 2 positive and 50 negative examples
+[EVAL_BATCH] Collected 1280633 predictions for AUC calculation
+[EVAL_BATCH] Marking train-set consumed items as negative infinity
+[EVAL_BATCH] User 0: marking 781 train positive items as -INF
+[EVAL_BATCH] User 1000: marking 250 train positive items as -INF
+[EVAL_BATCH] User 2000: marking 170 train positive items as -INF
+[EVAL_BATCH] User 3000: marking 186 train positive items as -INF
+[EVAL_BATCH] User 4000: marking 21 train positive items as -INF
+[EVAL_BATCH] User 5000: marking 17 train positive items as -INF
+[EVAL_BATCH] User 6000: marking 65 train positive items as -INF
+[EVAL_BATCH] User 7000: marking 17 train positive items as -INF
+[EVAL_BATCH] User 8000: marking 58 train positive items as -INF
+[EVAL_BATCH] User 9000: marking 291 train positive items as -INF
+[EVAL_BATCH] User 10000: marking 27 train positive items as -INF
+[EVAL_BATCH] User 11000: marking 59 train positive items as -INF
+[EVAL_BATCH] User 12000: marking 31 train positive items as -INF
+[EVAL_BATCH] User 13000: marking 15 train positive items as -INF
+[EVAL_BATCH] User 14000: marking 86 train positive items as -INF
+[EVAL_BATCH] User 15000: marking 25 train positive items as -INF
+[EVAL_BATCH] User 16000: marking 214 train positive items as -INF
+[EVAL_BATCH] User 17000: marking 25 train positive items as -INF
+[EVAL_BATCH] User 18000: marking 365 train positive items as -INF
+[EVAL_BATCH] User 19000: marking 16 train positive items as -INF
+[EVAL_BATCH] Sorting indices for top-100 recommendations
+[EVAL_BATCH] Computing metrics for k=10
+[EVAL_BATCH] User 0, k=10: 5 hits out of 10 possible
+[EVAL_BATCH] User 1000, k=10: 5 hits out of 10 possible
+[EVAL_BATCH] User 2000, k=10: 4 hits out of 10 possible
+[EVAL_BATCH] User 3000, k=10: 2 hits out of 10 possible
+[EVAL_BATCH] User 4000, k=10: 1 hits out of 3.0 possible
+[EVAL_BATCH] User 5000, k=10: 2 hits out of 2.0 possible
+[EVAL_BATCH] User 6000, k=10: 1 hits out of 8.0 possible
+[EVAL_BATCH] User 7000, k=10: 0 hits out of 2.0 possible
+[EVAL_BATCH] User 8000, k=10: 1 hits out of 7.0 possible
+[EVAL_BATCH] User 9000, k=10: 3 hits out of 10 possible
+[EVAL_BATCH] User 10000, k=10: 1 hits out of 3.0 possible
+[EVAL_BATCH] User 11000, k=10: 1 hits out of 7.0 possible
+[EVAL_BATCH] User 12000, k=10: 1 hits out of 4.0 possible
+[EVAL_BATCH] User 13000, k=10: 0 hits out of 2.0 possible
+[EVAL_BATCH] User 14000, k=10: 3 hits out of 10 possible
+[EVAL_BATCH] User 15000, k=10: 1 hits out of 3.0 possible
+[EVAL_BATCH] User 16000, k=10: 2 hits out of 10 possible
+[EVAL_BATCH] User 17000, k=10: 0 hits out of 3.0 possible
+[EVAL_BATCH] User 18000, k=10: 5 hits out of 10 possible
+[EVAL_BATCH] User 19000, k=10: 1 hits out of 2.0 possible
+[EVAL_BATCH] k=10 metrics - Average HR: 0.2297, Average NDCG: 0.2121, Average PSP: 0.0442
+[EVAL_BATCH] Collected 200000 recommendations for k=10
+[EVAL_BATCH] Computing metrics for k=100
+[EVAL_BATCH] User 0, k=100: 24 hits out of 98.0 possible
+[EVAL_BATCH] User 1000, k=100: 15 hits out of 31.0 possible
+[EVAL_BATCH] User 2000, k=100: 11 hits out of 21.0 possible
+[EVAL_BATCH] User 3000, k=100: 11 hits out of 23.0 possible
+[EVAL_BATCH] User 4000, k=100: 3 hits out of 3.0 possible
+[EVAL_BATCH] User 5000, k=100: 2 hits out of 2.0 possible
+[EVAL_BATCH] User 6000, k=100: 6 hits out of 8.0 possible
+[EVAL_BATCH] User 7000, k=100: 0 hits out of 2.0 possible
+[EVAL_BATCH] User 8000, k=100: 6 hits out of 7.0 possible
+[EVAL_BATCH] User 9000, k=100: 17 hits out of 36.0 possible
+[EVAL_BATCH] User 10000, k=100: 1 hits out of 3.0 possible
+[EVAL_BATCH] User 11000, k=100: 3 hits out of 7.0 possible
+[EVAL_BATCH] User 12000, k=100: 3 hits out of 4.0 possible
+[EVAL_BATCH] User 13000, k=100: 1 hits out of 2.0 possible
+[EVAL_BATCH] User 14000, k=100: 6 hits out of 11.0 possible
+[EVAL_BATCH] User 15000, k=100: 2 hits out of 3.0 possible
+[EVAL_BATCH] User 16000, k=100: 10 hits out of 27.0 possible
+[EVAL_BATCH] User 17000, k=100: 0 hits out of 3.0 possible
+[EVAL_BATCH] User 18000, k=100: 17 hits out of 46.0 possible
+[EVAL_BATCH] User 19000, k=100: 1 hits out of 2.0 possible
+[EVAL_BATCH] k=100 metrics - Average HR: 0.5299, Average NDCG: 0.3145, Average PSP: 0.1045
+[EVAL_BATCH] Collected 2000000 recommendations for k=100
+[EVAL_BATCH] Batch evaluation complete, returning 1280633 predictions
+[EVALUATE] Batch evaluation complete
+[EVALUATE] Accumulated 200000 recommendations for k=10
+[EVALUATE] Accumulated 2000000 recommendations for k=100
+[EVALUATE] Accumulated 1280633 predictions and 1280633 labels
+[EVALUATE] Processing batch of users 60000 to 69877 (total: 9878)
+[EVALUATE] Running forward pass for batch 60000 to 69877
+[EVALUATE] Forward pass complete, prediction shape: (9878, 10677)
+[EVALUATE] Evaluating batch 60000 to 69877
+[EVAL_BATCH] Starting batch evaluation with 9878 users
+[EVAL_BATCH] User 0: processing 2 positive and 50 negative examples
+[EVAL_BATCH] User 1000: processing 68 positive and 50 negative examples
+[EVAL_BATCH] User 2000: processing 18 positive and 50 negative examples
+[EVAL_BATCH] User 3000: processing 7 positive and 50 negative examples
+[EVAL_BATCH] User 4000: processing 11 positive and 50 negative examples
+[EVAL_BATCH] User 5000: processing 22 positive and 50 negative examples
+[EVAL_BATCH] User 6000: processing 39 positive and 50 negative examples
+[EVAL_BATCH] User 7000: processing 54 positive and 50 negative examples
+[EVAL_BATCH] User 8000: processing 61 positive and 50 negative examples
+[EVAL_BATCH] User 9000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] Collected 637743 predictions for AUC calculation
+[EVAL_BATCH] Marking train-set consumed items as negative infinity
+[EVAL_BATCH] User 0: marking 18 train positive items as -INF
+[EVAL_BATCH] User 1000: marking 543 train positive items as -INF
+[EVAL_BATCH] User 2000: marking 145 train positive items as -INF
+[EVAL_BATCH] User 3000: marking 54 train positive items as -INF
+[EVAL_BATCH] User 4000: marking 85 train positive items as -INF
+[EVAL_BATCH] User 5000: marking 177 train positive items as -INF
+[EVAL_BATCH] User 6000: marking 311 train positive items as -INF
+[EVAL_BATCH] User 7000: marking 430 train positive items as -INF
+[EVAL_BATCH] User 8000: marking 488 train positive items as -INF
+[EVAL_BATCH] User 9000: marking 24 train positive items as -INF
+[EVAL_BATCH] Sorting indices for top-100 recommendations
+[EVAL_BATCH] Computing metrics for k=10
+[EVAL_BATCH] User 0, k=10: 0 hits out of 2.0 possible
+[EVAL_BATCH] User 1000, k=10: 5 hits out of 10 possible
+[EVAL_BATCH] User 2000, k=10: 4 hits out of 10 possible
+[EVAL_BATCH] User 3000, k=10: 0 hits out of 7.0 possible
+[EVAL_BATCH] User 4000, k=10: 1 hits out of 10 possible
+[EVAL_BATCH] User 5000, k=10: 5 hits out of 10 possible
+[EVAL_BATCH] User 6000, k=10: 3 hits out of 10 possible
+[EVAL_BATCH] User 7000, k=10: 1 hits out of 10 possible
+[EVAL_BATCH] User 8000, k=10: 4 hits out of 10 possible
+[EVAL_BATCH] User 9000, k=10: 3 hits out of 3.0 possible
+[EVAL_BATCH] k=10 metrics - Average HR: 0.2343, Average NDCG: 0.2167, Average PSP: 0.0459
+[EVAL_BATCH] Collected 98780 recommendations for k=10
+[EVAL_BATCH] Computing metrics for k=100
+[EVAL_BATCH] User 0, k=100: 0 hits out of 2.0 possible
+[EVAL_BATCH] User 1000, k=100: 31 hits out of 68.0 possible
+[EVAL_BATCH] User 2000, k=100: 13 hits out of 18.0 possible
+[EVAL_BATCH] User 3000, k=100: 2 hits out of 7.0 possible
+[EVAL_BATCH] User 4000, k=100: 4 hits out of 11.0 possible
+[EVAL_BATCH] User 5000, k=100: 9 hits out of 22.0 possible
+[EVAL_BATCH] User 6000, k=100: 10 hits out of 39.0 possible
+[EVAL_BATCH] User 7000, k=100: 15 hits out of 54.0 possible
+[EVAL_BATCH] User 8000, k=100: 10 hits out of 61.0 possible
+[EVAL_BATCH] User 9000, k=100: 3 hits out of 3.0 possible
+[EVAL_BATCH] k=100 metrics - Average HR: 0.5258, Average NDCG: 0.3143, Average PSP: 0.1053
+[EVAL_BATCH] Collected 987800 recommendations for k=100
+[EVAL_BATCH] Batch evaluation complete, returning 637743 predictions
+[EVALUATE] Batch evaluation complete
+[EVALUATE] Accumulated 98780 recommendations for k=10
+[EVALUATE] Accumulated 987800 recommendations for k=100
+[EVALUATE] Accumulated 637743 predictions and 637743 labels
+[EVALUATE] All batches processed, computing final metrics
+[ 0.01894491  0.17306693 -0.00282945 ...  0.00127737 -0.00050507
+ -0.00470423]
+[EVALUATE] Computed AUC: 0.9738
+[EVALUATE] HR@10: 23.1041
+[EVALUATE] HR@100: 52.7579
+[EVALUATE] NDCG@10: 21.3209
+[EVALUATE] NDCG@100: 31.3678
+[EVALUATE] PSP@10: 4.4734
+[EVALUATE] PSP@100: 10.4737
+[EVALUATE] Computing GINI coefficients
+[EVALUATE] Computing GINI@10 with 698780 recommendations
+[GINI] Calculating Gini for 698780 articles using key 'category'
+[GINI] Found 177 unique category values
+[GINI] Computing Gini coefficient for 177 values
+[GINI] Computed Gini coefficient: 0.8190
+[EVALUATE] GINI@10: 0.8190000554638973
+[EVALUATE] Computing GINI@100 with 6987800 recommendations
+[GINI] Calculating Gini for 6987800 articles using key 'category'
+[GINI] Found 331 unique category values
+[GINI] Computing Gini coefficient for 331 values
+[GINI] Computed Gini coefficient: 0.7639
+[EVALUATE] GINI@100: 0.7638672069724628
+[EVALUATE] Final metrics: num_users=10000, num_interactions=1138909
+val_metrics: {'HR@10': 23.1041, 'HR@100': 52.7579, 'NDCG@10': 21.3209, 'NDCG@100': 31.3678, 'PSP@10': 4.4734, 'PSP@100': 10.4737, 'GINI@10': np.float64(0.8190000554638973), 'GINI@100': np.float64(0.7638672069724628), 'AUC': 0.9738, 'num_users': 10000, 'num_interactions': 1138909}
+Checking lamda: 100.0
+
+[EVALUATE] Starting evaluation with topk=[10, 100], test_set_eval=False
+[EVALUATE] Hyperparameters: num_users=69878, num_items=10677, lambda=100.0
+[EVALUATE] Train positive set size: 69878
+[EVALUATE] Prediction set size: 69878
+[EVALUATE] Processing users in batches of 20000
+Num users: 69878
+[EVALUATE] Processing batch of users 0 to 19999 (total: 20000)
+[EVALUATE] Running forward pass for batch 0 to 19999
+[EVALUATE] Forward pass complete, prediction shape: (20000, 10677)
+[EVALUATE] Evaluating batch 0 to 19999
+[EVAL_BATCH] Starting batch evaluation with 20000 users
+[EVAL_BATCH] User 0: processing 2 positive and 50 negative examples
+[EVAL_BATCH] User 1000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 2000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 3000: processing 19 positive and 50 negative examples
+[EVAL_BATCH] User 4000: processing 5 positive and 50 negative examples
+[EVAL_BATCH] User 5000: processing 4 positive and 50 negative examples
+[EVAL_BATCH] User 6000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 7000: processing 14 positive and 50 negative examples
+[EVAL_BATCH] User 8000: processing 2 positive and 50 negative examples
+[EVAL_BATCH] User 9000: processing 10 positive and 50 negative examples
+[EVAL_BATCH] User 10000: processing 5 positive and 50 negative examples
+[EVAL_BATCH] User 11000: processing 17 positive and 50 negative examples
+[EVAL_BATCH] User 12000: processing 6 positive and 50 negative examples
+[EVAL_BATCH] User 13000: processing 42 positive and 50 negative examples
+[EVAL_BATCH] User 14000: processing 9 positive and 50 negative examples
+[EVAL_BATCH] User 15000: processing 4 positive and 50 negative examples
+[EVAL_BATCH] User 16000: processing 9 positive and 50 negative examples
+[EVAL_BATCH] User 17000: processing 7 positive and 50 negative examples
+[EVAL_BATCH] User 18000: processing 32 positive and 50 negative examples
+[EVAL_BATCH] User 19000: processing 2 positive and 50 negative examples
+[EVAL_BATCH] Collected 1283147 predictions for AUC calculation
+[EVAL_BATCH] Marking train-set consumed items as negative infinity
+[EVAL_BATCH] User 0: marking 16 train positive items as -INF
+[EVAL_BATCH] User 1000: marking 23 train positive items as -INF
+[EVAL_BATCH] User 2000: marking 25 train positive items as -INF
+[EVAL_BATCH] User 3000: marking 149 train positive items as -INF
+[EVAL_BATCH] User 4000: marking 41 train positive items as -INF
+[EVAL_BATCH] User 5000: marking 31 train positive items as -INF
+[EVAL_BATCH] User 6000: marking 19 train positive items as -INF
+[EVAL_BATCH] User 7000: marking 107 train positive items as -INF
+[EVAL_BATCH] User 8000: marking 16 train positive items as -INF
+[EVAL_BATCH] User 9000: marking 79 train positive items as -INF
+[EVAL_BATCH] User 10000: marking 39 train positive items as -INF
+[EVAL_BATCH] User 11000: marking 134 train positive items as -INF
+[EVAL_BATCH] User 12000: marking 47 train positive items as -INF
+[EVAL_BATCH] User 13000: marking 331 train positive items as -INF
+[EVAL_BATCH] User 14000: marking 67 train positive items as -INF
+[EVAL_BATCH] User 15000: marking 31 train positive items as -INF
+[EVAL_BATCH] User 16000: marking 68 train positive items as -INF
+[EVAL_BATCH] User 17000: marking 56 train positive items as -INF
+[EVAL_BATCH] User 18000: marking 259 train positive items as -INF
+[EVAL_BATCH] User 19000: marking 18 train positive items as -INF
+[EVAL_BATCH] Sorting indices for top-100 recommendations
+[EVAL_BATCH] Computing metrics for k=10
+[EVAL_BATCH] User 0, k=10: 0 hits out of 2.0 possible
+[EVAL_BATCH] User 1000, k=10: 1 hits out of 3.0 possible
+[EVAL_BATCH] User 2000, k=10: 2 hits out of 3.0 possible
+[EVAL_BATCH] User 3000, k=10: 2 hits out of 10 possible
+[EVAL_BATCH] User 4000, k=10: 0 hits out of 5.0 possible
+[EVAL_BATCH] User 5000, k=10: 0 hits out of 4.0 possible
+[EVAL_BATCH] User 6000, k=10: 1 hits out of 3.0 possible
+[EVAL_BATCH] User 7000, k=10: 1 hits out of 10 possible
+[EVAL_BATCH] User 8000, k=10: 0 hits out of 2.0 possible
+[EVAL_BATCH] User 9000, k=10: 0 hits out of 10.0 possible
+[EVAL_BATCH] User 10000, k=10: 2 hits out of 5.0 possible
+[EVAL_BATCH] User 11000, k=10: 4 hits out of 10 possible
+[EVAL_BATCH] User 12000, k=10: 4 hits out of 6.0 possible
+[EVAL_BATCH] User 13000, k=10: 6 hits out of 10 possible
+[EVAL_BATCH] User 14000, k=10: 0 hits out of 9.0 possible
+[EVAL_BATCH] User 15000, k=10: 3 hits out of 4.0 possible
+[EVAL_BATCH] User 16000, k=10: 1 hits out of 9.0 possible
+[EVAL_BATCH] User 17000, k=10: 0 hits out of 7.0 possible
+[EVAL_BATCH] User 18000, k=10: 2 hits out of 10 possible
+[EVAL_BATCH] User 19000, k=10: 0 hits out of 2.0 possible
+[EVAL_BATCH] k=10 metrics - Average HR: 0.1968, Average NDCG: 0.1825, Average PSP: 0.0373
+[EVAL_BATCH] Collected 200000 recommendations for k=10
+[EVAL_BATCH] Computing metrics for k=100
+[EVAL_BATCH] User 0, k=100: 1 hits out of 2.0 possible
+[EVAL_BATCH] User 1000, k=100: 3 hits out of 3.0 possible
+[EVAL_BATCH] User 2000, k=100: 3 hits out of 3.0 possible
+[EVAL_BATCH] User 3000, k=100: 6 hits out of 19.0 possible
+[EVAL_BATCH] User 4000, k=100: 0 hits out of 5.0 possible
+[EVAL_BATCH] User 5000, k=100: 3 hits out of 4.0 possible
+[EVAL_BATCH] User 6000, k=100: 2 hits out of 3.0 possible
+[EVAL_BATCH] User 7000, k=100: 7 hits out of 14.0 possible
+[EVAL_BATCH] User 8000, k=100: 1 hits out of 2.0 possible
+[EVAL_BATCH] User 9000, k=100: 1 hits out of 10.0 possible
+[EVAL_BATCH] User 10000, k=100: 3 hits out of 5.0 possible
+[EVAL_BATCH] User 11000, k=100: 12 hits out of 17.0 possible
+[EVAL_BATCH] User 12000, k=100: 5 hits out of 6.0 possible
+[EVAL_BATCH] User 13000, k=100: 16 hits out of 42.0 possible
+[EVAL_BATCH] User 14000, k=100: 4 hits out of 9.0 possible
+[EVAL_BATCH] User 15000, k=100: 4 hits out of 4.0 possible
+[EVAL_BATCH] User 16000, k=100: 3 hits out of 9.0 possible
+[EVAL_BATCH] User 17000, k=100: 2 hits out of 7.0 possible
+[EVAL_BATCH] User 18000, k=100: 12 hits out of 32.0 possible
+[EVAL_BATCH] User 19000, k=100: 0 hits out of 2.0 possible
+[EVAL_BATCH] k=100 metrics - Average HR: 0.4790, Average NDCG: 0.2779, Average PSP: 0.0955
+[EVAL_BATCH] Collected 2000000 recommendations for k=100
+[EVAL_BATCH] Batch evaluation complete, returning 1283147 predictions
+[EVALUATE] Batch evaluation complete
+[EVALUATE] Accumulated 200000 recommendations for k=10
+[EVALUATE] Accumulated 2000000 recommendations for k=100
+[EVALUATE] Accumulated 1283147 predictions and 1283147 labels
+[EVALUATE] Processing batch of users 20000 to 39999 (total: 20000)
+[EVALUATE] Running forward pass for batch 20000 to 39999
+[EVALUATE] Forward pass complete, prediction shape: (20000, 10677)
+[EVALUATE] Evaluating batch 20000 to 39999
+[EVAL_BATCH] Starting batch evaluation with 20000 users
+[EVAL_BATCH] User 0: processing 11 positive and 50 negative examples
+[EVAL_BATCH] User 1000: processing 34 positive and 50 negative examples
+[EVAL_BATCH] User 2000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 3000: processing 20 positive and 50 negative examples
+[EVAL_BATCH] User 4000: processing 11 positive and 50 negative examples
+[EVAL_BATCH] User 5000: processing 22 positive and 50 negative examples
+[EVAL_BATCH] User 6000: processing 42 positive and 50 negative examples
+[EVAL_BATCH] User 7000: processing 10 positive and 50 negative examples
+[EVAL_BATCH] User 8000: processing 24 positive and 50 negative examples
+[EVAL_BATCH] User 9000: processing 13 positive and 50 negative examples
+[EVAL_BATCH] User 10000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 11000: processing 6 positive and 50 negative examples
+[EVAL_BATCH] User 12000: processing 9 positive and 50 negative examples
+[EVAL_BATCH] User 13000: processing 7 positive and 50 negative examples
+[EVAL_BATCH] User 14000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 15000: processing 11 positive and 50 negative examples
+[EVAL_BATCH] User 16000: processing 28 positive and 50 negative examples
+[EVAL_BATCH] User 17000: processing 6 positive and 50 negative examples
+[EVAL_BATCH] User 18000: processing 7 positive and 50 negative examples
+[EVAL_BATCH] User 19000: processing 9 positive and 50 negative examples
+[EVAL_BATCH] Collected 1288136 predictions for AUC calculation
+[EVAL_BATCH] Marking train-set consumed items as negative infinity
+[EVAL_BATCH] User 0: marking 89 train positive items as -INF
+[EVAL_BATCH] User 1000: marking 267 train positive items as -INF
+[EVAL_BATCH] User 2000: marking 25 train positive items as -INF
+[EVAL_BATCH] User 3000: marking 160 train positive items as -INF
+[EVAL_BATCH] User 4000: marking 87 train positive items as -INF
+[EVAL_BATCH] User 5000: marking 176 train positive items as -INF
+[EVAL_BATCH] User 6000: marking 338 train positive items as -INF
+[EVAL_BATCH] User 7000: marking 79 train positive items as -INF
+[EVAL_BATCH] User 8000: marking 187 train positive items as -INF
+[EVAL_BATCH] User 9000: marking 103 train positive items as -INF
+[EVAL_BATCH] User 10000: marking 23 train positive items as -INF
+[EVAL_BATCH] User 11000: marking 43 train positive items as -INF
+[EVAL_BATCH] User 12000: marking 72 train positive items as -INF
+[EVAL_BATCH] User 13000: marking 54 train positive items as -INF
+[EVAL_BATCH] User 14000: marking 27 train positive items as -INF
+[EVAL_BATCH] User 15000: marking 85 train positive items as -INF
+[EVAL_BATCH] User 16000: marking 224 train positive items as -INF
+[EVAL_BATCH] User 17000: marking 47 train positive items as -INF
+[EVAL_BATCH] User 18000: marking 51 train positive items as -INF
+[EVAL_BATCH] User 19000: marking 71 train positive items as -INF
+[EVAL_BATCH] Sorting indices for top-100 recommendations
+[EVAL_BATCH] Computing metrics for k=10
+[EVAL_BATCH] User 0, k=10: 2 hits out of 10 possible
+[EVAL_BATCH] User 1000, k=10: 6 hits out of 10 possible
+[EVAL_BATCH] User 2000, k=10: 1 hits out of 3.0 possible
+[EVAL_BATCH] User 3000, k=10: 3 hits out of 10 possible
+[EVAL_BATCH] User 4000, k=10: 0 hits out of 10 possible
+[EVAL_BATCH] User 5000, k=10: 1 hits out of 10 possible
+[EVAL_BATCH] User 6000, k=10: 2 hits out of 10 possible
+[EVAL_BATCH] User 7000, k=10: 4 hits out of 10.0 possible
+[EVAL_BATCH] User 8000, k=10: 5 hits out of 10 possible
+[EVAL_BATCH] User 9000, k=10: 1 hits out of 10 possible
+[EVAL_BATCH] User 10000, k=10: 2 hits out of 3.0 possible
+[EVAL_BATCH] User 11000, k=10: 2 hits out of 6.0 possible
+[EVAL_BATCH] User 12000, k=10: 0 hits out of 9.0 possible
+[EVAL_BATCH] User 13000, k=10: 0 hits out of 7.0 possible
+[EVAL_BATCH] User 14000, k=10: 0 hits out of 3.0 possible
+[EVAL_BATCH] User 15000, k=10: 2 hits out of 10 possible
+[EVAL_BATCH] User 16000, k=10: 2 hits out of 10 possible
+[EVAL_BATCH] User 17000, k=10: 4 hits out of 6.0 possible
+[EVAL_BATCH] User 18000, k=10: 0 hits out of 7.0 possible
+[EVAL_BATCH] User 19000, k=10: 2 hits out of 9.0 possible
+[EVAL_BATCH] k=10 metrics - Average HR: 0.2034, Average NDCG: 0.1888, Average PSP: 0.0379
+[EVAL_BATCH] Collected 200000 recommendations for k=10
+[EVAL_BATCH] Computing metrics for k=100
+[EVAL_BATCH] User 0, k=100: 7 hits out of 11.0 possible
+[EVAL_BATCH] User 1000, k=100: 14 hits out of 34.0 possible
+[EVAL_BATCH] User 2000, k=100: 2 hits out of 3.0 possible
+[EVAL_BATCH] User 3000, k=100: 8 hits out of 20.0 possible
+[EVAL_BATCH] User 4000, k=100: 7 hits out of 11.0 possible
+[EVAL_BATCH] User 5000, k=100: 12 hits out of 22.0 possible
+[EVAL_BATCH] User 6000, k=100: 12 hits out of 42.0 possible
+[EVAL_BATCH] User 7000, k=100: 10 hits out of 10.0 possible
+[EVAL_BATCH] User 8000, k=100: 16 hits out of 24.0 possible
+[EVAL_BATCH] User 9000, k=100: 5 hits out of 13.0 possible
+[EVAL_BATCH] User 10000, k=100: 3 hits out of 3.0 possible
+[EVAL_BATCH] User 11000, k=100: 6 hits out of 6.0 possible
+[EVAL_BATCH] User 12000, k=100: 4 hits out of 9.0 possible
+[EVAL_BATCH] User 13000, k=100: 3 hits out of 7.0 possible
+[EVAL_BATCH] User 14000, k=100: 2 hits out of 3.0 possible
+[EVAL_BATCH] User 15000, k=100: 7 hits out of 11.0 possible
+[EVAL_BATCH] User 16000, k=100: 11 hits out of 28.0 possible
+[EVAL_BATCH] User 17000, k=100: 6 hits out of 6.0 possible
+[EVAL_BATCH] User 18000, k=100: 0 hits out of 7.0 possible
+[EVAL_BATCH] User 19000, k=100: 6 hits out of 9.0 possible
+[EVAL_BATCH] k=100 metrics - Average HR: 0.4829, Average NDCG: 0.2837, Average PSP: 0.0943
+[EVAL_BATCH] Collected 2000000 recommendations for k=100
+[EVAL_BATCH] Batch evaluation complete, returning 1288136 predictions
+[EVALUATE] Batch evaluation complete
+[EVALUATE] Accumulated 200000 recommendations for k=10
+[EVALUATE] Accumulated 2000000 recommendations for k=100
+[EVALUATE] Accumulated 1288136 predictions and 1288136 labels
+[EVALUATE] Processing batch of users 40000 to 59999 (total: 20000)
+[EVALUATE] Running forward pass for batch 40000 to 59999
+[EVALUATE] Forward pass complete, prediction shape: (20000, 10677)
+[EVALUATE] Evaluating batch 40000 to 59999
+[EVAL_BATCH] Starting batch evaluation with 20000 users
+[EVAL_BATCH] User 0: processing 98 positive and 50 negative examples
+[EVAL_BATCH] User 1000: processing 31 positive and 50 negative examples
+[EVAL_BATCH] User 2000: processing 21 positive and 50 negative examples
+[EVAL_BATCH] User 3000: processing 23 positive and 50 negative examples
+[EVAL_BATCH] User 4000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 5000: processing 2 positive and 50 negative examples
+[EVAL_BATCH] User 6000: processing 8 positive and 50 negative examples
+[EVAL_BATCH] User 7000: processing 2 positive and 50 negative examples
+[EVAL_BATCH] User 8000: processing 7 positive and 50 negative examples
+[EVAL_BATCH] User 9000: processing 36 positive and 50 negative examples
+[EVAL_BATCH] User 10000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 11000: processing 7 positive and 50 negative examples
+[EVAL_BATCH] User 12000: processing 4 positive and 50 negative examples
+[EVAL_BATCH] User 13000: processing 2 positive and 50 negative examples
+[EVAL_BATCH] User 14000: processing 11 positive and 50 negative examples
+[EVAL_BATCH] User 15000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 16000: processing 27 positive and 50 negative examples
+[EVAL_BATCH] User 17000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 18000: processing 46 positive and 50 negative examples
+[EVAL_BATCH] User 19000: processing 2 positive and 50 negative examples
+[EVAL_BATCH] Collected 1280633 predictions for AUC calculation
+[EVAL_BATCH] Marking train-set consumed items as negative infinity
+[EVAL_BATCH] User 0: marking 781 train positive items as -INF
+[EVAL_BATCH] User 1000: marking 250 train positive items as -INF
+[EVAL_BATCH] User 2000: marking 170 train positive items as -INF
+[EVAL_BATCH] User 3000: marking 186 train positive items as -INF
+[EVAL_BATCH] User 4000: marking 21 train positive items as -INF
+[EVAL_BATCH] User 5000: marking 17 train positive items as -INF
+[EVAL_BATCH] User 6000: marking 65 train positive items as -INF
+[EVAL_BATCH] User 7000: marking 17 train positive items as -INF
+[EVAL_BATCH] User 8000: marking 58 train positive items as -INF
+[EVAL_BATCH] User 9000: marking 291 train positive items as -INF
+[EVAL_BATCH] User 10000: marking 27 train positive items as -INF
+[EVAL_BATCH] User 11000: marking 59 train positive items as -INF
+[EVAL_BATCH] User 12000: marking 31 train positive items as -INF
+[EVAL_BATCH] User 13000: marking 15 train positive items as -INF
+[EVAL_BATCH] User 14000: marking 86 train positive items as -INF
+[EVAL_BATCH] User 15000: marking 25 train positive items as -INF
+[EVAL_BATCH] User 16000: marking 214 train positive items as -INF
+[EVAL_BATCH] User 17000: marking 25 train positive items as -INF
+[EVAL_BATCH] User 18000: marking 365 train positive items as -INF
+[EVAL_BATCH] User 19000: marking 16 train positive items as -INF
+[EVAL_BATCH] Sorting indices for top-100 recommendations
+[EVAL_BATCH] Computing metrics for k=10
+[EVAL_BATCH] User 0, k=10: 5 hits out of 10 possible
+[EVAL_BATCH] User 1000, k=10: 4 hits out of 10 possible
+[EVAL_BATCH] User 2000, k=10: 3 hits out of 10 possible
+[EVAL_BATCH] User 3000, k=10: 2 hits out of 10 possible
+[EVAL_BATCH] User 4000, k=10: 1 hits out of 3.0 possible
+[EVAL_BATCH] User 5000, k=10: 2 hits out of 2.0 possible
+[EVAL_BATCH] User 6000, k=10: 0 hits out of 8.0 possible
+[EVAL_BATCH] User 7000, k=10: 0 hits out of 2.0 possible
+[EVAL_BATCH] User 8000, k=10: 1 hits out of 7.0 possible
+[EVAL_BATCH] User 9000, k=10: 3 hits out of 10 possible
+[EVAL_BATCH] User 10000, k=10: 1 hits out of 3.0 possible
+[EVAL_BATCH] User 11000, k=10: 0 hits out of 7.0 possible
+[EVAL_BATCH] User 12000, k=10: 1 hits out of 4.0 possible
+[EVAL_BATCH] User 13000, k=10: 0 hits out of 2.0 possible
+[EVAL_BATCH] User 14000, k=10: 3 hits out of 10 possible
+[EVAL_BATCH] User 15000, k=10: 1 hits out of 3.0 possible
+[EVAL_BATCH] User 16000, k=10: 2 hits out of 10 possible
+[EVAL_BATCH] User 17000, k=10: 0 hits out of 3.0 possible
+[EVAL_BATCH] User 18000, k=10: 5 hits out of 10 possible
+[EVAL_BATCH] User 19000, k=10: 1 hits out of 2.0 possible
+[EVAL_BATCH] k=10 metrics - Average HR: 0.2012, Average NDCG: 0.1856, Average PSP: 0.0380
+[EVAL_BATCH] Collected 200000 recommendations for k=10
+[EVAL_BATCH] Computing metrics for k=100
+[EVAL_BATCH] User 0, k=100: 22 hits out of 98.0 possible
+[EVAL_BATCH] User 1000, k=100: 12 hits out of 31.0 possible
+[EVAL_BATCH] User 2000, k=100: 11 hits out of 21.0 possible
+[EVAL_BATCH] User 3000, k=100: 12 hits out of 23.0 possible
+[EVAL_BATCH] User 4000, k=100: 2 hits out of 3.0 possible
+[EVAL_BATCH] User 5000, k=100: 2 hits out of 2.0 possible
+[EVAL_BATCH] User 6000, k=100: 5 hits out of 8.0 possible
+[EVAL_BATCH] User 7000, k=100: 0 hits out of 2.0 possible
+[EVAL_BATCH] User 8000, k=100: 6 hits out of 7.0 possible
+[EVAL_BATCH] User 9000, k=100: 17 hits out of 36.0 possible
+[EVAL_BATCH] User 10000, k=100: 1 hits out of 3.0 possible
+[EVAL_BATCH] User 11000, k=100: 3 hits out of 7.0 possible
+[EVAL_BATCH] User 12000, k=100: 1 hits out of 4.0 possible
+[EVAL_BATCH] User 13000, k=100: 0 hits out of 2.0 possible
+[EVAL_BATCH] User 14000, k=100: 5 hits out of 11.0 possible
+[EVAL_BATCH] User 15000, k=100: 2 hits out of 3.0 possible
+[EVAL_BATCH] User 16000, k=100: 10 hits out of 27.0 possible
+[EVAL_BATCH] User 17000, k=100: 0 hits out of 3.0 possible
+[EVAL_BATCH] User 18000, k=100: 17 hits out of 46.0 possible
+[EVAL_BATCH] User 19000, k=100: 1 hits out of 2.0 possible
+[EVAL_BATCH] k=100 metrics - Average HR: 0.4850, Average NDCG: 0.2825, Average PSP: 0.0953
+[EVAL_BATCH] Collected 2000000 recommendations for k=100
+[EVAL_BATCH] Batch evaluation complete, returning 1280633 predictions
+[EVALUATE] Batch evaluation complete
+[EVALUATE] Accumulated 200000 recommendations for k=10
+[EVALUATE] Accumulated 2000000 recommendations for k=100
+[EVALUATE] Accumulated 1280633 predictions and 1280633 labels
+[EVALUATE] Processing batch of users 60000 to 69877 (total: 9878)
+[EVALUATE] Running forward pass for batch 60000 to 69877
+[EVALUATE] Forward pass complete, prediction shape: (9878, 10677)
+[EVALUATE] Evaluating batch 60000 to 69877
+[EVAL_BATCH] Starting batch evaluation with 9878 users
+[EVAL_BATCH] User 0: processing 2 positive and 50 negative examples
+[EVAL_BATCH] User 1000: processing 68 positive and 50 negative examples
+[EVAL_BATCH] User 2000: processing 18 positive and 50 negative examples
+[EVAL_BATCH] User 3000: processing 7 positive and 50 negative examples
+[EVAL_BATCH] User 4000: processing 11 positive and 50 negative examples
+[EVAL_BATCH] User 5000: processing 22 positive and 50 negative examples
+[EVAL_BATCH] User 6000: processing 39 positive and 50 negative examples
+[EVAL_BATCH] User 7000: processing 54 positive and 50 negative examples
+[EVAL_BATCH] User 8000: processing 61 positive and 50 negative examples
+[EVAL_BATCH] User 9000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] Collected 637743 predictions for AUC calculation
+[EVAL_BATCH] Marking train-set consumed items as negative infinity
+[EVAL_BATCH] User 0: marking 18 train positive items as -INF
+[EVAL_BATCH] User 1000: marking 543 train positive items as -INF
+[EVAL_BATCH] User 2000: marking 145 train positive items as -INF
+[EVAL_BATCH] User 3000: marking 54 train positive items as -INF
+[EVAL_BATCH] User 4000: marking 85 train positive items as -INF
+[EVAL_BATCH] User 5000: marking 177 train positive items as -INF
+[EVAL_BATCH] User 6000: marking 311 train positive items as -INF
+[EVAL_BATCH] User 7000: marking 430 train positive items as -INF
+[EVAL_BATCH] User 8000: marking 488 train positive items as -INF
+[EVAL_BATCH] User 9000: marking 24 train positive items as -INF
+[EVAL_BATCH] Sorting indices for top-100 recommendations
+[EVAL_BATCH] Computing metrics for k=10
+[EVAL_BATCH] User 0, k=10: 0 hits out of 2.0 possible
+[EVAL_BATCH] User 1000, k=10: 5 hits out of 10 possible
+[EVAL_BATCH] User 2000, k=10: 4 hits out of 10 possible
+[EVAL_BATCH] User 3000, k=10: 0 hits out of 7.0 possible
+[EVAL_BATCH] User 4000, k=10: 1 hits out of 10 possible
+[EVAL_BATCH] User 5000, k=10: 5 hits out of 10 possible
+[EVAL_BATCH] User 6000, k=10: 3 hits out of 10 possible
+[EVAL_BATCH] User 7000, k=10: 1 hits out of 10 possible
+[EVAL_BATCH] User 8000, k=10: 2 hits out of 10 possible
+[EVAL_BATCH] User 9000, k=10: 3 hits out of 3.0 possible
+[EVAL_BATCH] k=10 metrics - Average HR: 0.2023, Average NDCG: 0.1883, Average PSP: 0.0384
+[EVAL_BATCH] Collected 98780 recommendations for k=10
+[EVAL_BATCH] Computing metrics for k=100
+[EVAL_BATCH] User 0, k=100: 0 hits out of 2.0 possible
+[EVAL_BATCH] User 1000, k=100: 30 hits out of 68.0 possible
+[EVAL_BATCH] User 2000, k=100: 13 hits out of 18.0 possible
+[EVAL_BATCH] User 3000, k=100: 2 hits out of 7.0 possible
+[EVAL_BATCH] User 4000, k=100: 4 hits out of 11.0 possible
+[EVAL_BATCH] User 5000, k=100: 9 hits out of 22.0 possible
+[EVAL_BATCH] User 6000, k=100: 10 hits out of 39.0 possible
+[EVAL_BATCH] User 7000, k=100: 14 hits out of 54.0 possible
+[EVAL_BATCH] User 8000, k=100: 9 hits out of 61.0 possible
+[EVAL_BATCH] User 9000, k=100: 3 hits out of 3.0 possible
+[EVAL_BATCH] k=100 metrics - Average HR: 0.4810, Average NDCG: 0.2816, Average PSP: 0.0959
+[EVAL_BATCH] Collected 987800 recommendations for k=100
+[EVAL_BATCH] Batch evaluation complete, returning 637743 predictions
+[EVALUATE] Batch evaluation complete
+[EVALUATE] Accumulated 98780 recommendations for k=10
+[EVALUATE] Accumulated 987800 recommendations for k=100
+[EVALUATE] Accumulated 637743 predictions and 637743 labels
+[EVALUATE] All batches processed, computing final metrics
+[ 0.01794131  0.17484295  0.00060046 ...  0.0020989  -0.00032776
+ -0.00236658]
+[EVALUATE] Computed AUC: 0.97
+[EVALUATE] HR@10: 20.0727
+[EVALUATE] HR@100: 48.2124
+[EVALUATE] NDCG@10: 18.6011
+[EVALUATE] NDCG@100: 28.1413
+[EVALUATE] PSP@10: 3.7841
+[EVALUATE] PSP@100: 9.5145
+[EVALUATE] Computing GINI coefficients
+[EVALUATE] Computing GINI@10 with 698780 recommendations
+[GINI] Calculating Gini for 698780 articles using key 'category'
+[GINI] Found 125 unique category values
+[GINI] Computing Gini coefficient for 125 values
+[GINI] Computed Gini coefficient: 0.8010
+[EVALUATE] GINI@10: 0.8009800852915081
+[EVALUATE] Computing GINI@100 with 6987800 recommendations
+[GINI] Calculating Gini for 6987800 articles using key 'category'
+[GINI] Found 281 unique category values
+[GINI] Computing Gini coefficient for 281 values
+[GINI] Computed Gini coefficient: 0.7505
+[EVALUATE] GINI@100: 0.7504536640829736
+[EVALUATE] Final metrics: num_users=10000, num_interactions=1138909
+val_metrics: {'HR@10': 20.0727, 'HR@100': 48.2124, 'NDCG@10': 18.6011, 'NDCG@100': 28.1413, 'PSP@10': 3.7841, 'PSP@100': 9.5145, 'GINI@10': np.float64(0.8009800852915081), 'GINI@100': np.float64(0.7504536640829736), 'AUC': 0.97, 'num_users': 10000, 'num_interactions': 1138909}
+
+[EVALUATE] Starting evaluation with topk=[10, 100], test_set_eval=True
+[EVALUATE] Hyperparameters: num_users=69878, num_items=10677, lambda=5.0
+[EVALUATE] Train positive set size: 69878
+[EVALUATE] Adding validation positive set to train positive set for test evaluation
+[EVALUATE] Adding validation matrix to evaluation context
+[EVALUATE] Using test positive set for prediction
+[EVALUATE] Prediction set size: 69878
+[EVALUATE] Processing users in batches of 20000
+Num users: 69878
+[EVALUATE] Processing batch of users 0 to 19999 (total: 20000)
+[EVALUATE] Running forward pass for batch 0 to 19999
+[EVALUATE] Forward pass complete, prediction shape: (20000, 10677)
+[EVALUATE] Evaluating batch 0 to 19999
+[EVAL_BATCH] Starting batch evaluation with 20000 users
+[EVAL_BATCH] User 0: processing 4 positive and 50 negative examples
+[EVAL_BATCH] User 1000: processing 4 positive and 50 negative examples
+[EVAL_BATCH] User 2000: processing 5 positive and 50 negative examples
+[EVAL_BATCH] User 3000: processing 20 positive and 50 negative examples
+[EVAL_BATCH] User 4000: processing 7 positive and 50 negative examples
+[EVAL_BATCH] User 5000: processing 6 positive and 50 negative examples
+[EVAL_BATCH] User 6000: processing 4 positive and 50 negative examples
+[EVAL_BATCH] User 7000: processing 15 positive and 50 negative examples
+[EVAL_BATCH] User 8000: processing 4 positive and 50 negative examples
+[EVAL_BATCH] User 9000: processing 11 positive and 50 negative examples
+[EVAL_BATCH] User 10000: processing 6 positive and 50 negative examples
+[EVAL_BATCH] User 11000: processing 18 positive and 50 negative examples
+[EVAL_BATCH] User 12000: processing 8 positive and 50 negative examples
+[EVAL_BATCH] User 13000: processing 43 positive and 50 negative examples
+[EVAL_BATCH] User 14000: processing 10 positive and 50 negative examples
+[EVAL_BATCH] User 15000: processing 6 positive and 50 negative examples
+[EVAL_BATCH] User 16000: processing 10 positive and 50 negative examples
+[EVAL_BATCH] User 17000: processing 9 positive and 50 negative examples
+[EVAL_BATCH] User 18000: processing 34 positive and 50 negative examples
+[EVAL_BATCH] User 19000: processing 4 positive and 50 negative examples
+[EVAL_BATCH] Collected 1313413 predictions for AUC calculation
+[EVAL_BATCH] Marking train-set consumed items as negative infinity
+[EVAL_BATCH] User 0: marking 18 train positive items as -INF
+[EVAL_BATCH] User 1000: marking 26 train positive items as -INF
+[EVAL_BATCH] User 2000: marking 28 train positive items as -INF
+[EVAL_BATCH] User 3000: marking 168 train positive items as -INF
+[EVAL_BATCH] User 4000: marking 46 train positive items as -INF
+[EVAL_BATCH] User 5000: marking 35 train positive items as -INF
+[EVAL_BATCH] User 6000: marking 22 train positive items as -INF
+[EVAL_BATCH] User 7000: marking 121 train positive items as -INF
+[EVAL_BATCH] User 8000: marking 18 train positive items as -INF
+[EVAL_BATCH] User 9000: marking 89 train positive items as -INF
+[EVAL_BATCH] User 10000: marking 44 train positive items as -INF
+[EVAL_BATCH] User 11000: marking 151 train positive items as -INF
+[EVAL_BATCH] User 12000: marking 53 train positive items as -INF
+[EVAL_BATCH] User 13000: marking 373 train positive items as -INF
+[EVAL_BATCH] User 14000: marking 76 train positive items as -INF
+[EVAL_BATCH] User 15000: marking 35 train positive items as -INF
+[EVAL_BATCH] User 16000: marking 77 train positive items as -INF
+[EVAL_BATCH] User 17000: marking 63 train positive items as -INF
+[EVAL_BATCH] User 18000: marking 291 train positive items as -INF
+[EVAL_BATCH] User 19000: marking 20 train positive items as -INF
+[EVAL_BATCH] Sorting indices for top-100 recommendations
+[EVAL_BATCH] Computing metrics for k=10
+[EVAL_BATCH] User 0, k=10: 2 hits out of 4.0 possible
+[EVAL_BATCH] User 1000, k=10: 1 hits out of 4.0 possible
+[EVAL_BATCH] User 2000, k=10: 4 hits out of 5.0 possible
+[EVAL_BATCH] User 3000, k=10: 2 hits out of 10 possible
+[EVAL_BATCH] User 4000, k=10: 1 hits out of 7.0 possible
+[EVAL_BATCH] User 5000, k=10: 2 hits out of 6.0 possible
+[EVAL_BATCH] User 6000, k=10: 2 hits out of 4.0 possible
+[EVAL_BATCH] User 7000, k=10: 2 hits out of 10 possible
+[EVAL_BATCH] User 8000, k=10: 0 hits out of 4.0 possible
+[EVAL_BATCH] User 9000, k=10: 0 hits out of 10 possible
+[EVAL_BATCH] User 10000, k=10: 3 hits out of 6.0 possible
+[EVAL_BATCH] User 11000, k=10: 3 hits out of 10 possible
+[EVAL_BATCH] User 12000, k=10: 2 hits out of 8.0 possible
+[EVAL_BATCH] User 13000, k=10: 8 hits out of 10 possible
+[EVAL_BATCH] User 14000, k=10: 1 hits out of 10.0 possible
+[EVAL_BATCH] User 15000, k=10: 4 hits out of 6.0 possible
+[EVAL_BATCH] User 16000, k=10: 0 hits out of 10.0 possible
+[EVAL_BATCH] User 17000, k=10: 0 hits out of 9.0 possible
+[EVAL_BATCH] User 18000, k=10: 6 hits out of 10 possible
+[EVAL_BATCH] User 19000, k=10: 1 hits out of 4.0 possible
+[EVAL_BATCH] k=10 metrics - Average HR: 0.3497, Average NDCG: 0.3567, Average PSP: 0.0471
+[EVAL_BATCH] Collected 200000 recommendations for k=10
+[EVAL_BATCH] Computing metrics for k=100
+[EVAL_BATCH] User 0, k=100: 4 hits out of 4.0 possible
+[EVAL_BATCH] User 1000, k=100: 4 hits out of 4.0 possible
+[EVAL_BATCH] User 2000, k=100: 5 hits out of 5.0 possible
+[EVAL_BATCH] User 3000, k=100: 7 hits out of 20.0 possible
+[EVAL_BATCH] User 4000, k=100: 6 hits out of 7.0 possible
+[EVAL_BATCH] User 5000, k=100: 6 hits out of 6.0 possible
+[EVAL_BATCH] User 6000, k=100: 4 hits out of 4.0 possible
+[EVAL_BATCH] User 7000, k=100: 7 hits out of 15.0 possible
+[EVAL_BATCH] User 8000, k=100: 0 hits out of 4.0 possible
+[EVAL_BATCH] User 9000, k=100: 3 hits out of 11.0 possible
+[EVAL_BATCH] User 10000, k=100: 6 hits out of 6.0 possible
+[EVAL_BATCH] User 11000, k=100: 11 hits out of 18.0 possible
+[EVAL_BATCH] User 12000, k=100: 7 hits out of 8.0 possible
+[EVAL_BATCH] User 13000, k=100: 21 hits out of 43.0 possible
+[EVAL_BATCH] User 14000, k=100: 5 hits out of 10.0 possible
+[EVAL_BATCH] User 15000, k=100: 6 hits out of 6.0 possible
+[EVAL_BATCH] User 16000, k=100: 4 hits out of 10.0 possible
+[EVAL_BATCH] User 17000, k=100: 5 hits out of 9.0 possible
+[EVAL_BATCH] User 18000, k=100: 19 hits out of 34.0 possible
+[EVAL_BATCH] User 19000, k=100: 2 hits out of 4.0 possible
+[EVAL_BATCH] k=100 metrics - Average HR: 0.6426, Average NDCG: 0.4549, Average PSP: 0.0887
+[EVAL_BATCH] Collected 2000000 recommendations for k=100
+[EVAL_BATCH] Batch evaluation complete, returning 1313413 predictions
+[EVALUATE] Batch evaluation complete
+[EVALUATE] Accumulated 200000 recommendations for k=10
+[EVALUATE] Accumulated 2000000 recommendations for k=100
+[EVALUATE] Accumulated 1313413 predictions and 1313413 labels
+[EVALUATE] Processing batch of users 20000 to 39999 (total: 20000)
+[EVALUATE] Running forward pass for batch 20000 to 39999
+[EVALUATE] Forward pass complete, prediction shape: (20000, 10677)
+[EVALUATE] Evaluating batch 20000 to 39999
+[EVAL_BATCH] Starting batch evaluation with 20000 users
+[EVAL_BATCH] User 0: processing 13 positive and 50 negative examples
+[EVAL_BATCH] User 1000: processing 35 positive and 50 negative examples
+[EVAL_BATCH] User 2000: processing 5 positive and 50 negative examples
+[EVAL_BATCH] User 3000: processing 22 positive and 50 negative examples
+[EVAL_BATCH] User 4000: processing 13 positive and 50 negative examples
+[EVAL_BATCH] User 5000: processing 24 positive and 50 negative examples
+[EVAL_BATCH] User 6000: processing 44 positive and 50 negative examples
+[EVAL_BATCH] User 7000: processing 12 positive and 50 negative examples
+[EVAL_BATCH] User 8000: processing 25 positive and 50 negative examples
+[EVAL_BATCH] User 9000: processing 15 positive and 50 negative examples
+[EVAL_BATCH] User 10000: processing 4 positive and 50 negative examples
+[EVAL_BATCH] User 11000: processing 7 positive and 50 negative examples
+[EVAL_BATCH] User 12000: processing 11 positive and 50 negative examples
+[EVAL_BATCH] User 13000: processing 8 positive and 50 negative examples
+[EVAL_BATCH] User 14000: processing 5 positive and 50 negative examples
+[EVAL_BATCH] User 15000: processing 12 positive and 50 negative examples
+[EVAL_BATCH] User 16000: processing 30 positive and 50 negative examples
+[EVAL_BATCH] User 17000: processing 7 positive and 50 negative examples
+[EVAL_BATCH] User 18000: processing 8 positive and 50 negative examples
+[EVAL_BATCH] User 19000: processing 11 positive and 50 negative examples
+[EVAL_BATCH] Collected 1318396 predictions for AUC calculation
+[EVAL_BATCH] Marking train-set consumed items as negative infinity
+[EVAL_BATCH] User 0: marking 100 train positive items as -INF
+[EVAL_BATCH] User 1000: marking 301 train positive items as -INF
+[EVAL_BATCH] User 2000: marking 28 train positive items as -INF
+[EVAL_BATCH] User 3000: marking 180 train positive items as -INF
+[EVAL_BATCH] User 4000: marking 98 train positive items as -INF
+[EVAL_BATCH] User 5000: marking 198 train positive items as -INF
+[EVAL_BATCH] User 6000: marking 380 train positive items as -INF
+[EVAL_BATCH] User 7000: marking 89 train positive items as -INF
+[EVAL_BATCH] User 8000: marking 211 train positive items as -INF
+[EVAL_BATCH] User 9000: marking 116 train positive items as -INF
+[EVAL_BATCH] User 10000: marking 26 train positive items as -INF
+[EVAL_BATCH] User 11000: marking 49 train positive items as -INF
+[EVAL_BATCH] User 12000: marking 81 train positive items as -INF
+[EVAL_BATCH] User 13000: marking 61 train positive items as -INF
+[EVAL_BATCH] User 14000: marking 30 train positive items as -INF
+[EVAL_BATCH] User 15000: marking 96 train positive items as -INF
+[EVAL_BATCH] User 16000: marking 252 train positive items as -INF
+[EVAL_BATCH] User 17000: marking 53 train positive items as -INF
+[EVAL_BATCH] User 18000: marking 58 train positive items as -INF
+[EVAL_BATCH] User 19000: marking 80 train positive items as -INF
+[EVAL_BATCH] Sorting indices for top-100 recommendations
+[EVAL_BATCH] Computing metrics for k=10
+[EVAL_BATCH] User 0, k=10: 0 hits out of 10 possible
+[EVAL_BATCH] User 1000, k=10: 7 hits out of 10 possible
+[EVAL_BATCH] User 2000, k=10: 5 hits out of 5.0 possible
+[EVAL_BATCH] User 3000, k=10: 5 hits out of 10 possible
+[EVAL_BATCH] User 4000, k=10: 0 hits out of 10 possible
+[EVAL_BATCH] User 5000, k=10: 8 hits out of 10 possible
+[EVAL_BATCH] User 6000, k=10: 2 hits out of 10 possible
+[EVAL_BATCH] User 7000, k=10: 5 hits out of 10 possible
+[EVAL_BATCH] User 8000, k=10: 5 hits out of 10 possible
+[EVAL_BATCH] User 9000, k=10: 3 hits out of 10 possible
+[EVAL_BATCH] User 10000, k=10: 1 hits out of 4.0 possible
+[EVAL_BATCH] User 11000, k=10: 3 hits out of 7.0 possible
+[EVAL_BATCH] User 12000, k=10: 5 hits out of 10 possible
+[EVAL_BATCH] User 13000, k=10: 3 hits out of 8.0 possible
+[EVAL_BATCH] User 14000, k=10: 2 hits out of 5.0 possible
+[EVAL_BATCH] User 15000, k=10: 2 hits out of 10 possible
+[EVAL_BATCH] User 16000, k=10: 4 hits out of 10 possible
+[EVAL_BATCH] User 17000, k=10: 2 hits out of 7.0 possible
+[EVAL_BATCH] User 18000, k=10: 0 hits out of 8.0 possible
+[EVAL_BATCH] User 19000, k=10: 3 hits out of 10 possible
+[EVAL_BATCH] k=10 metrics - Average HR: 0.3512, Average NDCG: 0.3587, Average PSP: 0.0470
+[EVAL_BATCH] Collected 200000 recommendations for k=10
+[EVAL_BATCH] Computing metrics for k=100
+[EVAL_BATCH] User 0, k=100: 5 hits out of 13.0 possible
+[EVAL_BATCH] User 1000, k=100: 20 hits out of 35.0 possible
+[EVAL_BATCH] User 2000, k=100: 5 hits out of 5.0 possible
+[EVAL_BATCH] User 3000, k=100: 11 hits out of 22.0 possible
+[EVAL_BATCH] User 4000, k=100: 7 hits out of 13.0 possible
+[EVAL_BATCH] User 5000, k=100: 17 hits out of 24.0 possible
+[EVAL_BATCH] User 6000, k=100: 11 hits out of 44.0 possible
+[EVAL_BATCH] User 7000, k=100: 12 hits out of 12.0 possible
+[EVAL_BATCH] User 8000, k=100: 16 hits out of 25.0 possible
+[EVAL_BATCH] User 9000, k=100: 10 hits out of 15.0 possible
+[EVAL_BATCH] User 10000, k=100: 4 hits out of 4.0 possible
+[EVAL_BATCH] User 11000, k=100: 6 hits out of 7.0 possible
+[EVAL_BATCH] User 12000, k=100: 9 hits out of 11.0 possible
+[EVAL_BATCH] User 13000, k=100: 7 hits out of 8.0 possible
+[EVAL_BATCH] User 14000, k=100: 4 hits out of 5.0 possible
+[EVAL_BATCH] User 15000, k=100: 11 hits out of 12.0 possible
+[EVAL_BATCH] User 16000, k=100: 16 hits out of 30.0 possible
+[EVAL_BATCH] User 17000, k=100: 7 hits out of 7.0 possible
+[EVAL_BATCH] User 18000, k=100: 1 hits out of 8.0 possible
+[EVAL_BATCH] User 19000, k=100: 5 hits out of 11.0 possible
+[EVAL_BATCH] k=100 metrics - Average HR: 0.6433, Average NDCG: 0.4569, Average PSP: 0.0880
+[EVAL_BATCH] Collected 2000000 recommendations for k=100
+[EVAL_BATCH] Batch evaluation complete, returning 1318396 predictions
+[EVALUATE] Batch evaluation complete
+[EVALUATE] Accumulated 200000 recommendations for k=10
+[EVALUATE] Accumulated 2000000 recommendations for k=100
+[EVALUATE] Accumulated 1318396 predictions and 1318396 labels
+[EVALUATE] Processing batch of users 40000 to 59999 (total: 20000)
+[EVALUATE] Running forward pass for batch 40000 to 59999
+[EVALUATE] Forward pass complete, prediction shape: (20000, 10677)
+[EVALUATE] Evaluating batch 40000 to 59999
+[EVAL_BATCH] Starting batch evaluation with 20000 users
+[EVAL_BATCH] User 0: processing 99 positive and 50 negative examples
+[EVAL_BATCH] User 1000: processing 33 positive and 50 negative examples
+[EVAL_BATCH] User 2000: processing 23 positive and 50 negative examples
+[EVAL_BATCH] User 3000: processing 25 positive and 50 negative examples
+[EVAL_BATCH] User 4000: processing 4 positive and 50 negative examples
+[EVAL_BATCH] User 5000: processing 4 positive and 50 negative examples
+[EVAL_BATCH] User 6000: processing 10 positive and 50 negative examples
+[EVAL_BATCH] User 7000: processing 4 positive and 50 negative examples
+[EVAL_BATCH] User 8000: processing 9 positive and 50 negative examples
+[EVAL_BATCH] User 9000: processing 38 positive and 50 negative examples
+[EVAL_BATCH] User 10000: processing 5 positive and 50 negative examples
+[EVAL_BATCH] User 11000: processing 9 positive and 50 negative examples
+[EVAL_BATCH] User 12000: processing 6 positive and 50 negative examples
+[EVAL_BATCH] User 13000: processing 3 positive and 50 negative examples
+[EVAL_BATCH] User 14000: processing 12 positive and 50 negative examples
+[EVAL_BATCH] User 15000: processing 5 positive and 50 negative examples
+[EVAL_BATCH] User 16000: processing 28 positive and 50 negative examples
+[EVAL_BATCH] User 17000: processing 5 positive and 50 negative examples
+[EVAL_BATCH] User 18000: processing 47 positive and 50 negative examples
+[EVAL_BATCH] User 19000: processing 4 positive and 50 negative examples
+[EVAL_BATCH] Collected 1310939 predictions for AUC calculation
+[EVAL_BATCH] Marking train-set consumed items as negative infinity
+[EVAL_BATCH] User 0: marking 879 train positive items as -INF
+[EVAL_BATCH] User 1000: marking 281 train positive items as -INF
+[EVAL_BATCH] User 2000: marking 191 train positive items as -INF
+[EVAL_BATCH] User 3000: marking 209 train positive items as -INF
+[EVAL_BATCH] User 4000: marking 24 train positive items as -INF
+[EVAL_BATCH] User 5000: marking 19 train positive items as -INF
+[EVAL_BATCH] User 6000: marking 73 train positive items as -INF
+[EVAL_BATCH] User 7000: marking 19 train positive items as -INF
+[EVAL_BATCH] User 8000: marking 65 train positive items as -INF
+[EVAL_BATCH] User 9000: marking 327 train positive items as -INF
+[EVAL_BATCH] User 10000: marking 30 train positive items as -INF
+[EVAL_BATCH] User 11000: marking 66 train positive items as -INF
+[EVAL_BATCH] User 12000: marking 35 train positive items as -INF
+[EVAL_BATCH] User 13000: marking 17 train positive items as -INF
+[EVAL_BATCH] User 14000: marking 97 train positive items as -INF
+[EVAL_BATCH] User 15000: marking 28 train positive items as -INF
+[EVAL_BATCH] User 16000: marking 241 train positive items as -INF
+[EVAL_BATCH] User 17000: marking 28 train positive items as -INF
+[EVAL_BATCH] User 18000: marking 411 train positive items as -INF
+[EVAL_BATCH] User 19000: marking 18 train positive items as -INF
+[EVAL_BATCH] Sorting indices for top-100 recommendations
+[EVAL_BATCH] Computing metrics for k=10
+[EVAL_BATCH] User 0, k=10: 8 hits out of 10 possible
+[EVAL_BATCH] User 1000, k=10: 4 hits out of 10 possible
+[EVAL_BATCH] User 2000, k=10: 4 hits out of 10 possible
+[EVAL_BATCH] User 3000, k=10: 5 hits out of 10 possible
+[EVAL_BATCH] User 4000, k=10: 0 hits out of 4.0 possible
+[EVAL_BATCH] User 5000, k=10: 3 hits out of 4.0 possible
+[EVAL_BATCH] User 6000, k=10: 0 hits out of 10.0 possible
+[EVAL_BATCH] User 7000, k=10: 1 hits out of 4.0 possible
+[EVAL_BATCH] User 8000, k=10: 6 hits out of 9.0 possible
+[EVAL_BATCH] User 9000, k=10: 5 hits out of 10 possible
+[EVAL_BATCH] User 10000, k=10: 1 hits out of 5.0 possible
+[EVAL_BATCH] User 11000, k=10: 1 hits out of 9.0 possible
+[EVAL_BATCH] User 12000, k=10: 2 hits out of 6.0 possible
+[EVAL_BATCH] User 13000, k=10: 2 hits out of 3.0 possible
+[EVAL_BATCH] User 14000, k=10: 6 hits out of 10 possible
+[EVAL_BATCH] User 15000, k=10: 0 hits out of 5.0 possible
+[EVAL_BATCH] User 16000, k=10: 2 hits out of 10 possible
+[EVAL_BATCH] User 17000, k=10: 2 hits out of 5.0 possible
+[EVAL_BATCH] User 18000, k=10: 5 hits out of 10 possible
+[EVAL_BATCH] User 19000, k=10: 2 hits out of 4.0 possible
+[EVAL_BATCH] k=10 metrics - Average HR: 0.3499, Average NDCG: 0.3582, Average PSP: 0.0467
+[EVAL_BATCH] Collected 200000 recommendations for k=10
+[EVAL_BATCH] Computing metrics for k=100
+[EVAL_BATCH] User 0, k=100: 30 hits out of 99.0 possible
+[EVAL_BATCH] User 1000, k=100: 23 hits out of 33.0 possible
+[EVAL_BATCH] User 2000, k=100: 13 hits out of 23.0 possible
+[EVAL_BATCH] User 3000, k=100: 16 hits out of 25.0 possible
+[EVAL_BATCH] User 4000, k=100: 3 hits out of 4.0 possible
+[EVAL_BATCH] User 5000, k=100: 4 hits out of 4.0 possible
+[EVAL_BATCH] User 6000, k=100: 5 hits out of 10.0 possible
+[EVAL_BATCH] User 7000, k=100: 4 hits out of 4.0 possible
+[EVAL_BATCH] User 8000, k=100: 8 hits out of 9.0 possible
+[EVAL_BATCH] User 9000, k=100: 20 hits out of 38.0 possible
+[EVAL_BATCH] User 10000, k=100: 3 hits out of 5.0 possible
+[EVAL_BATCH] User 11000, k=100: 6 hits out of 9.0 possible
+[EVAL_BATCH] User 12000, k=100: 4 hits out of 6.0 possible
+[EVAL_BATCH] User 13000, k=100: 3 hits out of 3.0 possible
+[EVAL_BATCH] User 14000, k=100: 8 hits out of 12.0 possible
+[EVAL_BATCH] User 15000, k=100: 4 hits out of 5.0 possible
+[EVAL_BATCH] User 16000, k=100: 9 hits out of 28.0 possible
+[EVAL_BATCH] User 17000, k=100: 3 hits out of 5.0 possible
+[EVAL_BATCH] User 18000, k=100: 15 hits out of 47.0 possible
+[EVAL_BATCH] User 19000, k=100: 4 hits out of 4.0 possible
+[EVAL_BATCH] k=100 metrics - Average HR: 0.6411, Average NDCG: 0.4568, Average PSP: 0.0873
+[EVAL_BATCH] Collected 2000000 recommendations for k=100
+[EVAL_BATCH] Batch evaluation complete, returning 1310939 predictions
+[EVALUATE] Batch evaluation complete
+[EVALUATE] Accumulated 200000 recommendations for k=10
+[EVALUATE] Accumulated 2000000 recommendations for k=100
+[EVALUATE] Accumulated 1310939 predictions and 1310939 labels
+[EVALUATE] Processing batch of users 60000 to 69877 (total: 9878)
+[EVALUATE] Running forward pass for batch 60000 to 69877
+[EVALUATE] Forward pass complete, prediction shape: (9878, 10677)
+[EVALUATE] Evaluating batch 60000 to 69877
+[EVAL_BATCH] Starting batch evaluation with 9878 users
+[EVAL_BATCH] User 0: processing 4 positive and 50 negative examples
+[EVAL_BATCH] User 1000: processing 69 positive and 50 negative examples
+[EVAL_BATCH] User 2000: processing 20 positive and 50 negative examples
+[EVAL_BATCH] User 3000: processing 8 positive and 50 negative examples
+[EVAL_BATCH] User 4000: processing 12 positive and 50 negative examples
+[EVAL_BATCH] User 5000: processing 24 positive and 50 negative examples
+[EVAL_BATCH] User 6000: processing 40 positive and 50 negative examples
+[EVAL_BATCH] User 7000: processing 55 positive and 50 negative examples
+[EVAL_BATCH] User 8000: processing 63 positive and 50 negative examples
+[EVAL_BATCH] User 9000: processing 5 positive and 50 negative examples
+[EVAL_BATCH] Collected 652743 predictions for AUC calculation
+[EVAL_BATCH] Marking train-set consumed items as negative infinity
+[EVAL_BATCH] User 0: marking 20 train positive items as -INF
+[EVAL_BATCH] User 1000: marking 611 train positive items as -INF
+[EVAL_BATCH] User 2000: marking 163 train positive items as -INF
+[EVAL_BATCH] User 3000: marking 61 train positive items as -INF
+[EVAL_BATCH] User 4000: marking 96 train positive items as -INF
+[EVAL_BATCH] User 5000: marking 199 train positive items as -INF
+[EVAL_BATCH] User 6000: marking 350 train positive items as -INF
+[EVAL_BATCH] User 7000: marking 484 train positive items as -INF
+[EVAL_BATCH] User 8000: marking 549 train positive items as -INF
+[EVAL_BATCH] User 9000: marking 27 train positive items as -INF
+[EVAL_BATCH] Sorting indices for top-100 recommendations
+[EVAL_BATCH] Computing metrics for k=10
+[EVAL_BATCH] User 0, k=10: 0 hits out of 4.0 possible
+[EVAL_BATCH] User 1000, k=10: 8 hits out of 10 possible
+[EVAL_BATCH] User 2000, k=10: 6 hits out of 10 possible
+[EVAL_BATCH] User 3000, k=10: 1 hits out of 8.0 possible
+[EVAL_BATCH] User 4000, k=10: 2 hits out of 10 possible
+[EVAL_BATCH] User 5000, k=10: 4 hits out of 10 possible
+[EVAL_BATCH] User 6000, k=10: 3 hits out of 10 possible
+[EVAL_BATCH] User 7000, k=10: 5 hits out of 10 possible
+[EVAL_BATCH] User 8000, k=10: 4 hits out of 10 possible
+[EVAL_BATCH] User 9000, k=10: 2 hits out of 5.0 possible
+[EVAL_BATCH] k=10 metrics - Average HR: 0.3533, Average NDCG: 0.3595, Average PSP: 0.0475
+[EVAL_BATCH] Collected 98780 recommendations for k=10
+[EVAL_BATCH] Computing metrics for k=100
+[EVAL_BATCH] User 0, k=100: 0 hits out of 4.0 possible
+[EVAL_BATCH] User 1000, k=100: 40 hits out of 69.0 possible
+[EVAL_BATCH] User 2000, k=100: 15 hits out of 20.0 possible
+[EVAL_BATCH] User 3000, k=100: 4 hits out of 8.0 possible
+[EVAL_BATCH] User 4000, k=100: 6 hits out of 12.0 possible
+[EVAL_BATCH] User 5000, k=100: 10 hits out of 24.0 possible
+[EVAL_BATCH] User 6000, k=100: 12 hits out of 40.0 possible
+[EVAL_BATCH] User 7000, k=100: 16 hits out of 55.0 possible
+[EVAL_BATCH] User 8000, k=100: 17 hits out of 63.0 possible
+[EVAL_BATCH] User 9000, k=100: 5 hits out of 5.0 possible
+[EVAL_BATCH] k=100 metrics - Average HR: 0.6361, Average NDCG: 0.4528, Average PSP: 0.0871
+[EVAL_BATCH] Collected 987800 recommendations for k=100
+[EVAL_BATCH] Batch evaluation complete, returning 652743 predictions
+[EVALUATE] Batch evaluation complete
+[EVALUATE] Accumulated 98780 recommendations for k=10
+[EVALUATE] Accumulated 987800 recommendations for k=100
+[EVALUATE] Accumulated 652743 predictions and 652743 labels
+[EVALUATE] All batches processed, computing final metrics
+[ 0.06925009  0.08200952  0.1743343  ...  0.00313639 -0.00062837
+ -0.00652212]
+[EVALUATE] Computed AUC: 0.9716
+[EVALUATE] HR@10: 35.0682
+[EVALUATE] HR@100: 64.1473
+[EVALUATE] NDCG@10: 35.8077
+[EVALUATE] NDCG@100: 45.571
+[EVALUATE] PSP@10: 4.7031
+[EVALUATE] PSP@100: 8.7866
+[EVALUATE] Computing GINI coefficients
+[EVALUATE] Computing GINI@10 with 698780 recommendations
+[GINI] Calculating Gini for 698780 articles using key 'category'
+[GINI] Found 374 unique category values
+[GINI] Computing Gini coefficient for 374 values
+[GINI] Computed Gini coefficient: 0.7859
+[EVALUATE] GINI@10: 0.7859157587563229
+[EVALUATE] Computing GINI@100 with 6987800 recommendations
+[GINI] Calculating Gini for 6987800 articles using key 'category'
+[GINI] Found 498 unique category values
+[GINI] Computing Gini coefficient for 498 values
+[GINI] Computed Gini coefficient: 0.7809
+[EVALUATE] GINI@100: 0.7809078484578573
+[EVALUATE] Final metrics: num_users=10000, num_interactions=1138909
+| end of step    0 | time = 1186.45 | HR@10 = 35.0682 | HR@100 = 64.1473 | NDCG@10 = 35.8077 | NDCG@100 = 45.5710 | PSP@10 = 4.7031 | PSP@100 = 8.7866 | GINI@10 = 0.7859 | GINI@100 = 0.7809 | AUC = 0.9716 | num_users = 10000.0000 | num_interactions = 1138909.0000 (TEST)
