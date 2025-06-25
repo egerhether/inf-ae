@@ -86,3 +86,7 @@ This will either perform a grid-search for optimal $\lambda$ parameter and run e
 | `seed` | int: random seed used during training and inference |
 | `gen` | str: type of generalization used - either `strong` or `weak`. this should match preprocessing used, otherwise results will be subpar |
 | `negative_sampling` | str: method used for sampling negatives for AUC calculations. methods supported include `positiveX` and `totalY` where former samples `X * num_positives` while the latter samples `Y` negatives |
+
+## Results
+
+We include experimental results and plots for the ablation study on MovieLens-20M and study into cold start on Steam and MovieLens-1M. Data files, scripts for creating figures and said figures can be found under `results`.
