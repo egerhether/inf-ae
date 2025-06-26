@@ -173,8 +173,12 @@ def load_raw_dataset(
             remapped_item_id = item_map[original_item_id]
             category_data = row.get(category_id_col, "")
             
-            # Parse tags from category data
-            tags = parse_tags(category_data)
+            # use brand directly as tag - amazon magazine dataset
+            if category_id_col == "brand:token":
+                tags = [category_data]
+            # Parse tags from category data    
+            else:
+                tags = parse_tags(category_data)
             
             # Map to first category (for backward compatibility)
             first_category = tags[0] if tags else ""
@@ -208,7 +212,6 @@ def load_raw_dataset(
             print(f"Using default item_path: {item_path}")
     
         print(f"Reading item data from {item_path}")
-        # FIX: Handle CSV parsing errors with more robust error handling
         try:
             # First attempt with standard settings
             item_df = pd.read_csv(

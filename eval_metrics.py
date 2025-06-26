@@ -152,7 +152,7 @@ def prepare_category_counts(
     k: int
 ) -> list[int]:
     """
-    Prepare category counts from recommended items for entropy and gini calculation.
+    Prepare category counts from recommended items for entropy calculation.
     
     Args:
         recommended_ranked_list: List of recommended item IDs ranked by score
@@ -229,22 +229,68 @@ def entropy(category_counts: list) -> float:
 
     return float(normalized_entropy)
 
-def gini(category_counts: list) -> float:
-    if not category_counts:
-        raise ValueError("Category counts cannot be empty")
+def gini(
+    user_item_recommendations: dict, 
+    total_num_items: int, 
+    k: int
+) -> float:
+    """
+    RecBole-style Gini Index: Measures inequality in item popularity across all recommendations.
     
-    counts = np.array(category_counts, dtype=float)
-
-    # Check for negative values
-    if np.any(counts < 0):
-        raise ValueError("Category counts cannot be negative")
+    This follows the RecBole implementation that calculates the Gini coefficient based on 
+    how frequently individual items appear in recommendation lists across all users.
+    Lower values indicate more diverse item coverage (less popularity bias).
     
-    # Remove zero counts (they don't contribute to Gini)
-    nonzero_counts = counts[counts > 0]
-
-    # Check for empty nonzero counts
-    if len(nonzero_counts) == 0:
-        raise ValueError("All category counts are zero")
-
-    gini = 1 - np.sum((nonzero_counts/np.sum(nonzero_counts))**2)
-    return gini
+    Args:
+        user_item_recommendations: Dictionary mapping user_id -> list of recommended item IDs
+        total_num_items: Total number of items in the catalog
+        k: Number of top recommendations to consider per user
+        
+    Returns:
+        Gini coefficient (0 = perfect equality, 1 = maximum inequality)
+        
+    Raises:
+        ValueError: If inputs are invalid or result in empty item counts
+    """
+    if not user_item_recommendations:
+        raise ValueError("user_item_recommendations cannot be empty")
+    
+    if total_num_items <= 0:
+        raise ValueError("total_num_items must be positive")
+        
+    if k <= 0:
+        raise ValueError("k must be positive")
+    
+    # Count frequency of each item across all users' recommendations
+    item_counts = np.zeros(total_num_items, dtype=int)
+    
+    for user_id, recommendations in user_item_recommendations.items():
+        # Take top-k recommendations for this user
+        top_k_items = recommendations[:k]
+        
+        for item_id in top_k_items:
+            if 0 <= item_id < total_num_items:
+                item_counts[item_id] += 1
+    
+    # Sort counts in non-decreasing order (as specified in RecBole)
+    sorted_counts = np.sort(item_counts)
+    
+    # Calculate Gini coefficient using the standard formula
+    n = len(sorted_counts)
+    if n == 0:
+        raise ValueError("No valid item counts found")
+    
+    # Gini = (2 * sum(i * x_i) / (n * sum(x_i))) - (n + 1) / n
+    # where x_i are sorted values and i is the rank (1-indexed)
+    total_sum = np.sum(sorted_counts)
+    
+    if total_sum == 0:
+        # All items have zero recommendations - perfect equality
+        return 0.0
+    
+    # Calculate weighted sum: sum of (rank * count) for each item
+    weighted_sum = np.sum((np.arange(1, n + 1) * sorted_counts))
+    
+    gini_coefficient = (2.0 * weighted_sum) / (n * total_sum) - (n + 1) / n
+    
+    return float(gini_coefficient)
