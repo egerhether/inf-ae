@@ -23,13 +23,7 @@ def train(hyper_params, data):
     sampled_matrix = data.sample_users(
         hyper_params["user_support"]
     )  # Random user sample
-
-    """
-    NOTE: No training required! We will compute dual-variables \alpha on the fly in `kernelized_rr_forward`
-          However, if we needed to perform evaluation multiple times, we could pre-compute \alpha like so:
     
-    """
-
     import jax, jax.numpy as jnp, jax.scipy as sp
     @jax.jit
     def precompute_alpha(X, lamda=0.1):

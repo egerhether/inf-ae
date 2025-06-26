@@ -66,7 +66,7 @@ To run the model with your desired hyperparameter setup (for more information se
 ```
 CUDA_VISIBLE_DEVICES=0 python main.py <dataset_name>
 ```
-This will either perform a grid-search for optimal $\lambda$ parameter and run evaluation on the best one, or just run evaluation if the grid-search hyperparameter is passed as `False`.
+This will either perform a grid-search for optimal $\lambda$ parameter and run evaluation on the best one, or just run evaluation if the grid-search hyperparameter is passed as `False`. By default, the command will execute grid-search tuning with other hyperparameters set to the values we used in the reproduction.
 
 
 ## Hyperparameters
