@@ -11,6 +11,7 @@ import random
 import numpy as np
 
 from utils import log_end_epoch, get_item_propensity, get_common_path
+from cold_start import run_cold_start_experiment
 
 
 def train(hyper_params, data):
@@ -22,13 +23,7 @@ def train(hyper_params, data):
     sampled_matrix = data.sample_users(
         hyper_params["user_support"]
     )  # Random user sample
-
-    """
-    NOTE: No training required! We will compute dual-variables \alpha on the fly in `kernelized_rr_forward`
-          However, if we needed to perform evaluation multiple times, we could pre-compute \alpha like so:
     
-    """
-
     import jax, jax.numpy as jnp, jax.scipy as sp
     @jax.jit
     def precompute_alpha(X, lamda=0.1):
@@ -63,6 +58,7 @@ def train(hyper_params, data):
 
     # Return metrics with the best lamda on the test-set
     hyper_params["lamda"] = best_lamda
+    print(f"Found best lambda to be {best_lamda}")
     # Precompute for speedup
     alpha = precompute_alpha(sampled_matrix, lamda=best_lamda) 
     test_metrics = evaluate(
@@ -72,6 +68,14 @@ def train(hyper_params, data):
         sampled_matrix,
         test_set_eval=True,
         alpha = alpha
+    )
+
+    run_cold_start_experiment(
+        data,
+        hyper_params,
+        kernelized_rr_forward,
+        sampled_matrix,
+        alpha
     )
 
     log_end_epoch(hyper_params, test_metrics, 0, time.time() - start_time)

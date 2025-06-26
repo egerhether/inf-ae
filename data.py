@@ -9,12 +9,14 @@ import os
 from tqdm import tqdm
 
 from utils import parse_neg_sampling_param
+from plot import save_interaction_statistics
 
 tqdm.pandas()
 
 
 class Dataset:
     def __init__(self, hyper_params):
+        np.random.seed(hyper_params["seed"])
         self.data = load_raw_dataset(
             hyper_params["dataset"],
             hyper_params["item_id"],
@@ -24,6 +26,13 @@ class Dataset:
         )
         self.set_of_active_users = list(set(self.data["train"][:, 0].tolist()))
         self.hyper_params = self.update_hyper_params(hyper_params)
+        save_interaction_statistics(
+            self.data["train_positive_set"],
+            self.data["val_positive_set"],
+            self.data["test_positive_set"],
+            hyper_params["dataset"],
+            hyper_params["seed"],
+        )
 
     def update_hyper_params(self, hyper_params):
         updated_params = copy.deepcopy(hyper_params)

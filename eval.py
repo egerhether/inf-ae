@@ -1,12 +1,12 @@
-import jax
 import jax.numpy as jnp
 import numpy as np
 
 import eval_metrics
 from utils import get_item_propensity
 from utils import filter_out_users_with_no_gt
+from utils import get_cores
 
-INF = float(1e6)
+INF = float('inf')
 
 METRIC_NAMES = [
     "PRECISION",
@@ -76,7 +76,7 @@ def evaluate(
         if hyper_params["gen"] == "strong":
             total_sampled_items = 0
             added_context = data.data["test_matrix"]
-            to_predict = [] # we predict 20% of val interactions, not entire set like before
+            to_predict = [] # we predict 20% of test interactions, not entire set like before
             num_eval_users = 0 # needed for correct metric aggegation
             for u_idx, u in enumerate(data.data["test_positive_set"]):
                 num_user_items = len(u)
@@ -149,8 +149,6 @@ def evaluate(
         batch_end = min(i + bsz, hyper_params["num_users"])
         print(f"[EVALUATE] Processing batch of users {i} to {batch_end-1} (total: {batch_end-i})")
 
-        # Sanity check for users with no items
-
         # Forward pass
         temp_preds = kernelized_rr_forward(
             train_x, eval_context[i:batch_end].todense(), reg=hyper_params["lamda"], alpha=alpha
@@ -160,8 +158,8 @@ def evaluate(
         metrics, temp_preds, temp_y, user_recommendations_batch, batch_category_counts, batch_item_recommendations = evaluate_batch(
             data.data["negatives"][i:batch_end],
             np.array(temp_preds),
-            train_positive_list[i:batch_end],
-            to_predict[i:batch_end],
+            train_positive_list[i:batch_end], # train positives, used for setting logits to -inf before sorting
+            to_predict[i:batch_end], # test/val items to be predicted
             item_propensity,
             k_values,
             metrics,
@@ -185,7 +183,7 @@ def evaluate(
     print(f"[EVALUATE] All batches processed, computing final metrics")
     y_binary, preds = np.array(y_binary), np.array(preds)
     if (True not in np.isnan(y_binary)) and (True not in np.isnan(preds)):
-        metrics["GLOBAL_AUC"] = round(eval_metrics.auc(y_binary, preds), 4)
+        metrics["GLOBAL_AUC"] = round(eval_metrics.auc(list(y_binary), list(preds)), 4)
     else:
         print("[EVALUATE] Warning: NaN values detected in y_binary or preds, skipping GLOBAL_AUC calculation")
 
@@ -305,7 +303,7 @@ def evaluate_batch(
         temp_y.extend(true_labels.tolist())
 
         # Accumulate per-user AUC for the calculation of meanAUC done in `evaluate(...)`
-        user_auc = eval_metrics.auc(true_labels, item_scores)
+        user_auc = eval_metrics.auc(list(true_labels), list(item_scores))
         metrics["MEAN_AUC"] += user_auc
 
     # Marking train-set consumed items as negative INF

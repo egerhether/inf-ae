@@ -1,0 +1,4 @@
+n_layers: choice [1, 2, 3]
+learning_rate: choice [0.0005,0.001,0.006,0.01]
+reg_weight: choice [1e-6, 1e-5, 1e-4, 1e-3, 1e-2]
+embedding_size: choice [16, 32, 50, 64, 128]

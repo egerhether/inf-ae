@@ -1,0 +1,72 @@
+{
+    "bin0": {
+        "range": [
+            20,
+            24
+        ],
+        "#users": {
+            "coldness0": 39,
+            "coldness1": 39,
+            "coldness3": 39,
+            "coldness5": 39,
+            "coldness10": 39,
+            "coldness15": 39
+        }
+    },
+    "bin1": {
+        "range": [
+            24,
+            28
+        ],
+        "#users": {
+            "coldness0": 26,
+            "coldness1": 26,
+            "coldness3": 26,
+            "coldness5": 26,
+            "coldness10": 26,
+            "coldness15": 26
+        }
+    },
+    "bin2": {
+        "range": [
+            28,
+            32
+        ],
+        "#users": {
+            "coldness0": 24,
+            "coldness1": 24,
+            "coldness3": 24,
+            "coldness5": 24,
+            "coldness10": 24,
+            "coldness15": 24
+        }
+    },
+    "bin3": {
+        "range": [
+            32,
+            36
+        ],
+        "#users": {
+            "coldness0": 16,
+            "coldness1": 16,
+            "coldness3": 16,
+            "coldness5": 16,
+            "coldness10": 16,
+            "coldness15": 16
+        }
+    },
+    "bin4": {
+        "range": [
+            36,
+            40
+        ],
+        "#users": {
+            "coldness0": 18,
+            "coldness1": 18,
+            "coldness3": 18,
+            "coldness5": 18,
+            "coldness10": 18,
+            "coldness15": 18
+        }
+    }
+}
