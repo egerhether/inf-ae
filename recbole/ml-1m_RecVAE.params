@@ -1,0 +1,6 @@
+latent_dimension: choice [16, 32, 64, 100, 128]
+kl_weight: choice [0.01, 0.05, 0.1, 0.2, 0.4]
+learning_rate: choice [0.001,0.006,0.01]
+mlp_hidden_size choice ["256","512","1024", "256,256","512,256", "1024,256", "1024,512,128"]
+gamma: choice [1e-4,1e-3,1e-2] 
+dropout_prob: choice [0.3,0.5,0.7]
