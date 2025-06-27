@@ -47,7 +47,7 @@ The repository contains two runnable scripts `preprocess.py` and `main.py`. The 
 
 ### Datasets
 - [Douban raw data](https://www.kaggle.com/datasets/fengzhujoey/douban-datasetratingreviewside-information); after downloading run `python data/douban/preprocess_movies_only.py` on the downloaded files to filter out anything not movie related.
-- [Amazon2018 raw data ("Magazine Subscriptions")](https://www.kaggle.com/datasets/fengzhujoey/douban-datasetratingreviewside-information); follow the data preprocessing instuctions of RecBole.
+- [Amazon2018 raw data ("Magazine Subscriptions")](https://cseweb.ucsd.edu/~jmcauley/datasets/amazon_v2/); follow the data preprocessing instuctions of RecBole.
 - [Netflix](https://www.kaggle.com/datasets/netflix-inc/netflix-prize-data); follow the data preprocessing instructions of RecBole.
 - Steam, ML-{1, 10, 20}M; follow the data instructions of RecBole.
 
@@ -74,9 +74,13 @@ python preprocess.py steam
 
 To run the model with your desired hyperparameter setup (for more information see [Hyperparameters](#Hyperparameters)) run
 ```
-CUDA_VISIBLE_DEVICES=0 python main.py <dataset_name>
+CUDA_VISIBLE_DEVICES=0 python main.py <dataset_name> <cold-start-experiment>
 ```
 This will either perform a grid-search for optimal $\lambda$ parameter and run evaluation on the best one, or just run evaluation if the grid-search hyperparameter is passed as `False`. By default, the command will execute grid-search tuning with other hyperparameters set to the values we used in the reproduction.
+
+`<dataset_name>` (required) should be replaced with one of the folowing `ml-1m`, `douban`, `amazon_magazine`, `douban`, `steam`;
+
+`<cold-start-experiment>` (optional) should be replaced with `cold_start` which runs the cold-start experiment after tuning (if applicable) and evaluation; if you don't want to run the cold-start experiment, don't replace this placeholder. **Note** Running this experiment assumes that the `gen` hyperparameter in `hyper_params.py` is set to `strong`.
 
 
 ## Hyperparameters
@@ -96,6 +100,10 @@ This will either perform a grid-search for optimal $\lambda$ parameter and run e
 | `seed` | int: random seed used during training and inference |
 | `gen` | str: type of generalization used - either `strong` or `weak`. this should match preprocessing used, otherwise results will be subpar |
 | `negative_sampling` | str: method used for sampling negatives for AUC calculations. methods supported include `positiveX` and `totalY` where former samples `X * num_positives` while the latter samples `Y` negatives |
+| `simulated_min_interactions` | int: (cold-start) maximum number of interactions a user must have in order to be used (cold-start) for simulating cold-start users |
+| `simulated_max_interactions` | int: (cold-start) minimum number of interactions a user must have in order to be used for simulating cold-start users |
+| `cold_start_bins` | int: (cold-start) number of user bins to be used in the cold start experiment. |
+| `simulated_coldness_levels`  | list[int]: (cold-start) number of items to be kept when simulating cold-users, the rest of their interactions are used for evaluation |
 
 ## Results
 

@@ -14,7 +14,7 @@ from utils import log_end_epoch, get_item_propensity, get_common_path
 from cold_start import run_cold_start_experiment
 
 
-def train(hyper_params, data):
+def train(hyper_params, data, cold_start_experiment):
     from model import make_kernelized_rr_forward
     from eval import evaluate
 
@@ -70,13 +70,15 @@ def train(hyper_params, data):
         alpha = alpha
     )
 
-    run_cold_start_experiment(
-        data,
-        hyper_params,
-        kernelized_rr_forward,
-        sampled_matrix,
-        alpha
-    )
+    if hyper_params["gen"] == "strong" and cold_start_experiment:
+        print("Running cold start experiment...")
+        run_cold_start_experiment(
+            data,
+            hyper_params,
+            kernelized_rr_forward,
+            sampled_matrix,
+            alpha
+        )
 
     log_end_epoch(hyper_params, test_metrics, 0, time.time() - start_time)
     start_time = time.time()
@@ -84,7 +86,7 @@ def train(hyper_params, data):
     return test_metrics
 
 
-def main(hyper_params, gpu_id=None):
+def main(hyper_params, cold_start_experiment, gpu_id=None):
     if gpu_id is not None:
         os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
 
@@ -108,14 +110,17 @@ def main(hyper_params, gpu_id=None):
     hyper_params = copy.deepcopy(data.hyper_params)  # Updated w/ data-stats
 
     print("Start training!")
-    return train(hyper_params, data)
+    return train(hyper_params, data, cold_start_experiment)
 
 
 if __name__ == "__main__":
     from hyper_params import hyper_params
+    cold_start_experiment = False
     if len(sys.argv) > 1:
         dataset = sys.argv[1]
+    if len(sys.argv) > 2 and sys.argv[2] == "cold-start":
+        cold_start_experiment = True
     print(f"Performing analysis for dataset {dataset}")
     params = hyper_params[dataset]
 
-    main(params)
+    main(params, cold_start_experiment)

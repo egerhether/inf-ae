@@ -1,72 +1,72 @@
 {
-    "bin0": {
-        "range": [
-            20,
-            24
-        ],
-        "#users": {
-            "coldness0": 48,
-            "coldness1": 48,
-            "coldness3": 48,
-            "coldness5": 48,
-            "coldness10": 48,
-            "coldness15": 48
-        }
-    },
-    "bin1": {
-        "range": [
-            24,
-            28
-        ],
-        "#users": {
-            "coldness0": 20,
-            "coldness1": 20,
-            "coldness3": 20,
-            "coldness5": 20,
-            "coldness10": 20,
-            "coldness15": 20
-        }
-    },
-    "bin2": {
-        "range": [
-            28,
-            32
-        ],
-        "#users": {
-            "coldness0": 30,
-            "coldness1": 30,
-            "coldness3": 30,
-            "coldness5": 30,
-            "coldness10": 30,
-            "coldness15": 30
-        }
-    },
-    "bin3": {
-        "range": [
-            32,
-            36
-        ],
-        "#users": {
-            "coldness0": 22,
-            "coldness1": 22,
-            "coldness3": 22,
-            "coldness5": 22,
-            "coldness10": 22,
-            "coldness15": 22
-        }
-    },
-    "bin4": {
-        "range": [
-            36,
-            40
-        ],
-        "#users": {
-            "coldness0": 15,
-            "coldness1": 15,
-            "coldness3": 15,
-            "coldness5": 15,
-            "coldness10": 15,
-            "coldness15": 15
-        }
+  "bin0": {
+    "range": [
+      20,
+      24
+    ],
+    "#users": {
+      "coldness0": 48,
+      "coldness1": 48,
+      "coldness3": 48,
+      "coldness5": 48,
+      "coldness10": 48,
+      "coldness15": 48
     }
+  },
+  "bin1": {
+    "range": [
+      24,
+      28
+    ],
+    "#users": {
+      "coldness0": 20,
+      "coldness1": 20,
+      "coldness3": 20,
+      "coldness5": 20,
+      "coldness10": 20,
+      "coldness15": 20
+    }
+  },
+  "bin2": {
+    "range": [
+      28,
+      32
+    ],
+    "#users": {
+      "coldness0": 30,
+      "coldness1": 30,
+      "coldness3": 30,
+      "coldness5": 30,
+      "coldness10": 30,
+      "coldness15": 30
+    }
+  },
+  "bin3": {
+    "range": [
+      32,
+      36
+    ],
+    "#users": {
+      "coldness0": 22,
+      "coldness1": 22,
+      "coldness3": 22,
+      "coldness5": 22,
+      "coldness10": 22,
+      "coldness15": 22
+    }
+  },
+  "bin4": {
+    "range": [
+      36,
+      40
+    ],
+    "#users": {
+      "coldness0": 15,
+      "coldness1": 15,
+      "coldness3": 15,
+      "coldness5": 15,
+      "coldness10": 15,
+      "coldness15": 15
+    }
+  }
 }

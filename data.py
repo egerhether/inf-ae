@@ -8,9 +8,7 @@ import pandas as pd
 import os
 from tqdm import tqdm
 
-from utils import parse_neg_sampling_param
-from plot import save_interaction_statistics
-
+from utils import parse_neg_sampling_param, save_interaction_statistics
 tqdm.pandas()
 
 

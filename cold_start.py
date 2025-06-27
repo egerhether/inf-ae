@@ -452,7 +452,6 @@ def evaluate(
                         category_recommendations = eval_metrics.prepare_category_counts(recommendations[u], data.data["item_tag_mapping"], k)
                         total_metrics[f"ILD@{k}"] += eval_metrics.intra_list_jaccard_distance(recommendations[u], data.data["item_tag_mapping"], k)
                         total_metrics[f"ENTROPY@{k}"] += eval_metrics.entropy(list(category_recommendations.values()))
-                        total_metrics[f"GINI@{k}"] += eval_metrics.gini(list(category_recommendations.values()))
 
                         for category, count in category_recommendations.items():
                             global_category_counts[k][category] = global_category_counts[k].get(category, 0) + count
@@ -460,7 +459,6 @@ def evaluate(
             metrics[bin_key][coldness_key]["GLOBAL_AUC"] = eval_metrics.auc(global_auc_labels, global_auc_scores)
             for k in k_values:
                 category_counts_array = list(global_category_counts[k].values())
-                metrics[bin_key][coldness_key][f"GLOBAL_GINI@{k}"] = eval_metrics.gini(category_counts_array)
                 metrics[bin_key][coldness_key][f"GLOBAL_ENTROPY@{k}"] = eval_metrics.entropy(category_counts_array)
 
             num_users = cold_start_stats[bin_key]["#users"][coldness_key]

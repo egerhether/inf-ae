@@ -3,6 +3,7 @@ import h5py
 import sys
 import os
 import pandas as pd
+from hyper_params import hyper_params
 
 BASE_PATH = "data/"
 
@@ -261,9 +262,9 @@ if __name__ == "__main__":
         generalization = sys.argv[2]
 
     dataset = sys.argv[1]
-    np.random.seed(42)
+    np.random.seed(hyper_params[dataset]["seed"])
 
-    print(f"\n\n!!!!!!!! STARTED PROCESSING {dataset} with seed {np.random.get_state()[1][0]} and {generalization} generalization !!!!!!!!")
+    print(f"\n\n!!!!!!!! STARTED PROCESSING {dataset} with seed {hyper_params[dataset]['seed']} and {generalization} generalization !!!!!!!!")
 
     if dataset == "ml-1m":
         total_data = prep_recbole(
