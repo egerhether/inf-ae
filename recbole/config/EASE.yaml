@@ -1,0 +1,25 @@
+dataset: ####
+model: EASE
+seed : 42
+use_gpu : True
+
+USER_ID_FIELD: user_id
+ITEM_ID_FIELD: item_id
+RATING_FIELD: rating
+TIME_FIELD: timestamp
+
+
+item_inter_num_interval: [3, .inf]
+train_neg_sample_args: {None}
+
+
+metrics: ["Recall", "NDCG", "MRR","Hit","GiniIndex","Precision"]
+topk: [5,10,20,100]
+valid_metric: Recall@100
+eval_setting: RO_RS,full
+group_by: user
+
+tensorboard: True
+show_progress: True
+save_dataset: True
+save_model: True

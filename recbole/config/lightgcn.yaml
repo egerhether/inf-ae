@@ -1,0 +1,32 @@
+dataset: ml-20m
+model: LightGCN
+use_gpu : True
+seed : 42
+USER_ID_FIELD: user_id
+ITEM_ID_FIELD: item_id
+RATING_FIELD: rating
+TIME_FIELD: timestamp
+
+neg_sampling: true
+item_inter_num_interval: [3, .inf]
+train_neg_sample_args: {"uniform": 1}
+group_by: user
+metrics: ["Recall", "NDCG", "MRR","Hit","GiniIndex","Precision"]
+topk: [5,10,20,100]
+valid_metric: Recall@100
+eval_setting: RO_RS,full
+
+#training
+epochs: 200
+loss_type: BPR #og paper 
+train_batch_size: 1024 #from og paper 
+eval_batch_size: 2048
+
+tensorboard: True
+show_progress: True
+save_dataset: False
+save_model : True
+use_wandb: false
+
+
+

@@ -1,0 +1,32 @@
+dataset: ml-20m
+model: MultiVAE
+use_gpu : True
+seed : 42
+USER_ID_FIELD: user_id
+ITEM_ID_FIELD: item_id
+RATING_FIELD: rating
+
+
+train_neg_sample_args : {None}
+item_inter_num_interval: [3, .inf]
+
+
+group_by: user
+metrics: ["Recall", "NDCG", "MRR","Hit","GiniIndex","Precision"]
+topk: [5,10,20,100]
+valid_metric: Recall@100
+eval_setting: RO_RS,full
+
+# Training
+eval_batch_size: 1024
+train_batch_size : 2048 
+epochs: 200
+
+tensorboard: True
+show_progress: True
+save_dataset: True
+save_model: True
+use_wandb: false
+
+
+

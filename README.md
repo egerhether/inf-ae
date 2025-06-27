@@ -45,9 +45,17 @@ to prepare the data for further preprocessing.
 
 The repository contains two runnable scripts `preprocess.py` and `main.py`. The former is responsible for creating necessary data file from RecBole preprocessed datasets, while the latter is performing training and inference on the ∞-AE model. Always run `preprocess.py` before running `main.py`.
 
+### Datasets
+- [Douban raw data](https://www.kaggle.com/datasets/fengzhujoey/douban-datasetratingreviewside-information); after downloading run `python data/douban/preprocess_movies_only.py` on the downloaded files to filter out anything not movie related.
+- [Amazon2018 raw data ("Magazine Subscriptions")](https://www.kaggle.com/datasets/fengzhujoey/douban-datasetratingreviewside-information); follow the data preprocessing instuctions of RecBole.
+- [Netflix](https://www.kaggle.com/datasets/netflix-inc/netflix-prize-data); follow the data preprocessing instructions of RecBole.
+- Steam, ML-{1, 10, 20}M; follow the data instructions of RecBole.
+
+These setps will allow provide you with `.inter`, `.item` files.
+
 ### Preprocessing
 
-`preprocess.py` takes two positional arguments: dataset and generalization approach. Dataset argument is required, while if generalization argument is omitted the preprocessing script will default to weak generalization approach. For example to preprocess `steam` dataset using strong generalization we run
+After downloading the datasets, we further preprocess them. `preprocess.py` takes two positional arguments: dataset and generalization approach. Dataset argument is required, while if generalization argument is omitted the preprocessing script will default to weak generalization approach. For example to preprocess `steam` dataset using strong generalization we run
 ```
 python preprocess.py steam strong
 ```
@@ -60,7 +68,7 @@ is equivalent to
 python preprocess.py steam
 ```
 
-
+**Note**: In order to avoid overwriting the original item file, you should rename the original `<dataset_name>.item` you downloaded and preprocessed via RecBole file to `<dataset_name>_original.item`.
 
 ### Running the model
 
@@ -100,3 +108,37 @@ This will either perform a grid-search for optimal $\lambda$ parameter and run e
 ## Results
 
 We include experimental results and plots for the ablation study on MovieLens-20M and study into cold start on Steam and MovieLens-1M. Data files, scripts for creating figures and said figures can be found under `results`.
+
+# Baseline Reproducibility
+
+This project makes use of Recbole, a python recommender systems library, to recreate baseline models.
+We choose to recreate some baselines of the original paper (MVAE, EASE, LGCN) and also use RecVAE as a baseline model extension. We use this https://github.com/RUCAIBox/RecBole github repo (commit #2418 from February 2025) and extend it to suit our needs. 
+
+### Edits
+We have made some edits on the following scripts within the recbole module.
+To recreate our model runs, replace the following scripts using those provided in the recbole folder :
+    1. configurator.py --> found under  /recbole/config/configurator.py
+    2. quick_start.py --> found under /recbole/quick_start/quick_start.py
+    3. run_hyper.py --> found under main directory of Recbole
+    4. ease.py --> found under /recbole/model/general_recommender/ease.py
+    5. multivae.py --> found under /recbole/model/general_recommender/multivae.py
+    6. recvae.py --> found under /recbole/model/general_recommender/recvae.py
+
+## Model Config and Param Files
+We  provide the model settings and hyper parameter search space for each of the baseline models.
+These can be found under the /recbole/config and /recbole/params folder. 
+
+To run a model hyperparameter search we use the `run_hyper.py ` that takes 4 positional arguments:
+
+    EX :
+    python run_hyper.py \
+        --tool Hyperopt \  
+        --config_files recbole_tuning_files/config.yaml \
+        --params_file recbole_tuning_files/params.params \
+        --output_file tuning_results/douban_EASE_tune.result
+    
+    --tool simply tells recbole which hypertuning library to use, in our case we used Hyperopt. 
+    --params_file defines  the hyperparameter search space
+    --config_files defines the model and data configuration
+
+Note : Make sure to change the dataset field in the .yaml file to the name of your dataset. 
