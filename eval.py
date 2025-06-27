@@ -16,7 +16,6 @@ METRIC_NAMES = [
     "PSP",
     "CAPPED_PSP",
     "ILD",
-    "GINI",
     "ENTROPY",
     "MEAN_AUC",
     "GLOBAL_AUC",
@@ -49,8 +48,10 @@ def evaluate(
 
     # Initialize global category tracking for diversity metrics
     global_category_counts = {}
+    global_item_recommendations = {}  # Track all user recommendations for item-level Gini
     for k in k_values:
         global_category_counts[k] = {}
+        global_item_recommendations[k] = {}
 
     # Items from the train set to mask (set to -INF) in train/val predictions.
     train_positive_list = list(map(list, data.data["train_positive_set"]))
@@ -154,7 +155,7 @@ def evaluate(
         )
         print(f"[EVALUATE] Forward pass complete, prediction shape: {np.array(temp_preds).shape}")
 
-        metrics, temp_preds, temp_y, user_recommendations_batch, batch_category_counts = evaluate_batch(
+        metrics, temp_preds, temp_y, user_recommendations_batch, batch_category_counts, batch_item_recommendations = evaluate_batch(
             data.data["negatives"][i:batch_end],
             np.array(temp_preds),
             train_positive_list[i:batch_end], # train positives, used for setting logits to -inf before sorting
@@ -171,6 +172,10 @@ def evaluate(
         for k in k_values:
             for category, count in batch_category_counts.get(k, {}).items():
                 global_category_counts[k][category] = global_category_counts[k].get(category, 0) + count
+            
+            # Accumulate global item recommendations
+            for user_idx, recommendations in batch_item_recommendations.get(k, {}).items():
+                global_item_recommendations[k][user_idx] = recommendations
 
         preds += temp_preds
         y_binary += temp_y
@@ -186,9 +191,20 @@ def evaluate(
     if hyper_params["diversity_metrics"] and len(global_category_counts) > 0:
         for k in k_values:
             category_counts_array = list(global_category_counts[k].values())
-            metrics[f"GLOBAL_GINI@{k}"] = round(eval_metrics.gini(category_counts_array), 4)
             metrics[f"GLOBAL_ENTROPY@{k}"] = round(eval_metrics.entropy(category_counts_array), 4)
             print(f"[EVALUATE] Global diversity metrics computed for k={k}: categories={len(global_category_counts[k])}, total_recs={sum(category_counts_array)}")
+            
+            # Compute item-level Gini
+            if len(global_item_recommendations[k]) > 0:
+                gini = eval_metrics.gini(
+                    global_item_recommendations[k], 
+                    hyper_params["num_items"], 
+                    k
+                )
+                metrics[f"GLOBAL_GINI@{k}"] = round(gini, 4)
+                print(f"[EVALUATE] Global item Gini computed for k={k}: users={len(global_item_recommendations[k])}, gini={gini:.4f}")
+            else:
+                metrics[f"GLOBAL_GINI@{k}"] = -1.0
     else:
         for k in k_values:
             metrics[f"GLOBAL_GINI@{k}"] = -1.0
@@ -266,8 +282,10 @@ def evaluate_batch(
 
     # Initialize batch-level global category tracking
     batch_category_counts = {}
+    batch_item_recommendations = {}  # Track item recommendations for this batch
     for k in k_values:
         batch_category_counts[k] = {}
+        batch_item_recommendations[k] = {}
 
     # Collect all binary labels and score predictions for calculating global_AUC
     temp_preds, temp_y = [], []
@@ -311,6 +329,10 @@ def evaluate_batch(
             gini = -1.0
             entropy = -1.0
             ild = -1.0
+            
+            # Store user recommendations for item-level Gini calculation
+            batch_item_recommendations[k][user_idx] = recommended_item_indices[user_idx][:k]
+            
             if diversity_metrics and "item_tag_mapping" in data.data and len(data.data["item_tag_mapping"]) > 0:
                 ild = eval_metrics.intra_list_jaccard_distance(
                     recommended_item_indices[user_idx], 
@@ -323,7 +345,6 @@ def evaluate_batch(
                     k
                 )
                 entropy = eval_metrics.entropy(list(category_recommendations.values()))
-                gini = eval_metrics.gini(list(category_recommendations.values()))
 
                 # Accumulate global category counts for this batch
                 for category, count in category_recommendations.items():
@@ -344,6 +365,5 @@ def evaluate_batch(
             metrics["CAPPED_PSP@{}".format(k)] += capped_psp
             metrics["ILD@{}".format(k)] += ild
             metrics["ENTROPY@{}".format(k)] += entropy
-            metrics["GINI@{}".format(k)] += gini
 
-    return metrics, temp_preds, temp_y, user_recommendations if diversity_metrics else {}, batch_category_counts
+    return metrics, temp_preds, temp_y, user_recommendations if diversity_metrics else {}, batch_category_counts, batch_item_recommendations
