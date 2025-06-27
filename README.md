@@ -49,7 +49,7 @@ The repository contains two runnable scripts `preprocess.py` and `main.py`. The 
 - [Douban raw data](https://www.kaggle.com/datasets/fengzhujoey/douban-datasetratingreviewside-information); after downloading run `python data/douban/preprocess_movies_only.py` on the downloaded files to filter out anything not movie related.
 - [Amazon2018 raw data ("Magazine Subscriptions")](https://www.kaggle.com/datasets/fengzhujoey/douban-datasetratingreviewside-information); follow the data preprocessing instuctions of RecBole.
 - [Netflix](https://www.kaggle.com/datasets/netflix-inc/netflix-prize-data); follow the data preprocessing instructions of RecBole.
-- Steam, ML-{1, 10, 20}M; follow the date instructions of RecBole.
+- Steam, ML-{1, 10, 20}M; follow the data instructions of RecBole.
 
 These setps will allow provide you with `.inter`, `.item` files.
 
