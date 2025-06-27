@@ -32,7 +32,7 @@ We also include a slurm job file for the purposes of setting up the environment 
 
 ### Datasets
 
-This repository contains serveral already preprocessed datasets ready for inference. If you wish to preprocess data yourself, we recommend sourcing datasets (except Douban) from [RecSysDatasets](https://github.com/RUCAIBox/RecSysDatasets). Each dataset (under `conversion_tools/usage`) will have instructions on preprocessing the raw data into format understood by the `preprocess.py` script. After converting datasets using these instructions place them under `data/<dataset_name>` under names `<dataset_name>.inter` (and if dataset contains it) `<dataset_name>_original.item`.
+This repository contains serveral already preprocessed datasets ready for inference. If you wish to preprocess data yourself, we recommend sourcing datasets (except Douban, Netflix and Amazon-Magazine) from [RecSysDatasets](https://github.com/RUCAIBox/RecSysDatasets). Each dataset (under `conversion_tools/usage`) will have instructions on preprocessing the raw data into format understood by the `preprocess.py` script. After converting datasets using these instructions place them under `data/<dataset_name>` under names `<dataset_name>.inter` (and if dataset contains it) `<dataset_name>_original.item`.
 
 For Douban, original authors use a different source of the datasets than the repository we use. For that reason you can obtain the dataset at [Kaggle](https://www.kaggle.com/datasets/fengzhujoey/douban-datasetratingreviewside-information). Dataset used in the original paper and thus in our reproduction is the movie portion in the source above, so please download `moviereviews_cleaned.txt` and `movies_cleaned.txt`. Place them under `data/douban/douban_dataset` Then run 
 ```
@@ -41,17 +41,14 @@ python preprocess_movies_only.py
 ```
 to prepare the data for further preprocessing. 
 
+- For Amazon 2018 Magazine Reviews you can download the raw data from [here](https://cseweb.ucsd.edu/~jmcauley/datasets/amazon_v2/).
+- For Netflix you can download the raw data from [here](https://www.kaggle.com/datasets/netflix-inc/netflix-prize-data).
+  
+After following the RecBole processing instuctions mentioned earlier, you will have the necessary `.inter`, `.item` files for each dataset.
+
 ## Usage
 
 The repository contains two runnable scripts `preprocess.py` and `main.py`. The former is responsible for creating necessary data file from RecBole preprocessed datasets, while the latter is performing training and inference on the ∞-AE model. Always run `preprocess.py` before running `main.py`.
-
-### Datasets
-- [Douban raw data](https://www.kaggle.com/datasets/fengzhujoey/douban-datasetratingreviewside-information); after downloading run `python data/douban/preprocess_movies_only.py` on the downloaded files to filter out anything not movie related.
-- [Amazon2018 raw data ("Magazine Subscriptions")](https://cseweb.ucsd.edu/~jmcauley/datasets/amazon_v2/); follow the data preprocessing instuctions of RecBole.
-- [Netflix](https://www.kaggle.com/datasets/netflix-inc/netflix-prize-data); follow the data preprocessing instructions of RecBole.
-- Steam, ML-{1, 10, 20}M; follow the data instructions of RecBole.
-
-These setps will allow provide you with `.inter`, `.item` files.
 
 ### Preprocessing
 
