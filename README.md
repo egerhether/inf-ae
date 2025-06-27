@@ -90,3 +90,40 @@ This will either perform a grid-search for optimal $\lambda$ parameter and run e
 ## Results
 
 We include experimental results and plots for the ablation study on MovieLens-20M and study into cold start on Steam and MovieLens-1M. Data files, scripts for creating figures and said figures can be found under `results`.
+
+
+
+
+# Baseline Reproducibility
+
+This project makes use of Recbole, a python recommender systems library, to recreate baseline models.
+We choose to recreate some baselines of the original paper (MVAE, EASE, LGCN) and also use RecVAE as a baseline model extension. We use this https://github.com/RUCAIBox/RecBole github repo (commit #2418 from February 2025) and extend it to suit our needs. 
+
+### Edits
+We have made some edits on the following scripts within the recbole module.
+To recreate our model runs, replace the following scripts using those provided in the recbole folder :
+    1. configurator.py --> found under  /recbole/config/configurator.py
+    2. quick_start.py --> found under /recbole/quick_start/quick_start.py
+    3. run_hyper.py --> found under main directory of Recbole
+    4. ease.py --> found under /recbole/model/general_recommender/ease.py
+    5. multivae.py --> found under /recbole/model/general_recommender/multivae.py
+    6. recvae.py --> found under /recbole/model/general_recommender/recvae.py
+
+## Model Config and Param Files
+We  provide the model settings and hyper parameter search space for each of the baseline models.
+These can be found under the /recbole/config and /recbole/params folder. 
+
+To run a model hyperparameter search we use the `run_hyper.py ` that takes 4 positional arguments:
+
+    EX :
+    python run_hyper.py \
+        --tool Hyperopt \  
+        --config_files recbole_tuning_files/config.yaml \
+        --params_file recbole_tuning_files/params.params \
+        --output_file tuning_results/douban_EASE_tune.result
+    
+    --tool simply tells recbole which hypertuning library to use, in our case we used Hyperopt. 
+    --params_file defines  the hyperparameter search space
+    --config_files defines the model and data configuration
+
+Note : Make sure to change the dataset field in the .yaml file to the name of your dataset. 

@@ -1,0 +1,57 @@
+dataset: ml-20m
+model: RecVAE
+use_gpu : True
+seed : 42
+
+USER_ID_FIELD: user_id
+ITEM_ID_FIELD: item_id
+RATING_FIELD: rating
+TIME_FIELD: timestamp
+
+train_neg_sample_args : {None}
+item_inter_num_interval: [3, .inf]
+
+
+
+# Evaluation
+metrics: ["Recall", "NDCG", "MRR","Hit","GiniIndex","Precision"]
+topk: [5,10,20,100]
+group_by: user
+valid_metric: recall@100
+eval_args:
+  split: {'RS': [0.8, 0.1, 0.1]}
+  group_by: user
+  order: RO
+  mode: full
+
+
+train_batch_size: 1024 
+eval_batch_size: 2048
+epochs: 150 #og paper
+
+
+tensorboard: True
+show_progress: True
+save_model: True
+save_dataset: True
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
