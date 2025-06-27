@@ -45,9 +45,17 @@ to prepare the data for further preprocessing.
 
 The repository contains two runnable scripts `preprocess.py` and `main.py`. The former is responsible for creating necessary data file from RecBole preprocessed datasets, while the latter is performing training and inference on the ∞-AE model. Always run `preprocess.py` before running `main.py`.
 
+### Datasets
+- [Douban raw data](https://www.kaggle.com/datasets/fengzhujoey/douban-datasetratingreviewside-information); after downloading run `python data/douban/preprocess_movies_only.py` on the downloaded files to filter out anything not movie related.
+- [Amazon2018 raw data ("Magazine Subscriptions")](https://www.kaggle.com/datasets/fengzhujoey/douban-datasetratingreviewside-information); follow the data preprocessing instuctions of RecBole.
+- [Netflix](https://www.kaggle.com/datasets/netflix-inc/netflix-prize-data); follow the data preprocessing instructions of RecBole.
+- Steam, ML-{1, 10, 20}M; follow the date instructions of RecBole.
+
+These setps will allow provide you with `.inter`, `.item` files.
+
 ### Preprocessing
 
-`preprocess.py` takes two positional arguments: dataset and generalization approach. Dataset argument is required, while if generalization argument is omitted the preprocessing script will default to weak generalization approach. For example to preprocess `steam` dataset using strong generalization we run
+After downloading the datasets, we further preprocess them. `preprocess.py` takes two positional arguments: dataset and generalization approach. Dataset argument is required, while if generalization argument is omitted the preprocessing script will default to weak generalization approach. For example to preprocess `steam` dataset using strong generalization we run
 ```
 python preprocess.py steam strong
 ```
@@ -59,6 +67,8 @@ is equivalent to
 ```
 python preprocess.py steam
 ```
+
+**Note**: In order to avoid overwriting the original item file, you should rename the original `<dataset_name>.item` you downloaded and preprocessed via RecBole file to `<dataset_name>_original.item`.
 
 ### Running the model
 
@@ -90,9 +100,6 @@ This will either perform a grid-search for optimal $\lambda$ parameter and run e
 ## Results
 
 We include experimental results and plots for the ablation study on MovieLens-20M and study into cold start on Steam and MovieLens-1M. Data files, scripts for creating figures and said figures can be found under `results`.
-
-
-
 
 # Baseline Reproducibility
 
