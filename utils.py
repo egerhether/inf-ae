@@ -98,3 +98,44 @@ def get_cores(train_sets, val_sets, test_sets):
     min_val = min(val_lengths)
     min_test = min(test_lengths)
     return min(min_train, min_val, min_test)
+
+def save_interaction_statistics(train_sets, val_sets, test_sets, dataset_name, seed, bin_width=2):
+    """
+    Generate a histogram of user interactions per data split in a single figure.
+    """ 
+    import os
+    import matplotlib.pyplot as plt
+    # Filter out empty sets and compute lengths
+    train_lengths = [len(s) for s in train_sets if len(s) > 0]
+    val_lengths = [len(s) for s in val_sets if len(s) > 0]
+    test_lengths = [len(s) for s in test_sets if len(s) > 0]
+    cores = get_cores(train_sets, val_sets, test_sets)
+
+    num_users = len(train_lengths) + len(val_lengths) + len(test_lengths)
+
+    # Combine all to determine global bin range
+    all_lengths = train_lengths + val_lengths + test_lengths
+    max_len = max(all_lengths)
+    min_len = min(all_lengths)
+
+    # Define bin edges based
+    bins = np.arange(min_len, max_len + bin_width, bin_width)
+
+    # Plot histograms
+    plt.hist(train_lengths, bins=bins, alpha=0.3, label='Train', color='blue')
+    plt.hist(val_lengths, bins=bins, alpha=0.3, label='Validation', color='green')
+    plt.hist(test_lengths, bins=bins, alpha=0.3, label='Test', color='red')
+
+    plt.title(f"{dataset_name.upper()} ({cores}-core) Interaction History Lengths (#users = {num_users})")
+    plt.xlabel(f"Number of Interactions (bin width = {bin_width})")
+    plt.ylabel("Number of Users")
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+
+    # Save plot
+    save_dir = f".split_plots/{dataset_name}/seed{seed}/"
+    save_path = os.path.join(save_dir, "interaction-hist.png")
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
+    plt.savefig(save_path)
+    plt.close()
